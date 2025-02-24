@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import site.bannabe.server.global.jwt.GenerateToken;
-import site.bannabe.server.global.jwt.TokenService;
+import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
 import site.bannabe.server.global.type.ApiResponse;
 import site.bannabe.server.global.utils.JsonUtils;
@@ -24,7 +24,7 @@ import site.bannabe.server.global.utils.JsonUtils;
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
-  private final TokenService tokenService;
+  private final JwtService jwtService;
   private final JsonUtils jsonUtils;
 
   @Override
@@ -40,7 +40,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     PrincipalDetails user = (PrincipalDetails) authentication.getPrincipal();
     String email = user.getUsername();
     String authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
-    return tokenService.createJWT(email, authorities);
+    return jwtService.createJWT(email, authorities);
   }
 
   private void writeResponse(HttpServletResponse response, ApiResponse<TokenResponse> apiResponse) throws IOException {

@@ -1,3 +1,6 @@
 spring:
   profiles:
     active: dev
+
+jwt:
+  secret: LZc+59NG5w7Md+ouAz0jFycU+BQ5YsSe4qWZX8P8IhtfR9WmWxfRu0u8pItQZkpD/JuO6H3UjjH9E+JdE8n2Ew==

@@ -1,5 +1,7 @@
 package site.bannabe.server.global.type;
 
+import java.util.Collections;
+
 public record ApiResponse<T>(
     Boolean success,
     String message,
@@ -14,8 +16,12 @@ public record ApiResponse<T>(
     return new ApiResponse<>(true, message, data);
   }
 
-  public static <T> ApiResponse<T> failure(String message) {
-    return new ApiResponse<>(false, message, null);
+  public static <T> ApiResponse<T> failure(String message, T data) {
+    return new ApiResponse<>(false, message, data);
+  }
+
+  public static ApiResponse<Object> failure(String message) {
+    return new ApiResponse<>(false, message, Collections.emptyMap());
   }
 
 }

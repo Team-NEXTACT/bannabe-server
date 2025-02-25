@@ -3,7 +3,6 @@ package site.bannabe.server.global.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
@@ -12,11 +11,13 @@ import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
+import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.utils.DateUtils;
 
 @Component
 @RequiredArgsConstructor
-public class JWTProvider {
+public class JwtProvider {
 
   private static final long ACCESS_TOKEN_EXPIRE_TIME = 30L; // 30분
   private static final long REFRESH_TOKEN_EXPIRE_TIME = 60L * 24 * 7; // 7일
@@ -41,16 +42,13 @@ public class JWTProvider {
     return new GenerateToken(accessToken, new RefreshToken(email, refreshToken));
   }
 
-  public JWTVerificationStatus verifyToken(String token) {
+  public void verifyToken(String token) {
     try {
       parser.parseSignedClaims(token);
-      return JWTVerificationStatus.VALID;
     } catch (ExpiredJwtException e) {
-      return JWTVerificationStatus.EXPIRED;
-    } catch (UnsupportedJwtException e) {
-      return JWTVerificationStatus.UNSUPPORTED;
+      throw new ExpiredTokenException();
     } catch (Exception e) {
-      return JWTVerificationStatus.INVALID;
+      throw new InvalidTokenException();
     }
   }
 

@@ -9,12 +9,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
-  private final JWTProvider jwtProvider;
+  private final JwtProvider jwtProvider;
 
   private final RefreshTokenService refreshTokenService;
 
@@ -34,11 +35,11 @@ public class JwtService {
     return jwtProvider.generateToken(email, authorities);
   }
 
-  public JWTVerificationStatus validateToken(String token) {
+  public void validateToken(String token) {
     if (Objects.isNull(token)) {
-      throw new RuntimeException("토큰이 존재하지 않습니다.");
+      throw new InvalidTokenException();
     }
-    return jwtProvider.verifyToken(token);
+    jwtProvider.verifyToken(token);
   }
 
   public void saveAuthentication(String token) {

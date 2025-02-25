@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.type.ApiResponse;
+import site.bannabe.server.global.type.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -18,7 +20,8 @@ public class GlobalExceptionHandler {
                                    .stream()
                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
                                    .toList();
-    return ResponseEntity.badRequest().body(ApiResponse.failure("입력값이 올바르지 않습니다.", errorMessages));
+    ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.VALIDATION_FAILED, errorMessages);
+    return ResponseEntity.badRequest().body(ApiResponse.failure(errorResponse));
   }
 
   @ExceptionHandler(Exception.class)

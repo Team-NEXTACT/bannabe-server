@@ -26,6 +26,10 @@ public class SecurityConfig {
 
     configurePermitAllEndPoints(http);
 
+    http.exceptionHandling(handlerConfigurer ->
+        handlerConfigurer.authenticationEntryPoint(securityFilterConfig.getAuthenticationEntryPoint())
+    );
+
     http.addFilterAt(securityFilterConfig.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(securityFilterConfig.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class);
 

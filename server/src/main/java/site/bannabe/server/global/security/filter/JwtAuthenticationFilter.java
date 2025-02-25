@@ -8,12 +8,15 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
-import site.bannabe.server.global.jwt.JWTVerificationStatus;
+import site.bannabe.server.global.exceptions.ErrorCode;
+import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
+import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
+import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.auth.EndPoints;
 
 @RequiredArgsConstructor
-public class JWTAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final String BEARER_PREFIX = "Bearer ";
   private final JwtService jwtService;
@@ -30,19 +33,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     String accessToken = authHeader.substring(BEARER_PREFIX.length());
 
-    JWTVerificationStatus verificationStatus = jwtService.validateToken(accessToken);
-
-    switch (verificationStatus) {
-      case VALID:
-        jwtService.saveAuthentication(accessToken);
-        filterChain.doFilter(request, response);
-        break;
-      case EXPIRED:
-        throw new RuntimeException("토큰이 만료되었습니다.");
-      case INVALID:
-        throw new RuntimeException("유효하지 않은 토큰입니다.");
-      default:
-        throw new RuntimeException("알 수 없는 오류가 발생했습니다.");
+    try {
+      jwtService.validateToken(accessToken);
+      jwtService.saveAuthentication(accessToken);
+      filterChain.doFilter(request, response);
+    } catch (ExpiredTokenException e) {
+      throw new BannabeAuthenticationException(ErrorCode.TOKEN_EXPIRED);
+    } catch (InvalidTokenException e) {
+      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
     }
 
   }

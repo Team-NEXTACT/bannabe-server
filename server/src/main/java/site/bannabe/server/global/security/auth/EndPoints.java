@@ -11,6 +11,7 @@ public class EndPoints {
   public static final List<EndPoint> PERMIT_ALL = List.of(
       new EndPoint(HttpMethod.POST, "/auth/register"),
       new EndPoint(HttpMethod.POST, "/auth/login"),
+      new EndPoint(HttpMethod.POST, "/auth/token/refresh"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
       new EndPoint(HttpMethod.GET, "/events/**")
   );

@@ -12,6 +12,7 @@ public enum ErrorCode {
   INVALID_CREDENTIALS("로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."),
   TOKEN_EXPIRED("토큰이 만료되었습니다."),
   INVALID_TOKEN("유효하지 않은 토큰입니다."),
+  INVALID_REFRESH_TOKEN("RefreshToken이 유효하지 않습니다."),
   UNAUTHORIZED("사용자 인증이 필요합니다."),
   FORBIDDEN("접근 권한이 없습니다."),
   BAD_REQUEST("잘못된 요청입니다."),

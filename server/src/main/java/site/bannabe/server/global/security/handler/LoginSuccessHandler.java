@@ -18,6 +18,7 @@ import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
 import site.bannabe.server.global.type.ApiResponse;
+import site.bannabe.server.global.type.TokenResponse;
 import site.bannabe.server.global.utils.JsonUtils;
 
 @Component
@@ -57,14 +58,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     if (Objects.nonNull(session)) {
       session.invalidate();
     }
-  }
-
-  private record TokenResponse(String accessToken, String refreshToken) {
-
-    public static TokenResponse create(GenerateToken generateToken) {
-      return new TokenResponse(generateToken.accessToken(), generateToken.refreshToken().getRefreshToken());
-    }
-
   }
 
 }

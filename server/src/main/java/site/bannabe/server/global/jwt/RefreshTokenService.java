@@ -14,6 +14,10 @@ public class RefreshTokenService {
     refreshTokenClient.save(refreshToken.getEmail(), refreshToken);
   }
 
+  public void updateRefreshToken(String email, RefreshToken refreshToken) {
+    refreshTokenClient.save(email, refreshToken);
+  }
+
   public RefreshToken findRefreshTokenBy(String email) {
     return refreshTokenClient.findBy(email);
   }

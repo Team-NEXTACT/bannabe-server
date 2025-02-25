@@ -9,7 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import site.bannabe.server.global.exceptions.ErrorCode;
+import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
+import site.bannabe.server.global.jwt.JwtProvider.TokenClaims;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +29,14 @@ public class JwtService {
   }
 
   public GenerateToken refreshJWT(String requestRefreshToken) {
-    String email = jwtProvider.getEmail(requestRefreshToken);
-    RefreshToken refreshToken = refreshTokenService.findRefreshTokenBy(email);
+    TokenClaims tokenClaims = jwtProvider.getTokenClaims(requestRefreshToken);
+    RefreshToken refreshToken = refreshTokenService.findRefreshTokenBy(tokenClaims.email());
     if (!requestRefreshToken.equals(refreshToken.getRefreshToken())) {
-      throw new RuntimeException("토큰이 일치하지 않습니다.");
+      throw new BannabeAuthenticationException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
-    String authorities = jwtProvider.getAuthorities(refreshToken.getRefreshToken());
-    return jwtProvider.generateToken(email, authorities);
+    GenerateToken newToken = jwtProvider.generateToken(tokenClaims.email(), tokenClaims.authorities());
+    refreshTokenService.updateRefreshToken(tokenClaims.email(), newToken.refreshToken());
+    return newToken;
   }
 
   public void validateToken(String token) {

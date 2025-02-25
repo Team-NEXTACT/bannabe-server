@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import site.bannabe.server.global.exceptions.ErrorCode;
+import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.type.ApiResponse;
 import site.bannabe.server.global.type.ErrorResponse;
 
@@ -14,13 +15,19 @@ import site.bannabe.server.global.type.ErrorResponse;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
     List<String> errorMessages = ex.getBindingResult()
                                    .getAllErrors()
                                    .stream()
                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
                                    .toList();
     ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.VALIDATION_FAILED, errorMessages);
+    return ResponseEntity.badRequest().body(ApiResponse.failure(errorResponse));
+  }
+
+  @ExceptionHandler(BannabeAuthenticationException.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleBannabeAuthenticationException(BannabeAuthenticationException ex) {
+    ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode());
     return ResponseEntity.badRequest().body(ApiResponse.failure(errorResponse));
   }
 

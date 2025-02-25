@@ -6,10 +6,12 @@ import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.filter.JSONUsernamePasswordAuthenticationFilter;
 import site.bannabe.server.global.security.filter.JwtAuthenticationFilter;
 import site.bannabe.server.global.security.handler.CustomAuthenticationEntryPoint;
+import site.bannabe.server.global.security.handler.CustomLogoutHandler;
+import site.bannabe.server.global.security.handler.CustomLogoutSuccessHandler;
 
 @Getter
 @Configuration
-public class SecurityFilterConfig {
+public class SecurityComponentProvider {
 
   private final JSONUsernamePasswordAuthenticationFilter jsonLoginFilter;
 
@@ -17,11 +19,18 @@ public class SecurityFilterConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-  public SecurityFilterConfig(JSONUsernamePasswordAuthenticationFilter jsonLoginFilter, JwtService jwtService,
-      CustomAuthenticationEntryPoint authenticationEntryPoint) {
+  private final CustomLogoutHandler logoutHandler;
+
+  private final CustomLogoutSuccessHandler logoutSuccessHandler;
+
+  public SecurityComponentProvider(JSONUsernamePasswordAuthenticationFilter jsonLoginFilter, JwtService jwtService,
+      CustomAuthenticationEntryPoint authenticationEntryPoint, CustomLogoutHandler logoutHandler,
+      CustomLogoutSuccessHandler logoutSuccessHandler) {
     this.jsonLoginFilter = jsonLoginFilter;
     this.authenticationEntryPoint = authenticationEntryPoint;
     this.jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
+    this.logoutHandler = logoutHandler;
+    this.logoutSuccessHandler = logoutSuccessHandler;
   }
 
 }

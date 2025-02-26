@@ -50,4 +50,8 @@ public class Users extends BaseEntity {
     password = newPassword;
   }
 
+  public void changeNickname(String newNickname) {
+    nickname = newNickname;
+  }
+
 }

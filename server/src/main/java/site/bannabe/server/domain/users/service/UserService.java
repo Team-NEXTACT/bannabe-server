@@ -3,6 +3,7 @@ package site.bannabe.server.domain.users.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bannabe.server.domain.users.controller.request.UserChangeNicknameRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
@@ -31,7 +32,20 @@ public class UserService {
 
     String newPassword = encryptUtils.encodePassword(passwordRequest.newPassword());
     findUser.changePassword(newPassword);
-    userRepository.save(findUser);
+  }
+
+  @Transactional
+  public void changeNickname(String email, UserChangeNicknameRequest nicknameRequest) {
+    if (userRepository.existsByNickname(nicknameRequest.nickname())) {
+      throw new BannabeServiceException(ErrorCode.NICKNAME_EXISTS);
+    }
+
+    userRepository.findByEmail(email).ifPresentOrElse(
+        user -> user.changeNickname(nicknameRequest.nickname()),
+        () -> {
+          throw new BannabeServiceException(ErrorCode.USER_NOT_FOUND);
+        }
+    );
   }
 
   private boolean isNotEqualsNewPassword(String newPassword, String newPasswordConfirm) {

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import site.bannabe.server.domain.users.controller.request.UserChangeNicknameRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
 import site.bannabe.server.domain.users.service.UserService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
@@ -32,8 +33,10 @@ public class UserController {
   }
 
   @PatchMapping("/me/nickname")
-  public void changeNickname() {
-
+  public void changeNickname(@RequestBody @Valid UserChangeNicknameRequest changeNicknameRequest,
+      @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String email = principalDetails.getUsername();
+    userService.changeNickname(email, changeNicknameRequest);
   }
 
 }

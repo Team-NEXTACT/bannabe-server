@@ -6,15 +6,15 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bannabe
-    username: server
-    password: 1234
+    url: ENC(69cv1Uu8rBNTp60uzakfw3Zz7LU3/ihcvh/pcZWrkwNENYPAojOuSaHzUx4lBNEM55T4hGreeF3mVldb83ZyL0A23e+OdTcLMdTcjh0rdYM=)
+    username: ENC(7uVzMKB0XnmduBGjrOPN6rx+fGoD0RvaTE3Enn6btUyTYFwl10KcXM6pJIScKSeF)
+    password: ENC(AcUDSVHSabisAVCsZ2V1uVukrRROX/Hh8zZE1b16MYVX1XhJyX4mWJ4I1vuRJ1rF)
 
   data:
     redis:
-      host: localhost
+      host: ENC(2YTkCjuiJirGo0kpZ0dXxP8iS+rRyPDndYUTE9pGkT5ex1c1ZtWbTjbo8gkEjxp8)
       port: 6379
-      password: 1234
+      password: ENC(GzQT6Zy5KCoYPaxcR/+H1Z1Plhbn4UzrnYH8BRgQAMdlT2SD6Ebzyi5TT84fA7gX)
 
   jpa:
     hibernate:

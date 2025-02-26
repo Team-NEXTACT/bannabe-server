@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -26,8 +27,13 @@ public class CustomAuthenticationEntryPoint implements org.springframework.secur
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
       throws IOException {
     ErrorCode errorCode;
+    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    
     if (authException instanceof BannabeAuthenticationException bannabeAuthenticationException) {
       errorCode = bannabeAuthenticationException.getErrorCode();
+      response.setStatus(errorCode.getHttpStatus().value());
     } else {
       errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
       log.error("Authentication EntryPoint Error!: {} \n Request URI: {}", authException.getMessage(), request.getRequestURI(),
@@ -37,8 +43,6 @@ public class CustomAuthenticationEntryPoint implements org.springframework.secur
     ErrorResponse errorResponse = ErrorResponse.of(errorCode);
     ApiResponse<ErrorResponse> failure = ApiResponse.failure(errorResponse);
     String body = objectMapper.writeValueAsString(failure);
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.getWriter().write(body);
     response.getWriter().flush();
   }

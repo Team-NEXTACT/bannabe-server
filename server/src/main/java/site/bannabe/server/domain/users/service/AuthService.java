@@ -1,6 +1,7 @@
 package site.bannabe.server.domain.users.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bannabe.server.domain.users.controller.request.UserRegisterRequest;
@@ -25,6 +26,9 @@ public class AuthService {
 
   private final JwtService jwtService;
 
+  @Value("${bannabe.default-profile-image}")
+  private String defaultProfileImage;
+
   @Transactional
   public void registerUser(UserRegisterRequest registerRequest) {
     Boolean isDuplicateEmail = userRepository.existsByEmail(registerRequest.email());
@@ -34,7 +38,7 @@ public class AuthService {
 
     String encodedPassword = encryptUtils.encodePassword(registerRequest.password());
 
-    Users user = Users.createUser(registerRequest.email(), encodedPassword);
+    Users user = Users.createUser(registerRequest.email(), encodedPassword, defaultProfileImage);
 
     userRepository.save(user);
   }

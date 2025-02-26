@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import site.bannabe.server.global.converter.ProviderTypeConverter;
 import site.bannabe.server.global.converter.RoleConverter;
 import site.bannabe.server.global.type.BaseEntity;
+import site.bannabe.server.global.utils.RandomNicknameGenerator;
 
 @Entity
 @Getter
@@ -23,7 +24,8 @@ public class Users extends BaseEntity {
 
   private String profileImage;
 
-  private String nickname;
+  @Default
+  private String nickname = RandomNicknameGenerator.generateRandomNickname();
 
   @Default
   @Convert(converter = RoleConverter.class)
@@ -42,8 +44,8 @@ public class Users extends BaseEntity {
     this.providerType = providerType;
   }
 
-  public static Users createUser(String email, String password) {
-    return Users.builder().email(email).password(password).build();
+  public static Users createUser(String email, String password, String profileImage) {
+    return Users.builder().email(email).password(password).profileImage(profileImage).build();
   }
 
   public void changePassword(String newPassword) {
@@ -52,6 +54,10 @@ public class Users extends BaseEntity {
 
   public void changeNickname(String newNickname) {
     nickname = newNickname;
+  }
+
+  public void changeProfileImage(String newProfileImage) {
+    profileImage = newProfileImage;
   }
 
 }

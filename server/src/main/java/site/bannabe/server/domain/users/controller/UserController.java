@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import site.bannabe.server.domain.users.controller.request.UserChangeNicknameRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
+import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
 import site.bannabe.server.domain.users.service.UserService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
@@ -31,8 +32,10 @@ public class UserController {
   }
 
   @PatchMapping("/me/profile-image")
-  public void changeProfileImage() {
-
+  public void changeProfileImage(@RequestBody UserChangeProfileImageRequest changeProfileImageRequest,
+      @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String email = principalDetails.getUsername();
+    userService.changeProfileImage(email, changeProfileImageRequest);
   }
 
   @PatchMapping("/me/nickname")

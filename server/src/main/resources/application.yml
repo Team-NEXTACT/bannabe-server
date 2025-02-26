@@ -7,7 +7,7 @@ jasypt:
     bean: jasyptEncryptor
 
 jwt:
-  secret: ENC(my/tqsn3UFtBynfEk8NUgkFbm0KypK4tavGdtDgRjp2DJ1Gh29LtGDZ7hVyW8u9DwQv8HaOyAc5w1c1ZLhUxT+R0S7eYkCTL4nwDKIQr73XWc2G1nADFMLhqeoBJV6JUTZtX9HP+bsnUgLZE5+LQ7n0cvRZXOKknHb4t1CxhLXU=)
+  secret: ENC(Td1Bn+vflHJE40VjINaGpgisHP0MBdY5oQ+aZdJy9uWLNlQinfTG983inwWWKBP5lfRdmVIz768CU6DIt7oFHJWFP8r1p3JMHhkwb1UhaXriwRmrDRNZ+u3cqnYRvH3LqEY1hI7ANQlIU6Wxt5mH8vPsagzBVUPW6pcAThVMyDY=)
 
 encrypt:
   password: ${JASYPT_PASSWORD}

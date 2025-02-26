@@ -3,18 +3,17 @@ spring:
     activate:
       on-profile: dev
 
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(69cv1Uu8rBNTp60uzakfw3Zz7LU3/ihcvh/pcZWrkwNENYPAojOuSaHzUx4lBNEM55T4hGreeF3mVldb83ZyL0A23e+OdTcLMdTcjh0rdYM=)
-    username: ENC(7uVzMKB0XnmduBGjrOPN6rx+fGoD0RvaTE3Enn6btUyTYFwl10KcXM6pJIScKSeF)
-    password: ENC(AcUDSVHSabisAVCsZ2V1uVukrRROX/Hh8zZE1b16MYVX1XhJyX4mWJ4I1vuRJ1rF)
+    url: ENC(MAXxF3ccE1j/m7JgCjUpPLSDERTDwmTXpIkAecq85AuldTQYjhLlvDimmOY9S21fy5R/0ERB+7RIp+i8nVVdW7rn5j4zrCOkbgxG2Il5L9E=)
+    username: ENC(UtEzThzzxjsEJ+U40z+fgkRMWPTxin5TTPSJ46TVGCxELnW8CDCML29dMu6Or6Nm)
+    password: ENC(VTttEwjWGUgfx5gNrao1acbub4n6ScTVKsXrBLYr1Ye8DXpzN3tVxDS9p7fWqXJu)
 
   data:
     redis:
-      host: ENC(2YTkCjuiJirGo0kpZ0dXxP8iS+rRyPDndYUTE9pGkT5ex1c1ZtWbTjbo8gkEjxp8)
+      host: ENC(rA6YdbKBrldfnv5g0cJ6gAP2wP0jEqvc/BKesPXs4yFCLPRGl3/z5Z3NlkhYhs19)
       port: 6379
-      password: ENC(GzQT6Zy5KCoYPaxcR/+H1Z1Plhbn4UzrnYH8BRgQAMdlT2SD6Ebzyi5TT84fA7gX)
+      password: ENC(AxV2lvof5MlRCdqRoosxFF9F+XNm3dFSQ3Jh8jpd6MxQ7m/psPD7A6uLpypgbMLs)
 
   jpa:
     hibernate:
@@ -26,3 +25,13 @@ spring:
         highlight_sql: true
     open-in-view: false
     defer-datasource-initialization: true
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: ENC(rCp++HbH119YE4QzRIoPOonW6j+LBb4pBt/vXfhL8SDi2AKq0hHvP52u/K23qY6evmDzKnw34K9TPEAOBZRtqA==)
+      credentials:
+        access-key: ENC(/aDHbQDVYIm4zT9BEODxZPf6zg59qRzBmdpwL4QVF/OOFTJ0kRBH0yoIGCKefn6Ta7djOZt0YloPQmUbgZwMtQ==)
+        secret-key: ENC(ELwfo1GKsusD3LJpwPPUZfI0tGtwMHGAn+CnUGhzPNOw74r7zSHKZwI605spkm/NfhIdKe5HKeI68hRKQVpC67wM3lhZ8t9rZa8WuOEK1VE=)

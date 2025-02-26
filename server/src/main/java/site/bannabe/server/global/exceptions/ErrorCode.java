@@ -22,7 +22,9 @@ public enum ErrorCode {
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원정보가 존재하지 않습니다."),
   NEW_PASSWORD_NOT_EQUALS(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),
   PASSWORD_NOT_MATCH(HttpStatus.CONFLICT, "비밀번호가 일치하지 않습니다."),
-  NICKNAME_EXISTS(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다.");
+  NICKNAME_EXISTS(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
+  REUSED_PASSWORD(HttpStatus.CONFLICT, "동일한 비밀번호로 변경할 수 없습니다."),
+  ;
 
   private final HttpStatus httpStatus;
   private final String message;

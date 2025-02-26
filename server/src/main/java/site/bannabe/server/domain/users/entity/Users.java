@@ -46,4 +46,8 @@ public class Users extends BaseEntity {
     return Users.builder().email(email).password(password).build();
   }
 
+  public void changePassword(String newPassword) {
+    password = newPassword;
+  }
+
 }

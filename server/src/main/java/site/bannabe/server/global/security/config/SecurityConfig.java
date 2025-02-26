@@ -31,7 +31,7 @@ public class SecurityConfig {
         .addFilterAt(securityProvider.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(securityProvider.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class)
         .logout(logoutConfigurer ->
-            logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout", HttpMethod.POST.name()))
+            logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout", HttpMethod.POST.name()))
                             .addLogoutHandler(securityProvider.getLogoutHandler())
                             .logoutSuccessHandler(securityProvider.getLogoutSuccessHandler()))
         .exceptionHandling(handlerConfigurer ->

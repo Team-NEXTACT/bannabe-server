@@ -9,6 +9,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class MailService {
       mimeMessageHelper.setText(htmlContent, true);
       mailSender.send(mimeMessage);
     } catch (MessagingException e) {
-      throw new RuntimeException(e);
+      throw new BannabeServiceException(ErrorCode.MAIL_SEND_FAILED);
     }
 
   }

@@ -18,19 +18,19 @@ public class PasswordService {
 
   public void validateNewPassword(String newPassword, String newPasswordConfirm) {
     if (!newPassword.equals(newPasswordConfirm)) {
-      throw new BannabeServiceException(ErrorCode.NEW_PASSWORD_NOT_EQUALS);
+      throw new BannabeServiceException(ErrorCode.NEW_PASSWORD_MISMATCH);
     }
   }
 
   public void validateReusedPassword(String newPassword, String currentPassword) {
     if (bCryptPasswordEncoder.matches(newPassword, currentPassword)) {
-      throw new BannabeServiceException(ErrorCode.REUSED_PASSWORD);
+      throw new BannabeServiceException(ErrorCode.DUPLICATE_PASSWORD);
     }
   }
 
   public void validateCurrentPassword(String currentPassword, String encodedPassword) {
     if (!bCryptPasswordEncoder.matches(currentPassword, encodedPassword)) {
-      throw new BannabeServiceException(ErrorCode.PASSWORD_NOT_MATCH);
+      throw new BannabeServiceException(ErrorCode.PASSWORD_MISMATCH);
     }
   }
 

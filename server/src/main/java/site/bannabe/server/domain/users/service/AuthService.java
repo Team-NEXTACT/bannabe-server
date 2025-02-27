@@ -67,7 +67,7 @@ public class AuthService {
     AuthCode savedAuthCode = authCodeService.findAuthCode(email);
 
     if (savedAuthCode.isVerified()) {
-      throw new BannabeServiceException(ErrorCode.ALREADY_VERIFIED);
+      throw new BannabeServiceException(ErrorCode.AUTH_CODE_ALREADY_VERIFIED);
     }
 
     validateAuthCode(authCode, savedAuthCode.getAuthCode());
@@ -97,7 +97,7 @@ public class AuthService {
 
   private void validateAuthCode(String authCode, String savedAuthCode) {
     if (!authCode.equals(savedAuthCode)) {
-      throw new BannabeServiceException(ErrorCode.INVALID_AUTH_CODE);
+      throw new BannabeServiceException(ErrorCode.AUTH_CODE_MISMATCH);
     }
   }
 

@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.type.AuthCode;
 
 @Component
@@ -16,7 +18,6 @@ public class AuthCodeClient implements RedisClient<AuthCode> {
 
   private final RedisTemplate<String, AuthCode> redis;
 
-
   @Override
   public void save(String key, AuthCode value) {
     key = generateKey(key);
@@ -26,7 +27,7 @@ public class AuthCodeClient implements RedisClient<AuthCode> {
   @Override
   public AuthCode findBy(String key) {
     AuthCode value = redis.opsForValue().get(generateKey(key));
-    return Optional.ofNullable(value).orElseThrow(RuntimeException::new);
+    return Optional.ofNullable(value).orElseThrow(() -> new BannabeServiceException(ErrorCode.AUTH_CODE_NOT_FOUND));
   }
 
   @Override

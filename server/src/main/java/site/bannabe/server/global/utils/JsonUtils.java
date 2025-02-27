@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +19,7 @@ public class JsonUtils {
     try {
       return objectMapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("추후 예외처리 예정");
+      throw new BannabeServiceException(ErrorCode.JSON_SERIALIZATION_ERROR);
     }
   }
 
@@ -25,7 +27,7 @@ public class JsonUtils {
     try {
       return objectMapper.readValue(inputStream, clazz);
     } catch (IOException e) {
-      throw new RuntimeException("추후 예외처리 예정");
+      throw new BannabeServiceException(ErrorCode.JSON_DESERIALIZATION_ERROR);
     }
   }
 

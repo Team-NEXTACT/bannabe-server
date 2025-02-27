@@ -47,7 +47,7 @@ public class UserService {
   @Transactional
   public void changeNickname(String email, UserChangeNicknameRequest nicknameRequest) {
     if (userRepository.existsByNickname(nicknameRequest.nickname())) {
-      throw new BannabeServiceException(ErrorCode.NICKNAME_EXISTS);
+      throw new BannabeServiceException(ErrorCode.DUPLICATE_NICKNAME);
     }
 
     userRepository.findByEmail(email).ifPresentOrElse(

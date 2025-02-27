@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -30,21 +29,22 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
       throws IOException {
     ErrorCode errorCode;
-    response.setStatus(HttpStatus.BAD_REQUEST.value());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
     if (exception instanceof BannabeAuthenticationException authException) {
       errorCode = authException.getErrorCode();
       response.setStatus(errorCode.getHttpStatus().value());
     } else if (exception instanceof BadCredentialsException) {
-      errorCode = ErrorCode.INVALID_CREDENTIALS;
+      errorCode = ErrorCode.INVALID_LOGIN_CREDENTIALS;
     } else if (exception instanceof UsernameNotFoundException) {
       errorCode = ErrorCode.USER_NOT_FOUND;
     } else {
       errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
       log.error("AuthenticationFailure Error! ReqeustURI: {}", request.getRequestURI(), exception);
     }
+
+    response.setStatus(errorCode.getHttpStatus().value());
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
     ApiResponse<ErrorResponse> apiResponse = ApiResponse.failure(ErrorResponse.of(errorCode));
     String body = jsonUtils.serializedObjectToJson(apiResponse);

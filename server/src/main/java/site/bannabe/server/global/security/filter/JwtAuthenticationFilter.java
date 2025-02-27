@@ -8,10 +8,6 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
-import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
-import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
-import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.auth.EndPoints;
 
@@ -33,16 +29,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     String accessToken = authHeader.substring(BEARER_PREFIX.length());
 
-    try {
-      jwtService.validateToken(accessToken);
-      jwtService.saveAuthentication(accessToken);
-      filterChain.doFilter(request, response);
-    } catch (ExpiredTokenException e) {
-      throw new BannabeAuthenticationException(ErrorCode.TOKEN_EXPIRED);
-    } catch (InvalidTokenException e) {
-      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
-    }
-
+    jwtService.validateToken(accessToken);
+    jwtService.saveAuthentication(accessToken);
+    filterChain.doFilter(request, response);
   }
 
   @Override

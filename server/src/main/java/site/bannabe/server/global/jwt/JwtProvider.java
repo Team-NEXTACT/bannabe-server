@@ -7,14 +7,13 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Objects;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
-import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
-import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.type.RefreshToken;
 import site.bannabe.server.global.utils.DateUtils;
 
@@ -46,12 +45,15 @@ public class JwtProvider {
   }
 
   public void verifyToken(String token) {
+    if (Objects.isNull(token)) {
+      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
+    }
     try {
       parser.parseSignedClaims(token);
     } catch (ExpiredJwtException e) {
-      throw new ExpiredTokenException();
+      throw new BannabeAuthenticationException(ErrorCode.TOKEN_EXPIRED);
     } catch (Exception e) {
-      throw new InvalidTokenException();
+      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
     }
   }
 
@@ -61,7 +63,7 @@ public class JwtProvider {
     } catch (ExpiredJwtException e) {
       return e.getClaims().getSubject();
     } catch (Exception e) {
-      throw new RuntimeException("유효하지 않은 JWT");
+      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
     }
   }
 

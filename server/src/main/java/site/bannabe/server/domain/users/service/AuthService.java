@@ -10,9 +10,6 @@ import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
-import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
-import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.mail.MailService;
@@ -48,13 +45,7 @@ public class AuthService {
   }
 
   public TokenResponse refreshToken(String refreshToken) {
-    try {
-      jwtService.validateToken(refreshToken);
-    } catch (ExpiredTokenException e) {
-      throw new BannabeAuthenticationException(ErrorCode.TOKEN_EXPIRED);
-    } catch (InvalidTokenException e) {
-      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
-    }
+    jwtService.validateToken(refreshToken);
     GenerateToken generateToken = jwtService.refreshJWT(refreshToken);
     return TokenResponse.create(generateToken);
   }

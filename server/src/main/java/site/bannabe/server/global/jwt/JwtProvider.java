@@ -15,6 +15,7 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.auth.ExpiredTokenException;
 import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
+import site.bannabe.server.global.type.RefreshToken;
 import site.bannabe.server.global.utils.DateUtils;
 
 @Component

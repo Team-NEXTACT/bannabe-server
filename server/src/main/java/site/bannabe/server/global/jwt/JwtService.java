@@ -14,6 +14,7 @@ import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException
 import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.JwtProvider.TokenClaims;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
+import site.bannabe.server.global.type.RefreshToken;
 
 @Service
 @RequiredArgsConstructor

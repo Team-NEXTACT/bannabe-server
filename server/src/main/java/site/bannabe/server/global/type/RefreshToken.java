@@ -1,4 +1,4 @@
-package site.bannabe.server.global.jwt;
+package site.bannabe.server.global.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

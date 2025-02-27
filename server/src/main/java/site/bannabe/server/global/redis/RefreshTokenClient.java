@@ -5,7 +5,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import site.bannabe.server.global.jwt.RefreshToken;
+import site.bannabe.server.global.type.RefreshToken;
 
 @Component
 @RequiredArgsConstructor

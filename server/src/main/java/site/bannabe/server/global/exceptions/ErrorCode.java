@@ -24,7 +24,9 @@ public enum ErrorCode {
   PASSWORD_NOT_MATCH(HttpStatus.CONFLICT, "비밀번호가 일치하지 않습니다."),
   NICKNAME_EXISTS(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
   REUSED_PASSWORD(HttpStatus.CONFLICT, "동일한 비밀번호로 변경할 수 없습니다."),
-  INVALID_S3_URL_FORMAT(HttpStatus.BAD_REQUEST, "S3 URL 형식이 올바르지 않습니다.");
+  INVALID_S3_URL_FORMAT(HttpStatus.BAD_REQUEST, "S3 URL 형식이 올바르지 않습니다."),
+  INVALID_AUTH_CODE(HttpStatus.CONFLICT, "인증 코드가 일치하지 않습니다."),
+  ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 인증된 코드입니다.");
 
   private final HttpStatus httpStatus;
   private final String message;

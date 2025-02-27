@@ -12,6 +12,9 @@ public class EndPoints {
       new EndPoint(HttpMethod.POST, "/v1/auth/register"),
       new EndPoint(HttpMethod.POST, "/v1/auth/login"),
       new EndPoint(HttpMethod.POST, "/v1/auth/token/refresh"),
+      new EndPoint(HttpMethod.POST, "/v1/auth/send-code"),
+      new EndPoint(HttpMethod.POST, "/v1/auth/verify-code"),
+      new EndPoint(HttpMethod.PUT, "/v1/auth/reset-password"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
       new EndPoint(HttpMethod.GET, "/events/**")
   );

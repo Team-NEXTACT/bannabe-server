@@ -30,9 +30,13 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
       throws IOException {
     ErrorCode errorCode;
+    response.setStatus(HttpStatus.BAD_REQUEST.value());
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
     if (exception instanceof BannabeAuthenticationException authException) {
       errorCode = authException.getErrorCode();
+      response.setStatus(errorCode.getHttpStatus().value());
     } else if (exception instanceof BadCredentialsException) {
       errorCode = ErrorCode.INVALID_CREDENTIALS;
     } else if (exception instanceof UsernameNotFoundException) {
@@ -41,9 +45,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
       errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
       log.error("AuthenticationFailure Error! ReqeustURI: {}", request.getRequestURI(), exception);
     }
-    response.setStatus(HttpStatus.BAD_REQUEST.value());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
     ApiResponse<ErrorResponse> apiResponse = ApiResponse.failure(ErrorResponse.of(errorCode));
     String body = jsonUtils.serializedObjectToJson(apiResponse);

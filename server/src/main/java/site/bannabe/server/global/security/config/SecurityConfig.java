@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -24,22 +25,19 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .cors(AbstractHttpConfigurer::disable);
+        .cors(AbstractHttpConfigurer::disable)
+        .sessionManagement(sessionConfigurer ->
+            sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterAt(securityProvider.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(securityProvider.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class)
+        .logout(logoutConfigurer ->
+            logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout", HttpMethod.POST.name()))
+                            .addLogoutHandler(securityProvider.getLogoutHandler())
+                            .logoutSuccessHandler(securityProvider.getLogoutSuccessHandler()))
+        .exceptionHandling(handlerConfigurer ->
+            handlerConfigurer.authenticationEntryPoint(securityProvider.getAuthenticationEntryPoint()));
 
     configurePermitAllEndPoints(http);
-
-    http.exceptionHandling(handlerConfigurer ->
-        handlerConfigurer.authenticationEntryPoint(securityProvider.getAuthenticationEntryPoint())
-    );
-
-    http.logout(logoutConfigurer ->
-        logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/auth/logout", HttpMethod.POST.name()))
-                        .addLogoutHandler(securityProvider.getLogoutHandler())
-                        .logoutSuccessHandler(securityProvider.getLogoutSuccessHandler())
-    );
-
-    http.addFilterAt(securityProvider.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class);
-    http.addFilterBefore(securityProvider.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

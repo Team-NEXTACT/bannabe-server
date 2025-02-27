@@ -2,5 +2,12 @@ spring:
   profiles:
     active: dev
 
+jasypt:
+  encryptor:
+    bean: jasyptEncryptor
+
 jwt:
-  secret: LZc+59NG5w7Md+ouAz0jFycU+BQ5YsSe4qWZX8P8IhtfR9WmWxfRu0u8pItQZkpD/JuO6H3UjjH9E+JdE8n2Ew==
+  secret: ENC(Td1Bn+vflHJE40VjINaGpgisHP0MBdY5oQ+aZdJy9uWLNlQinfTG983inwWWKBP5lfRdmVIz768CU6DIt7oFHJWFP8r1p3JMHhkwb1UhaXriwRmrDRNZ+u3cqnYRvH3LqEY1hI7ANQlIU6Wxt5mH8vPsagzBVUPW6pcAThVMyDY=)
+
+encrypt:
+  password: ${JASYPT_PASSWORD}

@@ -12,7 +12,7 @@ import site.bannabe.server.domain.users.service.AuthService;
 import site.bannabe.server.global.type.TokenResponse;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

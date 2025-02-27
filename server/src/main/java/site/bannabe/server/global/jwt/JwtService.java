@@ -13,6 +13,7 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.JwtProvider.TokenClaims;
+import site.bannabe.server.global.security.auth.PrincipalDetails;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +51,8 @@ public class JwtService {
     String email = jwtProvider.getEmail(token);
     String role = jwtProvider.getAuthorities(token);
     List<SimpleGrantedAuthority> authorities = Arrays.stream(role.split(",")).map(SimpleGrantedAuthority::new).toList();
-    Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
+    PrincipalDetails user = PrincipalDetails.create(email, authorities);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 

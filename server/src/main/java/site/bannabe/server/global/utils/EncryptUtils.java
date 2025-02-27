@@ -13,5 +13,9 @@ public class EncryptUtils {
   public String encodePassword(String password) {
     return passwordEncoder.encode(password);
   }
-  
+
+  public boolean isMatchPassword(String rawPassword, String encodedPassword) {
+    return passwordEncoder.matches(rawPassword, encodedPassword);
+  }
+
 }

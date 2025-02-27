@@ -23,7 +23,7 @@ import site.bannabe.server.global.utils.JsonUtils;
 @Component
 public class JSONUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-  private static final String LOGIN_URL = "/auth/login";
+  private static final String LOGIN_URL = "/v1/auth/login";
 
   private static final AntPathRequestMatcher LOGIN_REQUEST_MATCHER = new AntPathRequestMatcher(LOGIN_URL, HttpMethod.POST.name());
 

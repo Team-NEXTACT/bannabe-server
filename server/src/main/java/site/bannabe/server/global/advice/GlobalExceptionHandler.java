@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BannabeAuthenticationException.class)
   public ResponseEntity<ApiResponse<ErrorResponse>> handleBannabeAuthenticationException(BannabeAuthenticationException ex) {
     ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode());
-    return ResponseEntity.badRequest().body(ApiResponse.failure(errorResponse));
+    return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(ApiResponse.failure(errorResponse));
   }
 
   @ExceptionHandler(Exception.class)

@@ -6,8 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
+import site.bannabe.server.global.exceptions.BannabeException;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.type.ApiResponse;
 import site.bannabe.server.global.type.ErrorResponse;
 
@@ -27,13 +29,22 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BannabeAuthenticationException.class)
   public ResponseEntity<ApiResponse<ErrorResponse>> handleBannabeAuthenticationException(BannabeAuthenticationException ex) {
-    ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode());
-    return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(ApiResponse.failure(errorResponse));
+    return buildErrorResponse(ex);
+  }
+
+  @ExceptionHandler(BannabeServiceException.class)
+  public ResponseEntity<ApiResponse<ErrorResponse>> handleBannabeServiceException(BannabeServiceException ex) {
+    return buildErrorResponse(ex);
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<?>> handleException(Exception ex) {
     return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
+  }
+
+  private ResponseEntity<ApiResponse<ErrorResponse>> buildErrorResponse(BannabeException ex) {
+    ErrorResponse errorResponse = ErrorResponse.of(ex.getErrorCode());
+    return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(ApiResponse.failure(errorResponse));
   }
 
 }

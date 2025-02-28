@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import site.bannabe.server.global.security.auth.EndPoints;
 import site.bannabe.server.global.security.filter.JSONUsernamePasswordAuthenticationFilter;
+import site.bannabe.server.global.security.filter.JwtAuthenticationFilter;
 import site.bannabe.server.global.type.EndPoint;
 
 @Configuration
@@ -30,6 +31,7 @@ public class SecurityConfig {
             sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAt(securityProvider.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(securityProvider.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(securityProvider.getExceptionHandleFilter(), JwtAuthenticationFilter.class)
         .logout(logoutConfigurer ->
             logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout", HttpMethod.POST.name()))
                             .addLogoutHandler(securityProvider.getLogoutHandler())

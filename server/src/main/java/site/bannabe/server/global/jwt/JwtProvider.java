@@ -12,8 +12,8 @@ import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.type.RefreshToken;
 import site.bannabe.server.global.utils.DateUtils;
 

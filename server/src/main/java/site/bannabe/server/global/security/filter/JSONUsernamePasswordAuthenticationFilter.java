@@ -14,8 +14,8 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
 import site.bannabe.server.global.security.handler.LoginFailureHandler;
 import site.bannabe.server.global.security.handler.LoginSuccessHandler;
 import site.bannabe.server.global.utils.JsonUtils;

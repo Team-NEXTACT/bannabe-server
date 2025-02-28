@@ -3,27 +3,23 @@ package site.bannabe.server.global.security.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
+import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
-import site.bannabe.server.global.type.ApiResponse;
-import site.bannabe.server.global.type.ErrorResponse;
-import site.bannabe.server.global.utils.JsonUtils;
+import site.bannabe.server.global.utils.ErrorResponseWriter;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
-  private final JsonUtils jsonUtils;
+  private final ErrorResponseWriter errorResponseWriter;
 
   @Override
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
@@ -32,7 +28,6 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     if (exception instanceof BannabeAuthenticationException authException) {
       errorCode = authException.getErrorCode();
-      response.setStatus(errorCode.getHttpStatus().value());
     } else if (exception instanceof BadCredentialsException) {
       errorCode = ErrorCode.INVALID_LOGIN_CREDENTIALS;
     } else if (exception instanceof UsernameNotFoundException) {
@@ -42,14 +37,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
       log.error("AuthenticationFailure Error! ReqeustURI: {}", request.getRequestURI(), exception);
     }
 
-    response.setStatus(errorCode.getHttpStatus().value());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-
-    ApiResponse<ErrorResponse> apiResponse = ApiResponse.failure(ErrorResponse.of(errorCode));
-    String body = jsonUtils.serializedObjectToJson(apiResponse);
-    response.getWriter().write(body);
-    response.getWriter().flush();
+    errorResponseWriter.writeErrorResponse(response, errorCode);
   }
 
 }

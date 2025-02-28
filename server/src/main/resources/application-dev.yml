@@ -5,15 +5,15 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(MAXxF3ccE1j/m7JgCjUpPLSDERTDwmTXpIkAecq85AuldTQYjhLlvDimmOY9S21fy5R/0ERB+7RIp+i8nVVdW7rn5j4zrCOkbgxG2Il5L9E=)
-    username: ENC(UtEzThzzxjsEJ+U40z+fgkRMWPTxin5TTPSJ46TVGCxELnW8CDCML29dMu6Or6Nm)
-    password: ENC(VTttEwjWGUgfx5gNrao1acbub4n6ScTVKsXrBLYr1Ye8DXpzN3tVxDS9p7fWqXJu)
+    url: jdbc:mysql://mysql:3306/bannabe
+    username: server
+    password: 1234
 
   data:
     redis:
-      host: ENC(rA6YdbKBrldfnv5g0cJ6gAP2wP0jEqvc/BKesPXs4yFCLPRGl3/z5Z3NlkhYhs19)
+      host: redis
       port: 6379
-      password: ENC(AxV2lvof5MlRCdqRoosxFF9F+XNm3dFSQ3Jh8jpd6MxQ7m/psPD7A6uLpypgbMLs)
+      password: 1234
 
   jpa:
     hibernate:
@@ -23,32 +23,4 @@ spring:
         show_sql: true
         format_sql: true
         highlight_sql: true
-    open-in-view: false
-    defer-datasource-initialization: true
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ENC(QL9P55yeqSGSRPeFFsm8HGqiZyTEzd/XWrOx0LrHmV8vsbKwI9ruvBd665et6qQMF9irqA9941qqeOBlzN+LeQ==)
-    password: ENC(wdUvFe2rxidFUvpBc2Nv/i8gu3dY1fCSMoUTSLYedrrdQwN13ffsEwp2N7IuMNUJa3ZcNqtKdWvBpKmGDMC68g==)
-    properties:
-      mail:
-        smtp:
-          debug: true
-          auth: true
-          connectiontimeout: 5000
-          starttls:
-            enable: true
-  
-  cloud:
-    aws:
-      region:
-        static: ap-northeast-2
-      s3:
-        bucket: ENC(rCp++HbH119YE4QzRIoPOonW6j+LBb4pBt/vXfhL8SDi2AKq0hHvP52u/K23qY6evmDzKnw34K9TPEAOBZRtqA==)
-      credentials:
-        access-key: ENC(/aDHbQDVYIm4zT9BEODxZPf6zg59qRzBmdpwL4QVF/OOFTJ0kRBH0yoIGCKefn6Ta7djOZt0YloPQmUbgZwMtQ==)
-        secret-key: ENC(ELwfo1GKsusD3LJpwPPUZfI0tGtwMHGAn+CnUGhzPNOw74r7zSHKZwI605spkm/NfhIdKe5HKeI68hRKQVpC67wM3lhZ8t9rZa8WuOEK1VE=)
-
-bannabe:
-  default-profile-image: ENC(GKEZ+q1NesSCsYhn5m/2VAxsHhtA7EWsn4Bj4B57MKRCMi/Ag6G0BkfxW3QPd0TF9YYRC+8sKek4zY07/z1ea0dKXhhiLGRn3du/WtiqcMhwuWaI8fHlHkimD+dE/9reDRIjzJ9mfQC2BfaHS2rP7XtmFzS3XdJnXgO1omcqkNw=)
+#    defer-datasource-initialization: true # 필요할 때만 주석 해제. DB 초기화 스크립트가 있을 때만 사용

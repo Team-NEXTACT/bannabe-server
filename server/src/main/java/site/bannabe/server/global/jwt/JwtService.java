@@ -2,7 +2,6 @@ package site.bannabe.server.global.jwt;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,9 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.exceptions.auth.BannabeAuthenticationException;
-import site.bannabe.server.global.exceptions.auth.InvalidTokenException;
 import site.bannabe.server.global.jwt.JwtProvider.TokenClaims;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
+import site.bannabe.server.global.type.RefreshToken;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +40,6 @@ public class JwtService {
   }
 
   public void validateToken(String token) {
-    if (Objects.isNull(token)) {
-      throw new InvalidTokenException();
-    }
     jwtProvider.verifyToken(token);
   }
 

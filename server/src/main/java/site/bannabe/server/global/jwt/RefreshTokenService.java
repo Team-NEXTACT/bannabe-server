@@ -3,6 +3,7 @@ package site.bannabe.server.global.jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import site.bannabe.server.global.redis.RefreshTokenClient;
+import site.bannabe.server.global.type.RefreshToken;
 
 @Service
 @RequiredArgsConstructor

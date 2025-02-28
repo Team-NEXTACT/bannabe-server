@@ -5,7 +5,9 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import site.bannabe.server.global.jwt.RefreshToken;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
+import site.bannabe.server.global.type.RefreshToken;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class RefreshTokenClient implements RedisClient<RefreshToken> {
   @Override
   public RefreshToken findBy(String key) {
     RefreshToken value = redis.opsForValue().get(REFRESH_TOKEN_PREFIX + key);
-    return Optional.ofNullable(value).orElseThrow(RuntimeException::new);
+    return Optional.ofNullable(value).orElseThrow(() -> new BannabeServiceException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
   }
 
   @Override

@@ -1,17 +1,17 @@
+package site.bannabe.server.global.utils;
+
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.iv.RandomIvGenerator;
-import org.junit.jupiter.api.Test;
 
-public class JasyptEncryptTest {
+public class JasyptEncryptorApp {
 
-  @Test
-  void stringEncryptor() {
+  public static void main(String[] args) {
     String value = "fill in encryption necessary value";
 
     System.out.println("encryptValue :: " + jasyptEncoding(value));
   }
 
-  public String jasyptEncoding(String value) {
+  private static String jasyptEncoding(String value) {
     String key = System.getenv("JASYPT_PASSWORD");
     if (key == null || key.isEmpty()) {
       throw new IllegalArgumentException("JASYPT_PASSWORD is empty");

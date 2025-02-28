@@ -13,15 +13,16 @@ import site.bannabe.server.global.jwt.JwtService;
 @RequiredArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler {
 
+  private static final String PREFIX = "Bearer ";
   private final JwtService jwtService;
 
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (authHeader == null || !authHeader.startsWith("Bearer: ")) {
+    if (authHeader == null || !authHeader.startsWith(PREFIX)) {
       return;
     }
-    String accessToken = authHeader.substring("Bearer: ".length());
+    String accessToken = authHeader.substring(PREFIX.length());
     jwtService.removeRefreshToken(accessToken);
   }
 

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import site.bannabe.server.global.converter.ProviderTypeConverter;
 import site.bannabe.server.global.converter.RoleConverter;
 import site.bannabe.server.global.type.BaseEntity;
-import site.bannabe.server.global.utils.RandomNicknameGenerator;
+import site.bannabe.server.global.utils.RandomCodeGenerator;
 
 @Entity
 @Getter
@@ -25,7 +25,7 @@ public class Users extends BaseEntity {
   private String profileImage;
 
   @Default
-  private String nickname = RandomNicknameGenerator.generateRandomNickname();
+  private String nickname = RandomCodeGenerator.generateRandomNickname();
 
   @Default
   @Convert(converter = RoleConverter.class)

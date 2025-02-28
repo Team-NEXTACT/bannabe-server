@@ -14,7 +14,6 @@ import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.aws.S3Service;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.utils.EncryptUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -22,36 +21,33 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final S3Service s3Service;
-  private final EncryptUtils encryptUtils;
+  private final PasswordService passwordService;
 
   @Value("${bannabe.default-profile-image}")
   private String defaultProfileImage;
 
   @Transactional
   public void changePassword(String email, UserChangePasswordRequest passwordRequest) {
-    if (isNotEqualsNewPassword(passwordRequest.newPassword(), passwordRequest.newPasswordConfirm())) {
-      throw new BannabeServiceException(ErrorCode.NEW_PASSWORD_NOT_EQUALS);
-    }
+    String newPassword = passwordRequest.newPassword();
+    String newPasswordConfirm = passwordRequest.newPasswordConfirm();
+    String currentPassword = passwordRequest.currentPassword();
+
+    passwordService.validateNewPassword(newPassword, newPasswordConfirm);
 
     Users findUser = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
 
-    if (isNotMatchPassword(passwordRequest.currentPassword(), findUser.getPassword())) {
-      throw new BannabeServiceException(ErrorCode.PASSWORD_NOT_MATCH);
-    }
+    passwordService.validateCurrentPassword(currentPassword, findUser.getPassword());
+    passwordService.validateReusedPassword(newPassword, findUser.getPassword());
 
-    if (isReusedPassword(passwordRequest.newPassword(), findUser.getPassword())) {
-      throw new BannabeServiceException(ErrorCode.REUSED_PASSWORD);
-    }
-
-    String newPassword = encryptUtils.encodePassword(passwordRequest.newPassword());
-    findUser.changePassword(newPassword);
+    String encodedPassword = passwordService.encodePassword(passwordRequest.newPassword());
+    findUser.changePassword(encodedPassword);
     // 비밀번호 변경 시 강제 로그아웃을 시킬까? 이에 대한 논의 필요.
   }
 
   @Transactional
   public void changeNickname(String email, UserChangeNicknameRequest nicknameRequest) {
     if (userRepository.existsByNickname(nicknameRequest.nickname())) {
-      throw new BannabeServiceException(ErrorCode.NICKNAME_EXISTS);
+      throw new BannabeServiceException(ErrorCode.DUPLICATE_NICKNAME);
     }
 
     userRepository.findByEmail(email).ifPresentOrElse(
@@ -80,18 +76,6 @@ public class UserService {
     String objectKey = uuid + "." + extension;
     String preSignedUrl = s3Service.getPreSignedUrl(objectKey);
     return new S3PreSignedUrlResponse(preSignedUrl);
-  }
-
-  private boolean isNotEqualsNewPassword(String newPassword, String newPasswordConfirm) {
-    return !newPassword.equals(newPasswordConfirm);
-  }
-
-  private boolean isReusedPassword(String newPassword, String encodedPassword) {
-    return encryptUtils.isMatchPassword(newPassword, encodedPassword);
-  }
-
-  private boolean isNotMatchPassword(String rawPassword, String encodedPassword) {
-    return !encryptUtils.isMatchPassword(rawPassword, encodedPassword);
   }
 
   private boolean isNotDefaultProfileImage(String profileImage) {

@@ -26,6 +26,20 @@ spring:
     open-in-view: false
     defer-datasource-initialization: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ENC(QL9P55yeqSGSRPeFFsm8HGqiZyTEzd/XWrOx0LrHmV8vsbKwI9ruvBd665et6qQMF9irqA9941qqeOBlzN+LeQ==)
+    password: ENC(wdUvFe2rxidFUvpBc2Nv/i8gu3dY1fCSMoUTSLYedrrdQwN13ffsEwp2N7IuMNUJa3ZcNqtKdWvBpKmGDMC68g==)
+    properties:
+      mail:
+        smtp:
+          debug: true
+          auth: true
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+  
   cloud:
     aws:
       region:

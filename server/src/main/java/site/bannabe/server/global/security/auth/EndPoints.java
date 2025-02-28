@@ -9,6 +9,7 @@ import site.bannabe.server.global.type.EndPoint;
 public class EndPoints {
 
   public static final List<EndPoint> PERMIT_ALL = List.of(
+      new EndPoint(HttpMethod.GET, "/health"),
       new EndPoint(HttpMethod.POST, "/v1/auth/register"),
       new EndPoint(HttpMethod.POST, "/v1/auth/login"),
       new EndPoint(HttpMethod.POST, "/v1/auth/token/refresh"),

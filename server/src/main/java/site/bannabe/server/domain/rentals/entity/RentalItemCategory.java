@@ -15,7 +15,8 @@ public enum RentalItemCategory {
   POWER_BANK("보조 배터리"),
   MOUSE("마우스"),
   KEYBOARD("키보드"),
-  LAPTOP_STAND("노트북 스탠드");
+  LAPTOP_STAND("노트북 스탠드"),
+  ETC("기타");
 
   private final String description;
 

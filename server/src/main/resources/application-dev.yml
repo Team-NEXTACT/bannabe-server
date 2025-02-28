@@ -17,10 +17,14 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         highlight_sql: true
-#    defer-datasource-initialization: true # 필요할 때만 주석 해제. DB 초기화 스크립트가 있을 때만 사용
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always

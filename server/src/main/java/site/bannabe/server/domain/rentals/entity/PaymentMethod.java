@@ -1,7 +1,9 @@
 package site.bannabe.server.domain.rentals.entity;
 
+import jakarta.persistence.Converter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import site.bannabe.server.global.converter.AbstractEnumConverter;
 
 @Getter
 @RequiredArgsConstructor
@@ -11,5 +13,13 @@ public enum PaymentMethod {
   CARD("카드");
 
   private final String value;
+
+  @Converter(autoApply = true)
+  static class EnumConverter extends AbstractEnumConverter<PaymentMethod> {
+
+    public EnumConverter() {
+      super(PaymentMethod.class);
+    }
+  }
 
 }

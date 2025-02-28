@@ -1,8 +1,6 @@
 package site.bannabe.server.domain.rentals.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,13 +15,10 @@ import site.bannabe.server.global.type.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalPayments extends BaseEntity {
 
-  @Enumerated(EnumType.STRING)
   private PaymentType paymentType;
 
-  @Enumerated(EnumType.STRING)
   private PaymentStatus status;
 
-  @Enumerated(EnumType.STRING)
   private PaymentMethod paymentMethod;
 
   private LocalDateTime paymentDate;

@@ -7,22 +7,21 @@ import site.bannabe.server.global.converter.AbstractEnumConverter;
 
 @Getter
 @RequiredArgsConstructor
-public enum RentalStatus {
+public enum RentalItemStatus {
 
-  RENTAL("대여 중"),
-  EXTENSION("연장 중"),
-  OVERDUE("연체 중"),
-  RETURN("반납");
+  AVAILABLE("대여 가능"),
+  RENTED("대여 중"),
+  CRASHED("고장"),
+  LOST("분실");
 
   private final String description;
 
   @Converter(autoApply = true)
-  static class EnumConverter extends AbstractEnumConverter<RentalStatus> {
+  static class EnumConverter extends AbstractEnumConverter<RentalItemStatus> {
 
     public EnumConverter() {
-      super(RentalStatus.class);
+      super(RentalItemStatus.class);
     }
-
   }
 
 }

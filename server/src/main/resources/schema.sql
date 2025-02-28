@@ -143,20 +143,20 @@ CREATE TABLE rental_payments
 
 CREATE TABLE rental_history
 (
-    id                BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
-    status            VARCHAR(255),
-    rental_time_hour  INTEGER,
-    start_time        DATETIME(6),
-    end_time          DATETIME(6),
-    return_time       DATETIME(6),
-    token             VARCHAR(255),
-    user_id           BIGINT,
-    rental_item_id    BIGINT,
-    rental_station_id BIGINT,
-    return_station_id BIGINT,
-    create_at         DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,
-    update_at         DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
-    delete_at         DATETIME
+    id                   BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
+    status               VARCHAR(255),
+    rental_time_hour     INTEGER,
+    start_time           DATETIME,
+    expected_return_time DATETIME,
+    return_time          DATETIME,
+    token                VARCHAR(255),
+    user_id              BIGINT,
+    rental_item_id       BIGINT,
+    rental_station_id    BIGINT,
+    return_station_id    BIGINT,
+    create_at            DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,
+    update_at            DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+    delete_at            DATETIME
 );
 
 CREATE TABLE events
@@ -166,8 +166,8 @@ CREATE TABLE events
     banner_image  VARCHAR(255),
     content_image VARCHAR(255),
     status        VARCHAR(255),
-    start_date    DATETIME(6),
-    end_date      DATETIME(6),
+    start_date    DATETIME,
+    end_date      DATETIME,
     create_at     DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,
     update_at     DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     delete_at     DATETIME

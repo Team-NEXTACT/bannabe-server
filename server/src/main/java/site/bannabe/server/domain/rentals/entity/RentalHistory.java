@@ -20,7 +20,7 @@ public class RentalHistory extends BaseEntity {
 
   private LocalDateTime startTime;
 
-  private LocalDateTime endTime;
+  private LocalDateTime expectedReturnTime;
 
   private LocalDateTime returnTime;
 
@@ -43,5 +43,19 @@ public class RentalHistory extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "return_station_id")
   private RentalStations rentalStations;
+
+  public void changeStatus(RentalStatus status) {
+    this.status = status;
+  }
+
+  public boolean isOverdue(LocalDateTime now) {
+    return !this.expectedReturnTime.isAfter(now);
+  }
+
+  public void validateOverdue(LocalDateTime now) {
+    if (this.status.equals(RentalStatus.RENTAL) && isOverdue(now)) {
+      changeStatus(RentalStatus.OVERDUE);
+    }
+  }
 
 }

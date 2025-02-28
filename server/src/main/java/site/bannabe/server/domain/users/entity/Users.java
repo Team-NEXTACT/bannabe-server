@@ -51,6 +51,10 @@ public class Users extends BaseEntity {
     nickname = newNickname;
   }
 
+  public boolean isNotDefaultProfileImage(String defaultProfileImage) {
+    return !profileImage.equals(defaultProfileImage);
+  }
+
   public void changeProfileImage(String newProfileImage) {
     profileImage = newProfileImage;
   }

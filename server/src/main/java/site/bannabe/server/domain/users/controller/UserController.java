@@ -3,6 +3,10 @@ package site.bannabe.server.domain.users.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -56,6 +60,13 @@ public class UserController {
   public List<RentalHistoryResponse> getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
     String email = principalDetails.getUsername();
     return userService.getActiveRentalHistory(email);
+  }
+
+  @GetMapping("/me/rentals")
+  public Page<RentalHistoryResponse> getRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails,
+      @PageableDefault(sort = "startTime", direction = Direction.DESC) Pageable pageable) {
+    String email = principalDetails.getUsername();
+    return userService.getRentalHistory(email, pageable);
   }
 
 }

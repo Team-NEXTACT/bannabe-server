@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
@@ -90,6 +92,14 @@ public class UserService {
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.stream().map(RentalHistoryResponse::of).toList();
+  }
+
+  @Transactional
+  public Page<RentalHistoryResponse> getRentalHistory(String email, Pageable pageable) {
+    Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(email, pageable);
+    LocalDateTime now = LocalDateTime.now();
+    rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
+    return rentalHistories.map(RentalHistoryResponse::of);
   }
 
 }

@@ -1,6 +1,8 @@
 package site.bannabe.server.domain.users.entity;
 
+import jakarta.persistence.Converter;
 import lombok.RequiredArgsConstructor;
+import site.bannabe.server.global.converter.AbstractEnumConverter;
 
 @RequiredArgsConstructor
 public enum Role {
@@ -13,6 +15,15 @@ public enum Role {
 
   public String getRoleKey() {
     return key;
+  }
+
+  @Converter(autoApply = true)
+  static class EnumConverter extends AbstractEnumConverter<Role> {
+
+    public EnumConverter() {
+      super(Role.class);
+    }
+
   }
 
 }

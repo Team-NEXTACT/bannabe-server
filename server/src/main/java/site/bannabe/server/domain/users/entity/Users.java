@@ -1,14 +1,11 @@
 package site.bannabe.server.domain.users.entity;
 
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bannabe.server.global.converter.ProviderTypeConverter;
-import site.bannabe.server.global.converter.RoleConverter;
 import site.bannabe.server.global.type.BaseEntity;
 import site.bannabe.server.global.utils.RandomCodeGenerator;
 
@@ -28,11 +25,9 @@ public class Users extends BaseEntity {
   private String nickname = RandomCodeGenerator.generateRandomNickname();
 
   @Default
-  @Convert(converter = RoleConverter.class)
   private Role role = Role.USER;
 
   @Default
-  @Convert(converter = ProviderTypeConverter.class)
   private ProviderType providerType = ProviderType.LOCAL;
 
   private Users(String email, String password, String profileImage, String nickname, Role role, ProviderType providerType) {
@@ -54,6 +49,10 @@ public class Users extends BaseEntity {
 
   public void changeNickname(String newNickname) {
     nickname = newNickname;
+  }
+
+  public boolean isNotDefaultProfileImage(String defaultProfileImage) {
+    return !profileImage.equals(defaultProfileImage);
   }
 
   public void changeProfileImage(String newProfileImage) {

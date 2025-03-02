@@ -11,7 +11,7 @@ import site.bannabe.server.global.type.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalItemTypes extends BaseEntity {
 
-  private String category; // enum으로 변경해야함! (카테고리)
+  private RentalItemCategory category;
 
   private String name;
 

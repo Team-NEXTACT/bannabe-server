@@ -1,14 +1,21 @@
 package site.bannabe.server.domain.users.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bannabe.server.domain.rentals.entity.RentalHistory;
+import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.users.controller.request.UserChangeNicknameRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.aws.S3Service;
@@ -20,6 +27,7 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final RentalHistoryRepository rentalHistoryRepository;
   private final S3Service s3Service;
   private final PasswordService passwordService;
 
@@ -64,7 +72,7 @@ public class UserService {
     String currentProfileImage = user.getProfileImage();
 
     String newProfileImage = changeProfileImageRequest.imageUrl();
-    if (isNotDefaultProfileImage(currentProfileImage)) {
+    if (user.isNotDefaultProfileImage(defaultProfileImage)) {
       s3Service.removeProfileImage(currentProfileImage);
     }
 
@@ -78,8 +86,20 @@ public class UserService {
     return new S3PreSignedUrlResponse(preSignedUrl);
   }
 
-  private boolean isNotDefaultProfileImage(String profileImage) {
-    return !profileImage.equals(defaultProfileImage);
+  @Transactional
+  public List<RentalHistoryResponse> getActiveRentalHistory(String email) {
+    List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(email);
+    LocalDateTime now = LocalDateTime.now();
+    rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
+    return rentalHistories.stream().map(RentalHistoryResponse::of).toList();
+  }
+
+  @Transactional
+  public Page<RentalHistoryResponse> getRentalHistory(String email, Pageable pageable) {
+    Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(email, pageable);
+    LocalDateTime now = LocalDateTime.now();
+    rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
+    return rentalHistories.map(RentalHistoryResponse::of);
   }
 
 }

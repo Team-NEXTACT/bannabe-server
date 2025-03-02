@@ -1,6 +1,5 @@
 package site.bannabe.server.domain.rentals.entity;
 
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -10,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bannabe.server.domain.users.entity.Users;
-import site.bannabe.server.global.converter.RentalStatusConverter;
 import site.bannabe.server.global.type.BaseEntity;
 
 @Entity
@@ -18,12 +16,11 @@ import site.bannabe.server.global.type.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalHistory extends BaseEntity {
 
-  @Convert(converter = RentalStatusConverter.class)
   private RentalStatus status;
 
   private LocalDateTime startTime;
 
-  private LocalDateTime endTime;
+  private LocalDateTime expectedReturnTime;
 
   private LocalDateTime returnTime;
 
@@ -46,5 +43,19 @@ public class RentalHistory extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "return_station_id")
   private RentalStations rentalStations;
+
+  public void changeStatus(RentalStatus status) {
+    this.status = status;
+  }
+
+  public boolean isOverdue(LocalDateTime now) {
+    return !this.expectedReturnTime.isAfter(now);
+  }
+
+  public void validateOverdue(LocalDateTime now) {
+    if (this.status.equals(RentalStatus.RENTAL) && isOverdue(now)) {
+      changeStatus(RentalStatus.OVERDUE);
+    }
+  }
 
 }

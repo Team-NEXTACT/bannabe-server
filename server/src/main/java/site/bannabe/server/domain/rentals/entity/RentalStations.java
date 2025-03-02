@@ -1,8 +1,6 @@
 package site.bannabe.server.domain.rentals.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,10 +26,8 @@ public class RentalStations extends BaseEntity {
 
   private String closeDay; // 휴무일 (문자열로 저장)
 
-  @Enumerated(EnumType.STRING) // enum 상수가 많아지면 Convert로 수정
-  private StationStatus status; // enum으로 변경해야함! (대여소 상태)
+  private StationStatus status;
 
-  @Enumerated(EnumType.STRING)
-  private StationGrade grade; // enum으로 변경해야함! (대여소 등급)
+  private StationGrade grade;
 
 }

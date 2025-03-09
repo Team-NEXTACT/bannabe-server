@@ -15,8 +15,11 @@ import site.bannabe.server.domain.users.controller.request.UserChangeNicknameReq
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
+import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
+import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.entity.Users;
+import site.bannabe.server.domain.users.repository.BookmarkStationRepository;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.aws.S3Service;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
@@ -28,6 +31,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final RentalHistoryRepository rentalHistoryRepository;
+  private final BookmarkStationRepository bookmarkStationRepository;
   private final S3Service s3Service;
   private final PasswordService passwordService;
 
@@ -100,6 +104,21 @@ public class UserService {
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.map(RentalHistoryResponse::of);
+  }
+
+  @Transactional(readOnly = true)
+  public UserBookmarkStationsResponse getBookmarkStations(String email) {
+    List<BookmarkStationResponse> bookmarkStations = bookmarkStationRepository.findBookmarkStationsBy(email);
+    return new UserBookmarkStationsResponse(bookmarkStations);
+  }
+
+  @Transactional
+  public void removeBookmarkStation(String email, Long bookmarkId) {
+    Boolean isUserBookmark = bookmarkStationRepository.existsBookmarkByEmail(email, bookmarkId);
+    if (!isUserBookmark) {
+      throw new BannabeServiceException(ErrorCode.BOOKMARK_NOT_EXIST);
+    }
+    bookmarkStationRepository.deleteBookmarkById(bookmarkId);
   }
 
 }

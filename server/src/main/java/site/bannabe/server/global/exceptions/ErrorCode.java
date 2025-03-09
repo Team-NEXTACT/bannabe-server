@@ -29,6 +29,7 @@ public enum ErrorCode {
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원정보가 존재하지 않습니다."),
   REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "RefreshToken이 존재하지 않습니다."),
   AUTH_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "인증 코드가 존재하지 않습니다."),
+  BOOKMARK_NOT_EXIST(HttpStatus.NOT_FOUND, "북마크 정보가 일치하지 않습니다."),
 
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),

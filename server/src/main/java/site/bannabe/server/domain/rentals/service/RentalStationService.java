@@ -11,6 +11,12 @@ import site.bannabe.server.domain.rentals.controller.response.RentalStationSimpl
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
 import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
+import site.bannabe.server.domain.users.entity.BookmarkStations;
+import site.bannabe.server.domain.users.entity.Users;
+import site.bannabe.server.domain.users.repository.BookmarkStationRepository;
+import site.bannabe.server.domain.users.repository.UserRepository;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +24,8 @@ public class RentalStationService {
 
   private final RentalStationRepository rentalStationRepository;
   private final RentalItemRepository rentalItemRepository;
+  private final UserRepository userRepository;
+  private final BookmarkStationRepository bookmarkStationRepository;
 
   @Transactional(readOnly = true)
   public RentalStationSimpleResponse getAllRentalStations() {
@@ -34,6 +42,22 @@ public class RentalStationService {
   @Transactional(readOnly = true)
   public RentalItemDetailResponse getRentalItemDetail(Long stationId, Long itemTypeId) {
     return rentalItemRepository.findRentalItemDetailBy(stationId, itemTypeId);
+  }
+
+  @Transactional
+  public void bookmarkRentalStation(Long stationId, String email) {
+    Users user = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    RentalStations rentalStation = rentalStationRepository.findById(stationId)
+                                                          .orElseThrow(() ->
+                                                              new BannabeServiceException(ErrorCode.RENTAL_STATION_NOT_FOUND));
+
+    boolean isAlreadyBookmarked = bookmarkStationRepository.existsBookmarkByEmailAndStation(user, rentalStation);
+    if (isAlreadyBookmarked) {
+      throw new BannabeServiceException(ErrorCode.ALREADY_BOOKMARKED);
+    }
+
+    BookmarkStations bookmarkStations = new BookmarkStations(user, rentalStation);
+    bookmarkStationRepository.save(bookmarkStations);
   }
 
 }

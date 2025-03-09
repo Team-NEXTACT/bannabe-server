@@ -1,14 +1,17 @@
 package site.bannabe.server.domain.users.repository;
 
+import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
+import static site.bannabe.server.domain.users.entity.QBookmarkStations.bookmarkStations;
+import static site.bannabe.server.domain.users.entity.QUsers.users;
+
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
+import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
-import static site.bannabe.server.domain.users.entity.QBookmarkStations.bookmarkStations;
-import static site.bannabe.server.domain.users.entity.QUsers.users;
+import site.bannabe.server.domain.users.entity.Users;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,12 +36,22 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
   }
 
   @Override
-  public Boolean existsBookmarkByEmail(String email, Long bookmarkId) {
+  public boolean existsBookmarkByEmail(String email, Long bookmarkId) {
     Integer findBookmark = jpaQueryFactory.selectOne()
                                           .from(bookmarkStations)
                                           .join(bookmarkStations.user, users)
                                           .where(bookmarkStations.id.eq(bookmarkId)
-                                                                    .and(bookmarkStations.user.email.eq(email)))
+                                                                    .and(users.email.eq(email)))
+                                          .fetchFirst();
+    return findBookmark != null;
+  }
+
+  @Override
+  public boolean existsBookmarkByEmailAndStation(Users user, RentalStations station) {
+    Integer findBookmark = jpaQueryFactory.selectOne()
+                                          .from(bookmarkStations)
+                                          .where(bookmarkStations.user.eq(user)
+                                                                      .and(bookmarkStations.rentalStation.eq(station)))
                                           .fetchFirst();
     return findBookmark != null;
   }

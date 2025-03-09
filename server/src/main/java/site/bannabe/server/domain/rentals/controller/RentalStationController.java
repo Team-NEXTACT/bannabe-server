@@ -1,14 +1,17 @@
 package site.bannabe.server.domain.rentals.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import site.bannabe.server.domain.rentals.controller.response.RentalItemDetailResponse;
 import site.bannabe.server.domain.rentals.controller.response.RentalStationDetailResponse;
 import site.bannabe.server.domain.rentals.controller.response.RentalStationSimpleResponse;
 import site.bannabe.server.domain.rentals.service.RentalStationService;
+import site.bannabe.server.global.security.auth.PrincipalDetails;
 
 @RestController
 @RequestMapping("/v1/stations")
@@ -31,6 +34,13 @@ public class RentalStationController {
   public RentalItemDetailResponse getRentalItemDetail(@PathVariable("stationId") Long stationId,
       @PathVariable("itemTypeId") Long itemTypeId) {
     return rentalStationService.getRentalItemDetail(stationId, itemTypeId);
+  }
+
+  @PostMapping("/{stationId}/bookmark")
+  public void bookmarkRentalStation(@PathVariable("stationId") Long stationId,
+      @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String email = principalDetails.getUsername();
+    rentalStationService.bookmarkRentalStation(stationId, email);
   }
 
 }

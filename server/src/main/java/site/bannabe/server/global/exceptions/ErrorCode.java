@@ -30,6 +30,7 @@ public enum ErrorCode {
   REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "RefreshToken이 존재하지 않습니다."),
   AUTH_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "인증 코드가 존재하지 않습니다."),
   BOOKMARK_NOT_EXIST(HttpStatus.NOT_FOUND, "북마크 정보가 일치하지 않습니다."),
+  RENTAL_STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 정보가 존재하지 않습니다."),
 
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),
@@ -38,6 +39,7 @@ public enum ErrorCode {
   DUPLICATE_PASSWORD(HttpStatus.CONFLICT, "동일한 비밀번호로 변경할 수 없습니다."),
   AUTH_CODE_MISMATCH(HttpStatus.CONFLICT, "인증 코드가 일치하지 않습니다."),
   AUTH_CODE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 인증된 코드입니다."),
+  ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 즐겨찾기한 대여 스테이션입니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다. 관리자에게 문의하세요."),

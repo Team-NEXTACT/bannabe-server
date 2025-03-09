@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.users.repository;
+package site.bannabe.server.domain.users.repository.querydsl;
 
 import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import static site.bannabe.server.domain.users.entity.QBookmarkStations.bookmarkStations;
@@ -32,6 +32,7 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
                           .join(bookmarkStations.user, users)
                           .join(bookmarkStations.rentalStation, rentalStations)
                           .where(users.email.eq(email))
+                          .orderBy(rentalStations.name.asc())
                           .fetch();
   }
 

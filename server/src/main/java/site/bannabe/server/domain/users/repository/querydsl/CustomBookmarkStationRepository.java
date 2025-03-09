@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.users.repository;
+package site.bannabe.server.domain.users.repository.querydsl;
 
 import java.util.List;
 import site.bannabe.server.domain.rentals.entity.RentalStations;

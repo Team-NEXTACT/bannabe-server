@@ -8,8 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangeNicknameReq
 import site.bannabe.server.domain.users.controller.request.UserChangePasswordRequest;
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
+import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.service.UserService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
@@ -67,6 +70,19 @@ public class UserController {
       @PageableDefault(sort = "startTime", direction = Direction.DESC) Pageable pageable) {
     String email = principalDetails.getUsername();
     return userService.getRentalHistory(email, pageable);
+  }
+
+  @GetMapping("/me/stations/bookmark")
+  public UserBookmarkStationsResponse getBookmarkStations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String email = principalDetails.getUsername();
+    return userService.getBookmarkStations(email);
+  }
+
+  @DeleteMapping("/me/stations/bookmark/{bookmarkId}")
+  public void deleteBookmarkStation(@PathVariable("bookmarkId") Long bookmarkId,
+      @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String email = principalDetails.getUsername();
+    userService.removeBookmarkStation(email, bookmarkId);
   }
 
 }

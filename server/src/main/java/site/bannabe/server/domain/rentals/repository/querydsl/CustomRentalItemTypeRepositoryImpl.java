@@ -12,7 +12,7 @@ import site.bannabe.server.domain.rentals.controller.response.RentalItemTypeDeta
 
 @Repository
 @RequiredArgsConstructor
-public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepository {
+public class CustomRentalItemTypeRepositoryImpl implements CustomRentalItemTypeRepository {
 
   private final JPAQueryFactory jpaQueryFactory;
 

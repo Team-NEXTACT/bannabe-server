@@ -33,7 +33,7 @@ public class RentalStationController {
   @GetMapping("/{stationId}/items/{itemTypeId}")
   public RentalItemTypeDetailResponse getRentalItemDetail(@PathVariable("stationId") Long stationId,
       @PathVariable("itemTypeId") Long itemTypeId) {
-    return rentalStationService.getRentalItemDetail(stationId, itemTypeId);
+    return rentalStationService.getRentalItemTypeDetail(stationId, itemTypeId);
   }
 
   @PostMapping("/{stationId}/bookmark")

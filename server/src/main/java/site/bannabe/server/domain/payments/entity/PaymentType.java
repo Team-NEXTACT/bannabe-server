@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.rentals.entity;
+package site.bannabe.server.domain.payments.entity;
 
 import jakarta.persistence.Converter;
 import lombok.Getter;
@@ -7,18 +7,19 @@ import site.bannabe.server.global.converter.AbstractEnumConverter;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentStatus {
+public enum PaymentType {
 
-  SUCCESS("성공"),
-  CANCEL("취소");
+  RENT("대여 결제"),
+  OVERDUE("연체 결제"),
+  EXTENSION("연장 결제");
 
   private final String description;
 
   @Converter(autoApply = true)
-  static class EnumConverter extends AbstractEnumConverter<PaymentStatus> {
+  static class EnumConverter extends AbstractEnumConverter<PaymentType> {
 
     public EnumConverter() {
-      super(PaymentStatus.class);
+      super(PaymentType.class);
     }
 
   }

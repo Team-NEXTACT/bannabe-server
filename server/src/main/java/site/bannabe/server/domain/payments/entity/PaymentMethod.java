@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.rentals.entity;
+package site.bannabe.server.domain.payments.entity;
 
 import jakarta.persistence.Converter;
 import lombok.Getter;

@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bannabe.server.domain.rentals.controller.response.RentalItemDetailResponse;
+import site.bannabe.server.domain.rentals.controller.response.RentalItemTypeDetailResponse;
 import site.bannabe.server.domain.rentals.controller.response.RentalStationDetailResponse;
 import site.bannabe.server.domain.rentals.controller.response.RentalStationDetailResponse.RentalItemResponse;
 import site.bannabe.server.domain.rentals.controller.response.RentalStationSimpleResponse;
@@ -40,7 +40,7 @@ public class RentalStationService {
   }
 
   @Transactional(readOnly = true)
-  public RentalItemDetailResponse getRentalItemDetail(Long stationId, Long itemTypeId) {
+  public RentalItemTypeDetailResponse getRentalItemDetail(Long stationId, Long itemTypeId) {
     return rentalItemRepository.findRentalItemDetailBy(stationId, itemTypeId);
   }
 

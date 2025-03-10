@@ -8,7 +8,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import site.bannabe.server.domain.rentals.controller.response.RentalItemDetailResponse;
+import site.bannabe.server.domain.rentals.controller.response.RentalItemTypeDetailResponse;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,9 +17,9 @@ public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepositor
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public RentalItemDetailResponse findRentalItemDetailBy(Long stationId, Long itemTypeId) {
+  public RentalItemTypeDetailResponse findRentalItemDetailBy(Long stationId, Long itemTypeId) {
     return jpaQueryFactory.select(Projections.constructor(
-                              RentalItemDetailResponse.class,
+                              RentalItemTypeDetailResponse.class,
                               rentalItemTypes.name,
                               rentalItemTypes.image,
                               rentalItemTypes.category.stringValue(),

@@ -1,6 +1,6 @@
 package site.bannabe.server.domain.rentals.controller.response;
 
-public record RentalItemDetailResponse(
+public record RentalItemTypeDetailResponse(
     String name,
     String image,
     String category,

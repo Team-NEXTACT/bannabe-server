@@ -7,6 +7,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Repository
 @RequiredArgsConstructor
@@ -15,13 +17,13 @@ public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepositor
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public Optional<RentalItems> findByToken(String token) {
+  public RentalItems findByToken(String token) {
     RentalItems rentalItem = jpaQueryFactory.selectFrom(rentalItems)
                                             .join(rentalItems.rentalItemType).fetchJoin()
                                             .join(rentalItems.currentStation).fetchJoin()
                                             .where(rentalItems.token.eq(token))
                                             .fetchOne();
-    return Optional.ofNullable(rentalItem);
+    return Optional.ofNullable(rentalItem).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));
   }
 
 }

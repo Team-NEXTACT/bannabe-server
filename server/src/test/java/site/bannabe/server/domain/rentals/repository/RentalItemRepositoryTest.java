@@ -64,7 +64,7 @@ class RentalItemRepositoryTest extends AbstractTestContainers {
     em.clear();
 
     //when
-    RentalItems result = rentalItemRepository.findByToken(token).orElse(null);
+    RentalItems result = rentalItemRepository.findByToken(token);
 
     //then
     assertThat(result).isNotNull()

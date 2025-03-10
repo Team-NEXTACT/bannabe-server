@@ -11,10 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import site.bannabe.server.global.security.auth.EndPoints;
+import site.bannabe.server.global.security.auth.EndPoint;
 import site.bannabe.server.global.security.filter.JSONUsernamePasswordAuthenticationFilter;
 import site.bannabe.server.global.security.filter.JwtAuthenticationFilter;
-import site.bannabe.server.global.type.EndPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -46,7 +45,7 @@ public class SecurityConfig {
 
   private void configurePermitAllEndPoints(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(authorizeRequests -> {
-      for (EndPoint endPoint : EndPoints.PERMIT_ALL) {
+      for (EndPoint endPoint : EndPoint.PERMIT_ALL) {
         authorizeRequests.requestMatchers(endPoint.method(), endPoint.pattern()).permitAll();
       }
       authorizeRequests.anyRequest().authenticated();

@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.rentals.repository;
+package site.bannabe.server.domain.rentals.repository.querydsl;
 
 import java.util.List;
 import org.springframework.data.domain.Page;

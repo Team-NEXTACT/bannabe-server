@@ -114,7 +114,7 @@ public class UserService {
 
   @Transactional
   public void removeBookmarkStation(String email, Long bookmarkId) {
-    Boolean isUserBookmark = bookmarkStationRepository.existsBookmarkByEmail(email, bookmarkId);
+    boolean isUserBookmark = bookmarkStationRepository.existsBookmarkByEmail(email, bookmarkId);
     if (!isUserBookmark) {
       throw new BannabeServiceException(ErrorCode.BOOKMARK_NOT_EXIST);
     }

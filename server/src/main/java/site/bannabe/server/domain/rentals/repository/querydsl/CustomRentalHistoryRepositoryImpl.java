@@ -1,4 +1,10 @@
-package site.bannabe.server.domain.rentals.repository;
+package site.bannabe.server.domain.rentals.repository.querydsl;
+
+import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
+import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
+import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -12,12 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
-import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
-import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
 
 @Repository
 @RequiredArgsConstructor

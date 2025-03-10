@@ -22,4 +22,10 @@ public class BookmarkStations extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rental_station_id")
   private RentalStations rentalStation;
+
+  public BookmarkStations(Users user, RentalStations rentalStation) {
+    this.user = user;
+    this.rentalStation = rentalStation;
+  }
+
 }

@@ -16,6 +16,9 @@ public class EndPoints {
       new EndPoint(HttpMethod.POST, "/v1/auth/send-code"),
       new EndPoint(HttpMethod.POST, "/v1/auth/verify-code"),
       new EndPoint(HttpMethod.PUT, "/v1/auth/reset-password"),
+      new EndPoint(HttpMethod.GET, "/v1/stations"),
+      new EndPoint(HttpMethod.GET, "/v1/stations/{stationId}"),
+      new EndPoint(HttpMethod.GET, "/v1/stations/{stationId}/items/{itemTypeId}"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
       new EndPoint(HttpMethod.GET, "/events/**")
   );

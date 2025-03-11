@@ -11,4 +11,8 @@ public interface RedisClient<V> {
 
   void deleteBy(String key);
 
+  default String generateKey(String prefix, String key) {
+    return prefix + key;
+  }
+
 }

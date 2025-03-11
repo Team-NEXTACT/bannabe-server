@@ -4,6 +4,7 @@ public interface RedisClient<V> {
 
   String REFRESH_TOKEN_PREFIX = "RefreshToken:";
   String AUTH_CODE_PREFIX = "AuthCode:";
+  String ORDER_INFO_PREFIX = "OrderInfo:";
 
   void save(String key, V value);
 

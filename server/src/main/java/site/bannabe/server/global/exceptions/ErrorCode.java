@@ -29,6 +29,7 @@ public enum ErrorCode {
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원정보가 존재하지 않습니다."),
   REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "RefreshToken이 존재하지 않습니다."),
   AUTH_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "인증 코드가 존재하지 않습니다."),
+  ORDER_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 정보가 존재하지 않습니다."),
   BOOKMARK_NOT_EXIST(HttpStatus.NOT_FOUND, "북마크 정보가 일치하지 않습니다."),
   RENTAL_STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 정보가 존재하지 않습니다."),
   RENTAL_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여물품 정보가 존재하지 않습니다."),

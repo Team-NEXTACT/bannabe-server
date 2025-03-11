@@ -22,7 +22,9 @@ public record EndPoint(
       new EndPoint(HttpMethod.GET, "/v1/rentals/{rentalItemToken}"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
       new EndPoint(HttpMethod.GET, "/events/**"),
-      new EndPoint(HttpMethod.GET, "/v1/payments/checkout")
+      new EndPoint(HttpMethod.GET, "/v1/payments/success"),
+      new EndPoint(HttpMethod.GET, "/v1/payments/failure"),
+      new EndPoint(HttpMethod.GET, "/payment-test")
   );
 
 }

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>결제 승인 요청</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body>
+		<div class="fixed inset-0 flex flex-col items-center justify-center bg-white">
+			<div class="w-16 h-16 border-4 border-yellow-400 border-t-black rounded-full animate-[spin_1s_linear_infinite]"></div>
+			<p class="mt-4 text-gray-700 text-lg font-semibold">결제를 승인하는 중입니다...</p>
+		</div>
+		<script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const payload = {
+        paymentKey: urlParams.get('paymentKey'),
+        orderId: urlParams.get('orderId'),
+        amount: urlParams.get('amount')
+      };
+
+      const accessToken = sessionStorage.getItem('accessToken');
+      fetch('http://localhost:8080/v1/payments/confirm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      })
+      .then(response => {
+        if (response.status === 200) {
+          // 여기서 딥링크를 통해 앱의 결제확인 페이지로 이동시켜야함.
+          //파라미터에 RentalHistory Token을 담아서
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+		</script>
+	</body>
+</html>

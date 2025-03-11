@@ -1,24 +1,31 @@
 package site.bannabe.server.domain.rentals.repository.querydsl;
 
+import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
 import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
 import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
 import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
+import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
 import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpleResponse;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Repository
 @RequiredArgsConstructor
@@ -54,6 +61,24 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
                                                .from(rentalHistory)
                                                .where(rentalHistory.user.email.eq(email));
     return PageableExecutionUtils.getPage(rentalHistories, pageable, queryCount::fetchOne);
+  }
+
+  @Override
+  public RentalSuccessSimpleResponse findRentalHistoryInfoBy(String token) {
+    RentalSuccessSimpleResponse result = jpaQueryFactory.select(Projections.constructor(
+                                                            RentalSuccessSimpleResponse.class,
+                                                            rentalItemTypes.price,
+                                                            rentalItemTypes.name,
+                                                            rentalHistory.rentalTimeHour,
+                                                            rentalStations.name
+                                                        )).from(rentalPayments)
+                                                        .leftJoin(rentalPayments.rentalHistory, rentalHistory)
+                                                        .leftJoin(rentalHistory.rentalStation, rentalStations)
+                                                        .leftJoin(rentalHistory.rentalItem, rentalItems)
+                                                        .leftJoin(rentalItems.rentalItemType, rentalItemTypes)
+                                                        .where(rentalHistory.token.eq(token))
+                                                        .fetchOne();
+    return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.ORDER_INFO_NOT_FOUND));
   }
 
   @SuppressWarnings("unchecked")

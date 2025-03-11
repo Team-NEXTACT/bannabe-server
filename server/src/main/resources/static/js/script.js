@@ -1,4 +1,7 @@
-window.addEventListener('load', login);
+window.addEventListener('load', async () => {
+  await login();
+  document.getElementById('payment-button').disabled = false;
+});
 
 const rentalItemToken = 'RI_kCQzZkTC20';
 const rentalTime = 1;
@@ -10,7 +13,8 @@ async function onClickPayment() {
   if (checkoutUrl) {
     const params = {
       rentalItemToken: rentalItemToken,
-      rentalTime: rentalTime
+      rentalTime: rentalTime,
+      paymentType: 'RENT'
     };
     const queryString = new URLSearchParams(params).toString();
     fetch(`${checkoutUrl}?${queryString}`, {

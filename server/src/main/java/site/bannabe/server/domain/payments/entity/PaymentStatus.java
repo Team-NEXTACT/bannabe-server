@@ -9,7 +9,7 @@ import site.bannabe.server.global.converter.AbstractEnumConverter;
 @RequiredArgsConstructor
 public enum PaymentStatus {
 
-  SUCCESS("성공"),
+  APPROVED("승인"),
   CANCEL("취소");
 
   private final String description;

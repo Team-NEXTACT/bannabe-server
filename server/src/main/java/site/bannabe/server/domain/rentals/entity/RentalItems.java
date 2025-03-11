@@ -38,4 +38,12 @@ public class RentalItems extends BaseEntity {
     this.currentStation = currentStation;
   }
 
+  public void rentOut() {
+    if (this.status != RentalItemStatus.AVAILABLE) {
+      throw new RuntimeException("대여할 수 없는 물품입니다.");
+    }
+    this.status = RentalItemStatus.RENTED;
+    this.currentStation = null;
+  }
+
 }

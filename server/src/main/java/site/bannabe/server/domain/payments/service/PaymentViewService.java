@@ -33,7 +33,7 @@ public class PaymentViewService {
     String customerKey = UUID.randomUUID().toString();
     String orderId = RandomCodeGenerator.generateOrderId(LocalDateTime.now());
     Integer amount = rentalItemType.getPrice() * rentalTime;
-    orderInfoService.saveOrderInfo(orderId, rentalItemToken, amount, paymentType);
+    orderInfoService.saveOrderInfo(orderId, rentalItemToken, rentalTime, amount, paymentType);
     return new PaymentInitializeResponse(apiKey, amount, CURRENCY, customerKey, orderId, orderName);
   }
 

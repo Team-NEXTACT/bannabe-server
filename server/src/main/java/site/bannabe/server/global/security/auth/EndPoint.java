@@ -24,7 +24,8 @@ public record EndPoint(
       new EndPoint(HttpMethod.GET, "/events/**"),
       new EndPoint(HttpMethod.GET, "/v1/payments/success"),
       new EndPoint(HttpMethod.GET, "/v1/payments/failure"),
-      new EndPoint(HttpMethod.GET, "/payment-test")
+      new EndPoint(HttpMethod.GET, "/payment-test"),
+      new EndPoint(HttpMethod.GET, "/payment-complete")
   );
 
 }

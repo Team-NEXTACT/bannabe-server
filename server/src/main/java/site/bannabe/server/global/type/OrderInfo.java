@@ -12,6 +12,8 @@ public class OrderInfo {
 
   private String rentalItemToken;
 
+  private Integer rentalTime;
+
   private Integer amount;
 
   private PaymentType paymentType;

@@ -42,6 +42,7 @@ public enum ErrorCode {
   AUTH_CODE_MISMATCH(HttpStatus.CONFLICT, "인증 코드가 일치하지 않습니다."),
   AUTH_CODE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 인증된 코드입니다."),
   ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 즐겨찾기한 대여 스테이션입니다."),
+  AMOUNT_MISMATCH(HttpStatus.CONFLICT, "금액이 일치하지 않습니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다. 관리자에게 문의하세요."),

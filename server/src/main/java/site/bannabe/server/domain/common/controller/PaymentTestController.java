@@ -11,4 +11,9 @@ public class PaymentTestController {
     return "test";
   }
 
+  @GetMapping("/payment-complete")
+  public String rentalSuccess() {
+    return "payment-complete";
+  }
+
 }

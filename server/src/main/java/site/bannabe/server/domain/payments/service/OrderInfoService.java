@@ -12,8 +12,8 @@ public class OrderInfoService {
 
   private final OrderInfoClient orderInfoClient;
 
-  public void saveOrderInfo(String orderId, String rentalItemToken, Integer amount, PaymentType paymentType) {
-    OrderInfo orderInfo = new OrderInfo(rentalItemToken, amount, paymentType);
+  public void saveOrderInfo(String orderId, String rentalItemToken, Integer rentalTime, Integer amount, PaymentType paymentType) {
+    OrderInfo orderInfo = new OrderInfo(rentalItemToken, rentalTime, amount, paymentType);
     orderInfoClient.save(orderId, orderInfo);
   }
 

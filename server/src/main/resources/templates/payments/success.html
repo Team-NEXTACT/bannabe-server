@@ -15,8 +15,8 @@
       const urlParams = new URLSearchParams(window.location.search);
       const payload = {
         paymentKey: urlParams.get('paymentKey'),
-        orderId: urlParams.get('orderId'),
-        amount: urlParams.get('amount')
+        amount: urlParams.get('amount'),
+        orderId: urlParams.get('orderId')
       };
 
       const accessToken = sessionStorage.getItem('accessToken');
@@ -28,11 +28,13 @@
         },
         body: JSON.stringify(payload),
       })
-      .then(response => {
-        if (response.status === 200) {
-          // 여기서 딥링크를 통해 앱의 결제확인 페이지로 이동시켜야함.
-          //파라미터에 RentalHistory Token을 담아서
-        }
+      .then(res => res.json())
+      .then(payload => {
+        // 여기서 딥링크를 통해 앱의 결제확인 페이지로 이동시켜야함.
+        // 현재는 임시로 웹 결제완료 페이지로 리디렉션
+        console.log(payload);
+        const token = payload.data.rentalHistoryToken;
+        window.location.href = `http://localhost:8080/payment-complete?rentalHistoryToken=${token}`;
       })
       .catch(error => {
         console.error(error);

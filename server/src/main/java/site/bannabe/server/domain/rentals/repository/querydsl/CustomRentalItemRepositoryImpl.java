@@ -26,4 +26,14 @@ public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepositor
     return Optional.ofNullable(rentalItem).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));
   }
 
+  @Override
+  public Integer findRentalItemPrice(String token) {
+    Integer price = jpaQueryFactory.select(rentalItems.rentalItemType.price)
+                                   .from(rentalItems)
+                                   .join(rentalItems.rentalItemType).fetchJoin()
+                                   .where(rentalItems.token.eq(token))
+                                   .fetchOne();
+    return Optional.ofNullable(price).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));
+  }
+
 }

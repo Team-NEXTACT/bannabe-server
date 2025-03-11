@@ -21,7 +21,8 @@ public record EndPoint(
       new EndPoint(HttpMethod.GET, "/v1/stations/{stationId}/items/{itemTypeId}"),
       new EndPoint(HttpMethod.GET, "/v1/rentals/{rentalItemToken}"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
-      new EndPoint(HttpMethod.GET, "/events/**")
+      new EndPoint(HttpMethod.GET, "/events/**"),
+      new EndPoint(HttpMethod.GET, "/v1/payments/checkout")
   );
 
 }

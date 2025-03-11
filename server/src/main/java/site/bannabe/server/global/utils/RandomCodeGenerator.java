@@ -1,6 +1,8 @@
 package site.bannabe.server.global.utils;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import site.bannabe.server.domain.payments.entity.RentalPayments;
@@ -42,6 +44,11 @@ public class RandomCodeGenerator {
     return generateRandomString(prefix.value(), TOKEN_LENGTH);
   }
 
+  public static String generateOrderId(LocalDateTime now) {
+    String prefix = Prefix.ORDER.value() + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+    return generateRandomString(prefix, 6);
+  }
+
   private static String generateRandomString(String prefix, int length) {
     StringBuilder sb = new StringBuilder(prefix);
     for (int i = 0; i < length; i++) {
@@ -58,7 +65,8 @@ public class RandomCodeGenerator {
     USER("USR_"),
     RENTAL_ITEM("RI_"),
     RENTAL_HISTORY("RH_"),
-    RENTAL_PAYMENT("RP_");
+    RENTAL_PAYMENT("RP_"),
+    ORDER("ORD_");
 
     private final String value;
 

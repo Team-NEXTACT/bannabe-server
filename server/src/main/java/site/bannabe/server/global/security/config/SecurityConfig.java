@@ -1,6 +1,7 @@
 package site.bannabe.server.global.security.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -50,7 +51,10 @@ public class SecurityConfig {
       for (EndPoint endPoint : EndPoint.PERMIT_ALL) {
         authorizeRequests.requestMatchers(endPoint.method(), endPoint.pattern()).permitAll();
       }
-      authorizeRequests.anyRequest().authenticated();
+      authorizeRequests.requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                       .permitAll()
+                       .anyRequest()
+                       .authenticated();
     });
   }
 

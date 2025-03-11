@@ -6,4 +6,6 @@ public interface CustomRentalItemRepository {
 
   RentalItems findByToken(String token);
 
+  Integer findRentalItemPrice(String token);
+
 }

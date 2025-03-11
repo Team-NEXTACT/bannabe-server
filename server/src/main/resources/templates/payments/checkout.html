@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<title>결제창 호출</title>
+		<script src="https://js.tosspayments.com/v2/standard"></script>
+	</head>
+	<body>
+
+		<button onclick="requestPayment()">결제하기</button>
+
+		<script th:inline="javascript">
+			console.log([[${paymentInitializeResponse}]]);
+      const clientKey = [[${paymentInitializeResponse.apiKey}]];
+      const amount = {
+        currency: [[${paymentInitializeResponse.currency}]],
+        value: [[${paymentInitializeResponse.amount}]],
+      };
+
+      const customerKey = [[${paymentInitializeResponse.customerKey}]];
+      const tossPayments = TossPayments(clientKey);
+      const payment = tossPayments.payment({customerKey});
+
+      async function requestPayment() {
+        await payment.requestPayment({
+          method: 'CARD',
+          amount,
+          orderId: [[${paymentInitializeResponse.orderId}]],
+          orderName: [[${paymentInitializeResponse.orderName}]],
+          successUrl: `${window.location.origin}/v1/payments/success`,
+          failUrl: `${window.location.origin}/v1/payments/failure`,
+          card: {
+            useEscrow: false,
+            flowMode: 'DEFAULT',
+            useCardPoint: false,
+            useAppCardOnly: false,
+          },
+        });
+      }
+
+		</script>
+	</body>
+</html>

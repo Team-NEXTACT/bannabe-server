@@ -3,26 +3,28 @@ spring:
     activate:
       on-profile: dev
 
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bannabe
+    url: jdbc:mysql://mysql:3306/bannabe
     username: server
     password: 1234
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       password: 1234
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         highlight_sql: true
-    open-in-view: false
     defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always

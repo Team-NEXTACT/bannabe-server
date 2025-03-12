@@ -1,13 +1,5 @@
 package site.bannabe.server.domain.rentals.repository.querydsl;
 
-import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
-import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
-import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
-import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
-import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
-
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -22,8 +14,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
 import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpleResponse;
+import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
+import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
+import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
+import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 
@@ -67,7 +66,7 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
   public RentalSuccessSimpleResponse findRentalHistoryInfoBy(String token) {
     RentalSuccessSimpleResponse result = jpaQueryFactory.select(Projections.constructor(
                                                             RentalSuccessSimpleResponse.class,
-                                                            rentalItemTypes.price,
+                                                            rentalPayments.totalAmount,
                                                             rentalItemTypes.name,
                                                             rentalHistory.rentalTimeHour,
                                                             rentalStations.name

@@ -8,7 +8,7 @@ public class PaymentTestController {
 
   @GetMapping("/payment-test")
   public String test() {
-    return "test";
+    return "payment-test";
   }
 
   @GetMapping("/payment-complete")

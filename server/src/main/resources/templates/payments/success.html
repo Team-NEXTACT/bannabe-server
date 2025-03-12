@@ -11,34 +11,6 @@
 			<div class="w-16 h-16 border-4 border-yellow-400 border-t-black rounded-full animate-[spin_1s_linear_infinite]"></div>
 			<p class="mt-4 text-gray-700 text-lg font-semibold">결제를 승인하는 중입니다...</p>
 		</div>
-		<script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const payload = {
-        paymentKey: urlParams.get('paymentKey'),
-        amount: urlParams.get('amount'),
-        orderId: urlParams.get('orderId')
-      };
-
-      const accessToken = sessionStorage.getItem('accessToken');
-      fetch('http://localhost:8080/v1/payments/confirm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      })
-      .then(res => res.json())
-      .then(payload => {
-        // 여기서 딥링크를 통해 앱의 결제확인 페이지로 이동시켜야함.
-        // 현재는 임시로 웹 결제완료 페이지로 리디렉션
-        console.log(payload);
-        const token = payload.data.rentalHistoryToken;
-        window.location.href = `http://localhost:8080/payment-complete?rentalHistoryToken=${token}`;
-      })
-      .catch(error => {
-        console.error(error);
-      });
-		</script>
+		<script src="/js/paymentSuccess.js"></script>
 	</body>
 </html>

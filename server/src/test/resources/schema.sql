@@ -130,6 +130,7 @@ CREATE TABLE rental_payments
     id                BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
     rental_history_id BIGINT,
     order_id          VARCHAR(255),
+    order_name        VARCHAR(255),
     payment_key       VARCHAR(255),
     total_amount      INTEGER,
     payment_date      DATETIME(6),

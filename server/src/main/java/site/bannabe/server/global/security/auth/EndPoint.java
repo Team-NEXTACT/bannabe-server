@@ -1,12 +1,12 @@
 package site.bannabe.server.global.security.auth;
 
 import java.util.List;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpMethod;
-import site.bannabe.server.global.type.EndPoint;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class EndPoints {
+public record EndPoint(
+    HttpMethod method,
+    String pattern
+) {
 
   public static final List<EndPoint> PERMIT_ALL = List.of(
       new EndPoint(HttpMethod.GET, "/health"),
@@ -19,8 +19,13 @@ public class EndPoints {
       new EndPoint(HttpMethod.GET, "/v1/stations"),
       new EndPoint(HttpMethod.GET, "/v1/stations/{stationId}"),
       new EndPoint(HttpMethod.GET, "/v1/stations/{stationId}/items/{itemTypeId}"),
+      new EndPoint(HttpMethod.GET, "/v1/rentals/{rentalItemToken}"),
       new EndPoint(HttpMethod.GET, "/notices/**"),
-      new EndPoint(HttpMethod.GET, "/events/**")
+      new EndPoint(HttpMethod.GET, "/events/**"),
+      new EndPoint(HttpMethod.GET, "/v1/payments/success"),
+      new EndPoint(HttpMethod.GET, "/v1/payments/failure"),
+      new EndPoint(HttpMethod.GET, "/payment-test"),
+      new EndPoint(HttpMethod.GET, "/payment-complete")
   );
 
 }

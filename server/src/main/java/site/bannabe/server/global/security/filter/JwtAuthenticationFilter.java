@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
 import site.bannabe.server.global.jwt.JwtService;
-import site.bannabe.server.global.security.auth.EndPoints;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,15 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     jwtService.validateToken(accessToken);
     jwtService.saveAuthentication(accessToken);
     filterChain.doFilter(request, response);
-  }
-
-  @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) {
-    String pattern = request.getRequestURI();
-    String method = request.getMethod();
-    return EndPoints.PERMIT_ALL.stream()
-                               .anyMatch(endpoint ->
-                                   pattern.startsWith(endpoint.pattern()) && method.equals(endpoint.method().name()));
   }
 
 }

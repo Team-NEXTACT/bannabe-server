@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.users.entity;
+package site.bannabe.server.domain.payments.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.global.type.BaseEntity;
 
 @Entity

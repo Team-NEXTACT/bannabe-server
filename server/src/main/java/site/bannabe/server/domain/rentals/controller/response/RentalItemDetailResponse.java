@@ -1,12 +1,19 @@
 package site.bannabe.server.domain.rentals.controller.response;
 
+import site.bannabe.server.domain.rentals.entity.RentalItems;
+
 public record RentalItemDetailResponse(
     String name,
-    String image,
-    String category,
-    String description,
     Integer price,
-    Integer stock
+    String currentStationName
 ) {
+
+  public static RentalItemDetailResponse create(RentalItems rentalItem) {
+    return new RentalItemDetailResponse(
+        rentalItem.getRentalItemType().getName(),
+        rentalItem.getRentalItemType().getPrice(),
+        rentalItem.getCurrentStation().getName()
+    );
+  }
 
 }

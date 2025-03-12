@@ -1,14 +1,14 @@
 package site.bannabe.server.domain.rentals.repository.querydsl;
 
-import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
-import static site.bannabe.server.domain.rentals.entity.QRentalStationItems.rentalStationItems;
-import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
+import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
 
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import site.bannabe.server.domain.rentals.controller.response.RentalItemDetailResponse;
+import site.bannabe.server.domain.rentals.entity.RentalItems;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,22 +17,23 @@ public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepositor
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public RentalItemDetailResponse findRentalItemDetailBy(Long stationId, Long itemTypeId) {
-    return jpaQueryFactory.select(Projections.constructor(
-                              RentalItemDetailResponse.class,
-                              rentalItemTypes.name,
-                              rentalItemTypes.image,
-                              rentalItemTypes.category.stringValue(),
-                              rentalItemTypes.description,
-                              rentalItemTypes.price,
-                              rentalStationItems.stock
-                          ))
-                          .from(rentalStationItems)
-                          .join(rentalStationItems.rentalStation, rentalStations)
-                          .join(rentalStationItems.rentalItemType, rentalItemTypes)
-                          .where(rentalStations.id.eq(stationId)
-                                                  .and(rentalItemTypes.id.eq(itemTypeId)))
-                          .fetchOne();
+  public RentalItems findByToken(String token) {
+    RentalItems rentalItem = jpaQueryFactory.selectFrom(rentalItems)
+                                            .join(rentalItems.rentalItemType).fetchJoin()
+                                            .join(rentalItems.currentStation).fetchJoin()
+                                            .where(rentalItems.token.eq(token))
+                                            .fetchOne();
+    return Optional.ofNullable(rentalItem).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));
+  }
+
+  @Override
+  public Integer findRentalItemPrice(String token) {
+    Integer price = jpaQueryFactory.select(rentalItems.rentalItemType.price)
+                                   .from(rentalItems)
+                                   .join(rentalItems.rentalItemType).fetchJoin()
+                                   .where(rentalItems.token.eq(token))
+                                   .fetchOne();
+    return Optional.ofNullable(price).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));
   }
 
 }

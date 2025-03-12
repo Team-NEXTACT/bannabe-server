@@ -19,19 +19,19 @@ public class RefreshTokenClient implements RedisClient<RefreshToken> {
 
   @Override
   public void save(String key, RefreshToken value) {
-    key = REFRESH_TOKEN_PREFIX + key;
+    key = generateKey(REFRESH_TOKEN_PREFIX, key);
     redis.opsForValue().set(key, value, Duration.ofDays(TTL));
   }
 
   @Override
   public RefreshToken findBy(String key) {
-    RefreshToken value = redis.opsForValue().get(REFRESH_TOKEN_PREFIX + key);
+    RefreshToken value = redis.opsForValue().get(generateKey(REFRESH_TOKEN_PREFIX, key));
     return Optional.ofNullable(value).orElseThrow(() -> new BannabeServiceException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
   }
 
   @Override
   public void deleteBy(String key) {
-    redis.delete(REFRESH_TOKEN_PREFIX + key);
+    redis.delete(generateKey(REFRESH_TOKEN_PREFIX, key));
   }
 
 }

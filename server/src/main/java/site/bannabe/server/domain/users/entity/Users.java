@@ -59,4 +59,10 @@ public class Users extends BaseEntity {
     profileImage = newProfileImage;
   }
 
+  public Users updateOAuth2User(String nickname, String profileImage) {
+    this.nickname = nickname;
+    this.profileImage = profileImage;
+    return this;
+  }
+
 }

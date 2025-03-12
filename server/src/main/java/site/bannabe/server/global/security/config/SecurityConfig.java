@@ -24,6 +24,8 @@ import site.bannabe.server.global.security.filter.JwtAuthenticationFilter;
 public class SecurityConfig {
 
   private final SecurityComponentProvider securityProvider;
+  private final CustomOAuth2UserService customOAuth2UserService;
+  private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,6 +36,10 @@ public class SecurityConfig {
         .addFilterAt(securityProvider.getJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(securityProvider.getJwtAuthenticationFilter(), JSONUsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(securityProvider.getExceptionHandleFilter(), JwtAuthenticationFilter.class)
+        .oauth2Login(oauth2 -> oauth2
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService))
+            .successHandler(oAuth2SuccessHandler))
         .logout(logoutConfigurer ->
             logoutConfigurer.logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout", HttpMethod.POST.name()))
                             .addLogoutHandler(securityProvider.getLogoutHandler())

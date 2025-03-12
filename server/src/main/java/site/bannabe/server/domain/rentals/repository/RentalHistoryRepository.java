@@ -6,4 +6,4 @@ import site.bannabe.server.domain.rentals.repository.querydsl.CustomRentalHistor
 
 public interface RentalHistoryRepository extends JpaRepository<RentalHistory, Long>, CustomRentalHistoryRepository {
 
-}
+}https://console.cloud.google.com/apis/agreements?inv=1&invt=Abryag&organizationId=0&project=bannabee-b15ef

@@ -2,6 +2,7 @@ package site.bannabe.server.global.security.auth;
 
 import java.util.List;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 public record EndPoint(
     HttpMethod method,
@@ -28,5 +29,13 @@ public record EndPoint(
       new EndPoint(HttpMethod.GET, "/payment-complete"),
       new EndPoint(HttpMethod.POST, "/oauth2/login/{provider}")
   );
+
+  public static final List<AntPathRequestMatcher> PERMIT_ALL_MATCHERS = PERMIT_ALL.stream()
+                                                                                  .map(EndPoint::toMatcher)
+                                                                                  .toList();
+
+  private AntPathRequestMatcher toMatcher() {
+    return AntPathRequestMatcher.antMatcher(this.method(), this.pattern());
+  }
 
 }

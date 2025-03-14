@@ -24,6 +24,10 @@ public abstract class AbstractTestContainers {
 
     mysqlContainer.start();
     redisContainer.start();
+
+    System.setProperty("REDIS_HOST", redisContainer.getHost());
+    System.setProperty("REDIS_PORT", String.valueOf(redisContainer.getFirstMappedPort()));
+    System.setProperty("REDIS_PASSWORD", "testpassword");
   }
 
 }

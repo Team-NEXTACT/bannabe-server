@@ -29,11 +29,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.4.2'
 
+    // aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // database
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.37.0'
 
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
@@ -57,11 +60,13 @@ dependencies {
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
     // aws
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0'
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.projectlombok:lombok'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

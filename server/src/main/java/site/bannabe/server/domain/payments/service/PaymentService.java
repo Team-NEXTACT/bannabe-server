@@ -29,6 +29,7 @@ public class PaymentService {
   private final UserRepository userRepository;
   private final TossPaymentApiClient tossApiClient;
   private final OrderInfoService orderInfoService;
+  private final PaymentLockService paymentLockService;
 
   @Transactional(readOnly = true)
   public PaymentCalculateResponse calculateAmount(PaymentCalculateRequest paymentRequest) {
@@ -45,20 +46,16 @@ public class PaymentService {
     RentalItems rentalItem = rentalItemRepository.findByToken(orderInfo.getRentalItemToken());
     RentalHistory rentalHistory = createRentalHistory(email, orderInfo, paymentConfirmResponse, rentalItem);
     saveRentalPaymentsAndRentalHistory(paymentConfirmResponse, orderInfo, rentalHistory);
-    rentalItem.rentOut();
+    processRental(paymentConfirmRequest, rentalItem);
     return new RentalHistoryTokenResponse(rentalHistory.getToken());
   }
 
   private OrderInfo getOrderInfoAndValidateAmount(PaymentConfirmRequest paymentConfirmRequest) {
-    OrderInfo orderInfo = orderInfoService.getOrderInfo(paymentConfirmRequest.orderId());
-    validateAmount(orderInfo.getAmount(), paymentConfirmRequest.amount());
-    return orderInfo;
-  }
-
-  private void validateAmount(Integer savedAmount, Integer requestAmount) {
-    if (!savedAmount.equals(requestAmount)) {
+    OrderInfo orderInfo = orderInfoService.findOrderInfoBy(paymentConfirmRequest.orderId());
+    if (!orderInfo.getAmount().equals(paymentConfirmRequest.amount())) {
       throw new BannabeServiceException(ErrorCode.AMOUNT_MISMATCH);
     }
+    return orderInfo;
   }
 
   private RentalHistory createRentalHistory(String email, OrderInfo orderInfo,
@@ -71,6 +68,12 @@ public class PaymentService {
       RentalHistory rentalHistory) {
     RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
     rentalPaymentRepository.save(rentalPayments);
+  }
+
+  private void processRental(PaymentConfirmRequest paymentConfirmRequest, RentalItems rentalItem) {
+    paymentLockService.decreaseStock(rentalItem);
+    rentalItem.rentOut();
+    orderInfoService.removeOrderInfo(paymentConfirmRequest.orderId());
   }
 
 }

@@ -17,12 +17,16 @@ public class OrderInfoService {
     orderInfoClient.save(orderId, orderInfo);
   }
 
-  public OrderInfo getOrderInfo(String orderId) {
+  public OrderInfo findOrderInfoBy(String orderId) {
     return orderInfoClient.findBy(orderId);
   }
 
-  public void deleteOrderInfo(String orderId) {
+  public void removeOrderInfo(String orderId) {
     orderInfoClient.deleteBy(orderId);
+  }
+
+  public boolean isExistOrderInfo(String rentalItemToken) {
+    return orderInfoClient.existByRentalToken(rentalItemToken);
   }
 
 }

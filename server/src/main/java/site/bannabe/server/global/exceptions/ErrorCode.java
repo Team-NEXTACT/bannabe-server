@@ -33,6 +33,7 @@ public enum ErrorCode {
   BOOKMARK_NOT_EXIST(HttpStatus.NOT_FOUND, "북마크 정보가 일치하지 않습니다."),
   RENTAL_STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 정보가 존재하지 않습니다."),
   RENTAL_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여물품 정보가 존재하지 않습니다."),
+  RENTAL_STATION_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 대여물품 정보가 존재하지 않습니다."),
 
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),
@@ -43,12 +44,16 @@ public enum ErrorCode {
   AUTH_CODE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 인증된 코드입니다."),
   ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 즐겨찾기한 대여 스테이션입니다."),
   AMOUNT_MISMATCH(HttpStatus.CONFLICT, "금액이 일치하지 않습니다."),
+  LOCK_CONFLICT(HttpStatus.CONFLICT, "현재 요청이 많아 처리가 지연되고 있습니다. 다시 시도해주세요."),
+  ALREADY_EXIST_ORDER_INFO(HttpStatus.CONFLICT, "해당 대여물품에 대한 주문 정보가 이미 존재합니다."),
+  RENTAL_ITEM_STOCK_EMPTY(HttpStatus.CONFLICT, "대여물품 재고가 없습니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다. 관리자에게 문의하세요."),
   JSON_SERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "객체를 JSON으로 변환하는 중 오류가 발생했습니다."),
   JSON_DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JSON을 객체로 변환하는 중 오류가 발생했습니다."),
-  MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메일 전송에 실패했습니다.");
+  MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메일 전송에 실패했습니다."),
+  LOCK_ACQUISITION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 작업을 처리할 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String message;

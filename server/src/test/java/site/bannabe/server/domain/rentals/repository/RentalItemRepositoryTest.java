@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,10 @@ class RentalItemRepositoryTest extends AbstractTestContainers {
   @Autowired
   private EntityManager em;
 
-  @Test
-  @DisplayName("Token을 식별값으로 RentalItem을 조회한다.")
-  void findRentalItemByTokenTest() {
-    //given
+  private RentalItems rentalItems;
+
+  @BeforeEach
+  void init() {
     RentalStations rentalStation = RentalStations.builder()
                                                  .name("테스트 대여소")
                                                  .address("서울시 강남구")
@@ -52,17 +53,24 @@ class RentalItemRepositoryTest extends AbstractTestContainers {
     em.persist(rentalItemTypes);
     em.flush();
 
-    RentalItems rentalItems = RentalItems.builder()
-                                         .token(RandomCodeGenerator.generateRandomToken(RentalItems.class))
-                                         .rentalItemType(rentalItemTypes)
-                                         .currentStation(rentalStation)
-                                         .build();
-    String token = rentalItems.getToken();
+    rentalItems = RentalItems.builder()
+                             .token(RandomCodeGenerator.generateRandomToken(RentalItems.class))
+                             .rentalItemType(rentalItemTypes)
+                             .currentStation(rentalStation)
+                             .build();
 
     em.persist(rentalItems);
     em.flush();
     em.clear();
+  }
 
+  @Test
+  @DisplayName("Token 기반 RentalItem 조회 테스트")
+  void findRentalItemByToken() {
+    //given
+    String token = rentalItems.getToken();
+    RentalItemTypes rentalItemTypes = rentalItems.getRentalItemType();
+    RentalStations rentalStation = rentalItems.getCurrentStation();
     //when
     RentalItems result = rentalItemRepository.findByToken(token);
 
@@ -116,5 +124,18 @@ class RentalItemRepositoryTest extends AbstractTestContainers {
                                               rentalStation.getStatus(),
                                               rentalStation.getGrade()
                                           );
+  }
+
+  @Test
+  @DisplayName("Token기반 RentalItem 가격 조회 테스트")
+  void findRentalItemPrice() {
+    //given
+    String token = rentalItems.getToken();
+    Integer price = rentalItems.getRentalItemType().getPrice();
+    //when
+    Integer result = rentalItemRepository.findRentalItemPrice(token);
+
+    //then
+    assertThat(result).isNotNull().isEqualTo(price);
   }
 }

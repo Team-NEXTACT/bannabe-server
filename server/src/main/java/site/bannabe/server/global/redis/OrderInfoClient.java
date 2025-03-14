@@ -1,9 +1,11 @@
 package site.bannabe.server.global.redis;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
@@ -31,6 +33,23 @@ public class OrderInfoClient implements RedisClient<OrderInfo> {
   @Override
   public void deleteBy(String key) {
     redis.delete(generateKey(ORDER_INFO_PREFIX, key));
+  }
+
+  public boolean existByRentalToken(String rentalItemToken) {
+    ScanOptions options = ScanOptions.scanOptions().match(ORDER_INFO_PREFIX.concat("*")).count(100).build();
+    try (var cursor = redis.scan(options)) {
+      while (cursor.hasNext()) {
+        String key = cursor.next();
+        OrderInfo orderInfo = redis.opsForValue().get(key);
+        if (Objects.isNull(orderInfo)) {
+          continue;
+        }
+        if (orderInfo.getRentalItemToken().equals(rentalItemToken)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
 }

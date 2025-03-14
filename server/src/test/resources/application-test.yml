@@ -1,7 +1,11 @@
 spring:
+  config:
+    activate:
+      on-profile: test
+
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -12,11 +16,6 @@ spring:
           useUnicode: true
           CharSet: utf-8
     database: mysql
-    defer-datasource-initialization: true
-
-  sql:
-    init:
-      mode: always
 
   mail:
     host: smtp.gmail.com
@@ -34,9 +33,9 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: testpassword
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:testpassword}
 
   cloud:
     aws:
@@ -54,6 +53,9 @@ jwt:
 
 bannabe:
   default-profile-image: default.png
+  payment:
+    secret-key: asg8y34tacvhbalsfguhafg==
+    api-key: idfbhzuh3498tyzlxjb
 
 encrypt:
   password: a;sldfhz9x8bvy3tqotazosd8fgvq345tyosd7

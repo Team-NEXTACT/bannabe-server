@@ -30,7 +30,7 @@ public class CustomRentalItemRepositoryImpl implements CustomRentalItemRepositor
   public Integer findRentalItemPrice(String token) {
     Integer price = jpaQueryFactory.select(rentalItems.rentalItemType.price)
                                    .from(rentalItems)
-                                   .join(rentalItems.rentalItemType).fetchJoin()
+                                   .join(rentalItems.rentalItemType)
                                    .where(rentalItems.token.eq(token))
                                    .fetchOne();
     return Optional.ofNullable(price).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_FOUND));

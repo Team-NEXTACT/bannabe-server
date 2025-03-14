@@ -134,10 +134,10 @@ class PaymentLockServiceTest extends AbstractTestContainers {
 
   @AfterEach
   void tearDown() {
-    rentalStationItemRepository.deleteById(rentalStationItems.getId());
-    rentalItemRepository.deleteById(rentalItems.getId());
-    rentalItemTypeRepository.deleteById(rentalItemTypes.getId());
-    rentalStationRepository.deleteById(rentalStations.getId());
+    rentalStationItemRepository.deleteAllInBatch();
+    rentalItemRepository.deleteAllInBatch();
+    rentalItemTypeRepository.deleteAllInBatch();
+    rentalStationRepository.deleteAllInBatch();
   }
 
 }

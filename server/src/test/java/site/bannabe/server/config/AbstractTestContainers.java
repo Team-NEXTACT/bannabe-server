@@ -1,11 +1,16 @@
 package site.bannabe.server.config;
 
 import com.redis.testcontainers.RedisContainer;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 public abstract class AbstractTestContainers {
 
   @ServiceConnection(name = "mysql")

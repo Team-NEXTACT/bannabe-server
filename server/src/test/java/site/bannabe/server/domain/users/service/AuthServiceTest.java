@@ -1,7 +1,7 @@
 package site.bannabe.server.domain.users.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -102,9 +102,9 @@ class AuthServiceTest {
     given(userRepository.existsByEmail(anyString())).willReturn(true);
 
     //when then
-    assertThatThrownBy(() -> authService.registerUser(registerRequest))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.DUPLICATE_EMAIL.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.registerUser(registerRequest))
+        .withMessage(ErrorCode.DUPLICATE_EMAIL.getMessage());
 
     verify(passwordService, never()).encodePassword(anyString());
     verify(userRepository, never()).save(any(Users.class));
@@ -137,9 +137,9 @@ class AuthServiceTest {
     willThrow(new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN)).given(jwtService).validateToken(anyString());
 
     //when then
-    assertThatThrownBy(() -> authService.refreshToken(refreshToken))
-        .isInstanceOf(BannabeAuthenticationException.class)
-        .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
+    assertThatExceptionOfType(BannabeAuthenticationException.class)
+        .isThrownBy(() -> authService.refreshToken(refreshToken))
+        .withMessage(ErrorCode.INVALID_TOKEN.getMessage());
 
     verify(jwtService, never()).refreshJWT(anyString());
   }
@@ -166,9 +166,9 @@ class AuthServiceTest {
     given(userRepository.existsByEmail(email)).willReturn(false);
 
     //when then
-    assertThatThrownBy(() -> authService.sendAuthCode(email))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.sendAuthCode(email))
+        .withMessage(ErrorCode.USER_NOT_FOUND.getMessage());
 
     verify(authCodeService, never()).saveAuthCode(eq(email), anyString());
     verify(mailService, never()).sendAuthCodeMail(eq(email), anyString());
@@ -194,9 +194,9 @@ class AuthServiceTest {
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode(authCode, true));
 
     //when then
-    assertThatThrownBy(() -> authService.verifyAuthCode(email, authCode))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.AUTH_CODE_ALREADY_VERIFIED.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.verifyAuthCode(email, authCode))
+        .withMessage(ErrorCode.AUTH_CODE_ALREADY_VERIFIED.getMessage());
 
     verify(authCodeService, never()).markAuthCodeAsVerified(email);
   }
@@ -208,9 +208,9 @@ class AuthServiceTest {
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode("wrongAuthCode", false));
 
     //when then
-    assertThatThrownBy(() -> authService.verifyAuthCode(email, authCode))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.AUTH_CODE_MISMATCH.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.verifyAuthCode(email, authCode))
+        .withMessage(ErrorCode.AUTH_CODE_MISMATCH.getMessage());
 
     verify(authCodeService, never()).markAuthCodeAsVerified(email);
   }
@@ -245,9 +245,9 @@ class AuthServiceTest {
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode(authCode, false));
 
     //when then
-    assertThatThrownBy(() -> authService.resetPassword(request))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.AUTH_CODE_NOT_VERIFIED.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.resetPassword(request))
+        .withMessage(ErrorCode.AUTH_CODE_NOT_VERIFIED.getMessage());
 
     verify(authCodeService).findAuthCode(email);
     verify(passwordService, never()).validateNewPassword(newPassword, newPasswordConfirm);
@@ -264,9 +264,9 @@ class AuthServiceTest {
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode("wrongAuthCode", true));
 
     //when then
-    assertThatThrownBy(() -> authService.resetPassword(request))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.AUTH_CODE_MISMATCH.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.resetPassword(request))
+        .withMessage(ErrorCode.AUTH_CODE_MISMATCH.getMessage());
 
     verify(authCodeService).findAuthCode(email);
     verify(passwordService, never()).validateNewPassword(newPassword, newPasswordConfirm);
@@ -284,9 +284,9 @@ class AuthServiceTest {
     willThrow(new BannabeServiceException(ErrorCode.NEW_PASSWORD_MISMATCH)).given(passwordService)
                                                                            .validateNewPassword(newPassword, newPasswordConfirm);
     //when then
-    assertThatThrownBy(() -> authService.resetPassword(request))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.NEW_PASSWORD_MISMATCH.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.resetPassword(request))
+        .withMessage(ErrorCode.NEW_PASSWORD_MISMATCH.getMessage());
 
     verify(authCodeService).findAuthCode(email);
     verify(passwordService).validateNewPassword(newPassword, newPasswordConfirm);
@@ -305,9 +305,9 @@ class AuthServiceTest {
     willThrow(new BannabeServiceException(ErrorCode.DUPLICATE_PASSWORD)).given(passwordService)
                                                                         .validateReusedPassword(newPassword, user.getPassword());
     //when then
-    assertThatThrownBy(() -> authService.resetPassword(request))
-        .isInstanceOf(BannabeServiceException.class)
-        .hasMessage(ErrorCode.DUPLICATE_PASSWORD.getMessage());
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> authService.resetPassword(request))
+        .withMessage(ErrorCode.DUPLICATE_PASSWORD.getMessage());
 
     verify(authCodeService).findAuthCode(email);
     verify(passwordService).validateNewPassword(newPassword, newPasswordConfirm);

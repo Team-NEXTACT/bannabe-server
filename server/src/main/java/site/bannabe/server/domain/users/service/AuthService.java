@@ -34,7 +34,7 @@ public class AuthService {
   public void registerUser(UserRegisterRequest registerRequest) {
     Boolean isDuplicateEmail = userRepository.existsByEmail(registerRequest.email());
     if (isDuplicateEmail) {
-      throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+      throw new BannabeServiceException(ErrorCode.DUPLICATE_EMAIL);
     }
 
     String encodedPassword = passwordService.encodePassword(registerRequest.password());
@@ -82,6 +82,9 @@ public class AuthService {
     String newPasswordConfirm = resetPasswordRequest.newPasswordConfirm();
 
     AuthCode savedAuthCode = authCodeService.findAuthCode(email);
+    if (!savedAuthCode.isVerified()) {
+      throw new BannabeServiceException(ErrorCode.AUTH_CODE_NOT_VERIFIED);
+    }
     validateAuthCode(resetPasswordRequest.authCode(), savedAuthCode.getAuthCode());
 
     passwordService.validateNewPassword(newPassword, newPasswordConfirm);

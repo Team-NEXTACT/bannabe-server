@@ -51,7 +51,7 @@ public class RentalStationService {
                                                           .orElseThrow(() ->
                                                               new BannabeServiceException(ErrorCode.RENTAL_STATION_NOT_FOUND));
 
-    boolean isAlreadyBookmarked = bookmarkStationRepository.existsBookmarkByEmailAndStation(user, rentalStation);
+    boolean isAlreadyBookmarked = bookmarkStationRepository.existsByUserAndStation(user, rentalStation);
     if (isAlreadyBookmarked) {
       throw new BannabeServiceException(ErrorCode.ALREADY_BOOKMARKED);
     }

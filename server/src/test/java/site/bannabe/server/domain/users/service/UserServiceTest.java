@@ -395,7 +395,7 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsBookmarkByEmail(EMAIL, bookmarkId)).willReturn(Boolean.TRUE);
+    given(bookmarkStationRepository.existsByEmailAndId(EMAIL, bookmarkId)).willReturn(Boolean.TRUE);
 
     //when
     userService.removeBookmarkStation(EMAIL, bookmarkId);
@@ -410,7 +410,7 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsBookmarkByEmail(EMAIL, bookmarkId)).willReturn(Boolean.FALSE);
+    given(bookmarkStationRepository.existsByEmailAndId(EMAIL, bookmarkId)).willReturn(Boolean.FALSE);
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)

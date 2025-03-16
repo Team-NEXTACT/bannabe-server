@@ -33,14 +33,13 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
   private EntityManager em;
 
   private Users user;
-  private List<RentalStations> rentalStations;
   private List<BookmarkStations> bookmarkStations;
 
   @BeforeEach
   void init() {
     user = Users.builder().email("test@test.com").providerType(ProviderType.LOCAL).role(Role.USER).build();
     em.persist(user);
-    rentalStations = IntStream.range(0, 10).mapToObj(i -> {
+    List<RentalStations> rentalStations = IntStream.range(0, 10).mapToObj(i -> {
       RentalStations station = RentalStations.builder()
                                              .name("station" + i)
                                              .status(StationStatus.OPEN)
@@ -90,8 +89,8 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
     //given
     RentalStations rentalStation = setupNotExistRentalStation();
     //when
-    boolean isExist = bookmarkStationRepository.existsBookmarkByEmail(user.getEmail(), bookmarkStations.get(0).getId());
-    boolean isNotExist = bookmarkStationRepository.existsBookmarkByEmail(user.getEmail(), rentalStation.getId());
+    boolean isExist = bookmarkStationRepository.existsByEmailAndId(user.getEmail(), bookmarkStations.get(0).getId());
+    boolean isNotExist = bookmarkStationRepository.existsByEmailAndId(user.getEmail(), rentalStation.getId());
     //then
     assertThat(isExist).isTrue();
     assertThat(isNotExist).isFalse();
@@ -104,8 +103,8 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
     //given
     RentalStations rentalStation = setupNotExistRentalStation();
     //when
-    boolean isExist = bookmarkStationRepository.existsBookmarkByEmailAndStation(user, rentalStations.get(0));
-    boolean isNotExist = bookmarkStationRepository.existsBookmarkByEmail(user.getEmail(), rentalStation.getId());
+    boolean isExist = bookmarkStationRepository.existsByUserAndStation(user, bookmarkStations.get(0).getRentalStation());
+    boolean isNotExist = bookmarkStationRepository.existsByUserAndStation(user, rentalStation);
 
     //then
     assertThat(isExist).isTrue();

@@ -1,11 +1,13 @@
 package site.bannabe.server.domain.users.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +95,9 @@ public class UserService {
   @Transactional
   public List<RentalHistoryResponse> getActiveRentalHistory(String email) {
     List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(email);
+    if (rentalHistories.isEmpty()) {
+      return Collections.emptyList();
+    }
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.stream().map(RentalHistoryResponse::of).toList();
@@ -101,6 +106,9 @@ public class UserService {
   @Transactional
   public Page<RentalHistoryResponse> getRentalHistory(String email, Pageable pageable) {
     Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(email, pageable);
+    if (rentalHistories.isEmpty()) {
+      return new PageImpl<>(Collections.emptyList());
+    }
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.map(RentalHistoryResponse::of);

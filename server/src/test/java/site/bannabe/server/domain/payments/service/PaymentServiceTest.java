@@ -9,7 +9,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,7 +93,7 @@ class PaymentServiceTest {
     given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
     given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
     given(rentalItemRepository.findByToken(orderInfo.getRentalItemToken())).willReturn(mockItem);
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(mockUser));
+    given(userRepository.findByEmail(email)).willReturn(mockUser);
     given(mockItem.getCurrentStation()).willReturn(mockStation);
 
     //when

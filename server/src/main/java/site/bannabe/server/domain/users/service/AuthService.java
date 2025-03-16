@@ -89,7 +89,7 @@ public class AuthService {
 
     passwordService.validateNewPassword(newPassword, newPasswordConfirm);
 
-    Users findUser = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users findUser = userRepository.findByEmail(email);
 
     passwordService.validateReusedPassword(newPassword, findUser.getPassword());
 

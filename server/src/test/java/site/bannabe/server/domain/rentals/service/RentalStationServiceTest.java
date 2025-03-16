@@ -45,7 +45,7 @@ class RentalStationServiceTest {
   void bookmarkRentalStation() {
     //given
 
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(mockUser));
+    given(userRepository.findByEmail(email)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.of(mockStation));
     given(bookmarkStationRepository.existsByUserAndStation(mockUser, mockStation)).willReturn(false);
 
@@ -57,26 +57,10 @@ class RentalStationServiceTest {
   }
 
   @Test
-  @DisplayName("회원 정보가 존재하지 않으면 예외 발생")
-  void notFoundUser() {
-    //given
-    given(userRepository.findByEmail(email)).willReturn(Optional.empty());
-
-    //when then
-    assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> rentalStationService.bookmarkRentalStation(stationId, email))
-        .withMessage(ErrorCode.USER_NOT_FOUND.getMessage());
-
-    verify(rentalStationRepository, never()).findById(stationId);
-    verify(bookmarkStationRepository, never()).existsByEmailAndId(email, stationId);
-    verify(bookmarkStationRepository, never()).save(any(BookmarkStations.class));
-  }
-
-  @Test
   @DisplayName("스테이션 정보가 존재하지 않으면 예외 발생")
   void notFoundRentalStation() {
     //given
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(mockUser));
+    given(userRepository.findByEmail(email)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.empty());
 
     //when then
@@ -92,7 +76,7 @@ class RentalStationServiceTest {
   @DisplayName("이미 북마크한 스테이션이면 예외 발생")
   void alreadyBookmarked() {
     //given
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(mockUser));
+    given(userRepository.findByEmail(email)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.of(mockStation));
     given(bookmarkStationRepository.existsByUserAndStation(mockUser, mockStation)).willReturn(true);
 

@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,7 +77,7 @@ class UserServiceTest {
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
     Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(EMAIL)).willReturn(user);
     given(passwordService.encodePassword(newPassword)).willReturn(encodedPassword);
 
     //when
@@ -113,28 +112,6 @@ class UserServiceTest {
   }
 
   @Test
-  @DisplayName("비밀번호 변경 중 회원정보가 없을 시 예외 발생")
-  void changePasswordNotFoundUser() {
-    //given
-    String currentPassword = "currentPassword";
-    String newPassword = "newPassword";
-    String newPasswordConfirm = "newPasswordConfirm";
-    UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
-
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.empty());
-
-    //when then
-    assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changePassword(EMAIL, request))
-        .withMessage(ErrorCode.USER_NOT_FOUND.getMessage());
-
-    verify(passwordService).validateNewPassword(newPassword, newPasswordConfirm);
-    verify(passwordService, never()).validateCurrentPassword(eq(currentPassword), anyString());
-    verify(passwordService, never()).validateReusedPassword(eq(newPassword), anyString());
-    verify(passwordService, never()).encodePassword(newPassword);
-  }
-
-  @Test
   @DisplayName("비밀번호 변경 중 현재 비밀번호 불일치 시 예외 발생")
   void changePasswordInvalidCurrentPassword() {
     //given
@@ -145,7 +122,7 @@ class UserServiceTest {
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
     Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(EMAIL)).willReturn(user);
     willThrow(new BannabeServiceException(ErrorCode.PASSWORD_MISMATCH)).given(passwordService)
                                                                        .validateCurrentPassword(currentPassword,
                                                                            user.getPassword());
@@ -171,7 +148,7 @@ class UserServiceTest {
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
     Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(EMAIL)).willReturn(user);
     willThrow(new BannabeServiceException(ErrorCode.DUPLICATE_PASSWORD)).given(passwordService)
                                                                         .validateReusedPassword(newPassword,
                                                                             currentEncodedPassword);
@@ -195,7 +172,7 @@ class UserServiceTest {
     Users user = Users.builder().email(EMAIL).nickname(currentNickname).build();
 
     given(userRepository.existsByNickname(newNickname)).willReturn(Boolean.FALSE);
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(EMAIL)).willReturn(user);
 
     //when
     userService.changeNickname(EMAIL, new UserChangeNicknameRequest(newNickname));
@@ -224,28 +201,13 @@ class UserServiceTest {
   }
 
   @Test
-  @DisplayName("닉네임 변경 중 회원정보가 없을 시 예외 발생")
-  void notFoundUserChangeNickname() {
-    //given
-    String newNickname = "nickname";
-
-    given(userRepository.existsByNickname(newNickname)).willReturn(Boolean.FALSE);
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.empty());
-
-    //when then
-    assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changeNickname(EMAIL, new UserChangeNicknameRequest(newNickname)))
-        .withMessage(ErrorCode.USER_NOT_FOUND.getMessage());
-  }
-
-  @Test
   @DisplayName("프로필 이미지 변경 성공 테스트")
   void changeProfileImage() {
     //given
     String newImageUrl = "newImageUrl";
     String currentProfileImage = "currentProfileImage";
     Users user = Users.builder().email(EMAIL).profileImage(currentProfileImage).build();
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(EMAIL)).willReturn(user);
 
     //when
     userService.changeProfileImage(EMAIL, new UserChangeProfileImageRequest(newImageUrl));
@@ -253,21 +215,6 @@ class UserServiceTest {
     //then
     assertThat(user.getProfileImage()).isEqualTo(newImageUrl);
     verify(s3Service).removeProfileImage(currentProfileImage);
-  }
-
-  @Test
-  @DisplayName("프로필 이미지 변경 중 회원정보가 없을 시 예외 발생")
-  void notFoundUserChangeProfileImage() {
-    //given
-    String newImageUrl = "newImageUrl";
-
-    given(userRepository.findByEmail(EMAIL)).willReturn(Optional.empty());
-
-    //when
-    assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changeProfileImage(EMAIL, new UserChangeProfileImageRequest(newImageUrl)))
-        .withMessage(ErrorCode.USER_NOT_FOUND.getMessage());
-    verify(s3Service, never()).removeProfileImage(anyString());
   }
 
   @Test

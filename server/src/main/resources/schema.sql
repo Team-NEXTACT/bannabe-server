@@ -20,10 +20,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users
 (
     id            BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
-    email         VARCHAR(255),
+    email         VARCHAR(255) UNIQUE,
     password      VARCHAR(255),
     profile_image VARCHAR(255),
-    nickname      VARCHAR(255),
+    nickname      VARCHAR(255) UNIQUE,
     role          VARCHAR(255),
     provider_type VARCHAR(255),
     create_at     DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,

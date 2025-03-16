@@ -60,7 +60,7 @@ public class PaymentService {
 
   private RentalHistory createRentalHistory(String email, OrderInfo orderInfo,
       TossPaymentConfirmResponse paymentConfirmResponse, RentalItems rentalItem) {
-    Users user = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users user = userRepository.findByEmail(email);
     return RentalHistory.create(rentalItem, user, orderInfo, paymentConfirmResponse.approvedAt());
   }
 

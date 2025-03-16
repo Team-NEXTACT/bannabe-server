@@ -10,7 +10,6 @@ import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.willThrow;
 
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -221,7 +220,7 @@ class AuthServiceTest {
   void resetPassword() {
     //given
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode(authCode, true));
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(email)).willReturn(user);
     given(passwordService.encodePassword(newPassword)).willReturn(encodedPassword);
 
     //when
@@ -301,7 +300,7 @@ class AuthServiceTest {
   void reusedPassword() {
     //given
     given(authCodeService.findAuthCode(email)).willReturn(new AuthCode(authCode, true));
-    given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+    given(userRepository.findByEmail(email)).willReturn(user);
     willThrow(new BannabeServiceException(ErrorCode.DUPLICATE_PASSWORD)).given(passwordService)
                                                                         .validateReusedPassword(newPassword, user.getPassword());
     //when then

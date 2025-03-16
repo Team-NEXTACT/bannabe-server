@@ -48,7 +48,7 @@ public class UserService {
 
     passwordService.validateNewPassword(newPassword, newPasswordConfirm);
 
-    Users findUser = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users findUser = userRepository.findByEmail(email);
 
     passwordService.validateCurrentPassword(currentPassword, findUser.getPassword());
     passwordService.validateReusedPassword(newPassword, findUser.getPassword());
@@ -64,17 +64,13 @@ public class UserService {
       throw new BannabeServiceException(ErrorCode.DUPLICATE_NICKNAME);
     }
 
-    userRepository.findByEmail(email).ifPresentOrElse(
-        user -> user.changeNickname(nicknameRequest.nickname()),
-        () -> {
-          throw new BannabeServiceException(ErrorCode.USER_NOT_FOUND);
-        }
-    );
+    Users user = userRepository.findByEmail(email);
+    user.changeNickname(nicknameRequest.nickname());
   }
 
   @Transactional
   public void changeProfileImage(String email, UserChangeProfileImageRequest changeProfileImageRequest) {
-    Users user = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users user = userRepository.findByEmail(email);
     String currentProfileImage = user.getProfileImage();
 
     String newProfileImage = changeProfileImageRequest.imageUrl();

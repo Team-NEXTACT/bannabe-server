@@ -1,14 +1,12 @@
 package site.bannabe.server.domain.users.service;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
+import site.bannabe.server.global.api.OAuth2ApiClient;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.security.auth.OAuth2ProviderRegistry;
@@ -21,36 +19,35 @@ import site.bannabe.server.global.type.TokenResponse;
 public class OAuth2Service {
 
   private final UserRepository userRepository;
-  private final RestClient restClient;
+  private final OAuth2ApiClient oAuth2ApiClient;
   private final JwtService jwtService;
   private final PasswordService passwordService;
 
   @Transactional
   public TokenResponse processOAuth2Login(String provider, String accessToken) {
     OAuth2ProviderType oAuth2ProviderType = OAuth2ProviderRegistry.getType(provider);
-    Map<String, Object> attributes = restClient.get().uri(oAuth2ProviderType.USER_INFO_URL)
-                                               .headers(headers -> {
-                                                 headers.setBearerAuth(accessToken);
-                                                 headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                                               })
-                                               .retrieve()
-                                               .body(new ParameterizedTypeReference<>() {
-                                               });
-    OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfo.from(oAuth2ProviderType, attributes);
-
+    OAuth2UserInfo oAuth2UserInfo = oAuth2ApiClient.getOAuth2UserInfo(oAuth2ProviderType, accessToken);
     return registerOrAuthenticateUser(oAuth2UserInfo);
   }
 
   private TokenResponse registerOrAuthenticateUser(OAuth2UserInfo oAuth2UserInfo) {
-    Users user = userRepository.findByEmail(oAuth2UserInfo.email()).orElseGet(() -> {
-      Users newUser = oAuth2UserInfo.toUser();
-      String encodedPassword = passwordService.encodePassword(newUser.getProviderType().name() + "_" + newUser.getEmail());
-      newUser.changePassword(encodedPassword);
-      return userRepository.save(newUser);
-    });
+    Users user;
+
+    try {
+      user = userRepository.findByEmail(oAuth2UserInfo.email());
+    } catch (BannabeServiceException e) {
+      user = registerNewUser(oAuth2UserInfo);
+    }
 
     GenerateToken token = jwtService.createJWT(user.getEmail(), user.getRole().getRoleKey());
     return TokenResponse.create(token);
+  }
+
+  private Users registerNewUser(OAuth2UserInfo oAuth2UserInfo) {
+    Users newUser = oAuth2UserInfo.toUser();
+    String encodedPassword = passwordService.encodePassword(newUser.getProviderType().name() + "_" + newUser.getEmail());
+    newUser.changePassword(encodedPassword);
+    return userRepository.save(newUser);
   }
 
 }

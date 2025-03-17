@@ -1,11 +1,13 @@
 package site.bannabe.server.domain.users.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +48,7 @@ public class UserService {
 
     passwordService.validateNewPassword(newPassword, newPasswordConfirm);
 
-    Users findUser = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users findUser = userRepository.findByEmail(email);
 
     passwordService.validateCurrentPassword(currentPassword, findUser.getPassword());
     passwordService.validateReusedPassword(newPassword, findUser.getPassword());
@@ -62,17 +64,13 @@ public class UserService {
       throw new BannabeServiceException(ErrorCode.DUPLICATE_NICKNAME);
     }
 
-    userRepository.findByEmail(email).ifPresentOrElse(
-        user -> user.changeNickname(nicknameRequest.nickname()),
-        () -> {
-          throw new BannabeServiceException(ErrorCode.USER_NOT_FOUND);
-        }
-    );
+    Users user = userRepository.findByEmail(email);
+    user.changeNickname(nicknameRequest.nickname());
   }
 
   @Transactional
   public void changeProfileImage(String email, UserChangeProfileImageRequest changeProfileImageRequest) {
-    Users user = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+    Users user = userRepository.findByEmail(email);
     String currentProfileImage = user.getProfileImage();
 
     String newProfileImage = changeProfileImageRequest.imageUrl();
@@ -93,6 +91,9 @@ public class UserService {
   @Transactional
   public List<RentalHistoryResponse> getActiveRentalHistory(String email) {
     List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(email);
+    if (rentalHistories.isEmpty()) {
+      return Collections.emptyList();
+    }
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.stream().map(RentalHistoryResponse::of).toList();
@@ -101,6 +102,9 @@ public class UserService {
   @Transactional
   public Page<RentalHistoryResponse> getRentalHistory(String email, Pageable pageable) {
     Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(email, pageable);
+    if (rentalHistories.isEmpty()) {
+      return new PageImpl<>(Collections.emptyList());
+    }
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
     return rentalHistories.map(RentalHistoryResponse::of);
@@ -114,7 +118,7 @@ public class UserService {
 
   @Transactional
   public void removeBookmarkStation(String email, Long bookmarkId) {
-    boolean isUserBookmark = bookmarkStationRepository.existsBookmarkByEmail(email, bookmarkId);
+    boolean isUserBookmark = bookmarkStationRepository.existsByEmailAndId(email, bookmarkId);
     if (!isUserBookmark) {
       throw new BannabeServiceException(ErrorCode.BOOKMARK_NOT_EXIST);
     }

@@ -10,11 +10,11 @@ import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.repository.RentalStationItemRepository;
 
 @Service
-public class RentalStockService {
+public class TestRentalStockService {
 
   private final RentalStationItemRepository rentalStationItemRepository;
 
-  public RentalStockService(RentalStationItemRepository rentalStationItemRepository) {
+  public TestRentalStockService(RentalStationItemRepository rentalStationItemRepository) {
     this.rentalStationItemRepository = rentalStationItemRepository;
   }
 

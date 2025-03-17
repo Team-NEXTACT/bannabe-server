@@ -46,7 +46,7 @@ public class JwtProvider {
 
   public void verifyToken(String token) {
     if (Objects.isNull(token)) {
-      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
+      throw new BannabeAuthenticationException(ErrorCode.TOKEN_NOT_FOUND);
     }
     try {
       parser.parseSignedClaims(token);

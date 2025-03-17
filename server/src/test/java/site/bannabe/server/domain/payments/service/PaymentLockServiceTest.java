@@ -35,7 +35,7 @@ class PaymentLockServiceTest extends AbstractTestContainers {
   private PaymentLockService paymentLockService;
 
   @Autowired
-  private RentalStockService rentalStockService;
+  private TestRentalStockService testRentalStockService;
 
   @Autowired
   private RentalStationItemRepository rentalStationItemRepository;
@@ -91,7 +91,7 @@ class PaymentLockServiceTest extends AbstractTestContainers {
     for (int i = 0; i < threadSize; i++) {
       executorService.execute(() -> {
         try {
-          rentalStockService.decreaseStock(rentalItems);
+          testRentalStockService.decreaseStock(rentalItems);
         } finally {
           latch.countDown();
         }

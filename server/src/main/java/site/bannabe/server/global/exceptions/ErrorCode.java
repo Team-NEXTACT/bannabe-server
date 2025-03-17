@@ -21,6 +21,7 @@ public enum ErrorCode {
   TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
   INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
   INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "RefreshToken이 유효하지 않습니다."),
+  TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "토큰이 존재하지 않습니다."),
 
   // 403 FORBIDDEN
   FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
@@ -38,10 +39,12 @@ public enum ErrorCode {
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),
   PASSWORD_MISMATCH(HttpStatus.CONFLICT, "비밀번호가 일치하지 않습니다."),
+  DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용중인 이메일입니다."),
   DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
   DUPLICATE_PASSWORD(HttpStatus.CONFLICT, "동일한 비밀번호로 변경할 수 없습니다."),
   AUTH_CODE_MISMATCH(HttpStatus.CONFLICT, "인증 코드가 일치하지 않습니다."),
   AUTH_CODE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "이미 인증된 코드입니다."),
+  AUTH_CODE_NOT_VERIFIED(HttpStatus.CONFLICT, "인증 코드가 검증되지 않았습니다."),
   ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 즐겨찾기한 대여 스테이션입니다."),
   AMOUNT_MISMATCH(HttpStatus.CONFLICT, "금액이 일치하지 않습니다."),
   LOCK_CONFLICT(HttpStatus.CONFLICT, "현재 요청이 많아 처리가 지연되고 있습니다. 다시 시도해주세요."),

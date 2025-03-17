@@ -9,8 +9,8 @@ public interface CustomBookmarkStationRepository {
 
   List<BookmarkStationResponse> findBookmarkStationsBy(String email);
 
-  boolean existsBookmarkByEmail(String email, Long bookmarkId);
+  boolean existsByEmailAndId(String email, Long bookmarkId);
 
-  boolean existsBookmarkByEmailAndStation(Users user, RentalStations station);
+  boolean existsByUserAndStation(Users user, RentalStations station);
 
 }

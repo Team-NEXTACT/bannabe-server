@@ -37,7 +37,7 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
   }
 
   @Override
-  public boolean existsBookmarkByEmail(String email, Long bookmarkId) {
+  public boolean existsByEmailAndId(String email, Long bookmarkId) {
     Integer findBookmark = jpaQueryFactory.selectOne()
                                           .from(bookmarkStations)
                                           .join(bookmarkStations.user, users)
@@ -48,7 +48,7 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
   }
 
   @Override
-  public boolean existsBookmarkByEmailAndStation(Users user, RentalStations station) {
+  public boolean existsByUserAndStation(Users user, RentalStations station) {
     Integer findBookmark = jpaQueryFactory.selectOne()
                                           .from(bookmarkStations)
                                           .where(bookmarkStations.user.eq(user)

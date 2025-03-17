@@ -26,5 +26,5 @@ jobs:
         working-directory: ./server
 
       - name: Build With Gradle
-        run: ./gradlew build --info
+        run: ./gradlew build
         working-directory: ./server

@@ -50,9 +50,6 @@ class PaymentLockServiceTest extends AbstractTestContainers {
   private RentalStationRepository rentalStationRepository;
 
   private RentalItems rentalItems;
-  private RentalStationItems rentalStationItems;
-  private RentalItemTypes rentalItemTypes;
-  private RentalStations rentalStations;
 
   @Test
   @DisplayName("재고 감소 분산락 적용 테스트")
@@ -109,15 +106,15 @@ class PaymentLockServiceTest extends AbstractTestContainers {
 
   @BeforeEach
   void init() {
-    rentalItemTypes = RentalItemTypes.builder()
-                                     .category(RentalItemCategory.CHARGER)
-                                     .name("Test Item Name")
-                                     .build();
-    rentalStations = RentalStations.builder()
-                                   .name("Test Station Name")
-                                   .status(StationStatus.OPEN)
-                                   .grade(StationGrade.FIRST)
-                                   .build();
+    RentalItemTypes rentalItemTypes = RentalItemTypes.builder()
+                                                     .category(RentalItemCategory.CHARGER)
+                                                     .name("Test Item Name")
+                                                     .build();
+    RentalStations rentalStations = RentalStations.builder()
+                                                  .name("Test Station Name")
+                                                  .status(StationStatus.OPEN)
+                                                  .grade(StationGrade.FIRST)
+                                                  .build();
     rentalItemTypeRepository.saveAndFlush(rentalItemTypes);
     rentalStationRepository.saveAndFlush(rentalStations);
 
@@ -127,7 +124,7 @@ class PaymentLockServiceTest extends AbstractTestContainers {
                              .currentStation(rentalStations)
                              .build();
 
-    rentalStationItems = new RentalStationItems(rentalItemTypes, rentalStations, 100);
+    RentalStationItems rentalStationItems = new RentalStationItems(rentalItemTypes, rentalStations, 100);
     rentalItemRepository.saveAndFlush(rentalItems);
     rentalStationItemRepository.saveAndFlush(rentalStationItems);
   }

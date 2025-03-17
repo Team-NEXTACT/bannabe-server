@@ -21,7 +21,8 @@ public class UserTokenClient implements RedisHashClient<UserTokens> {
   @Override
   public void save(String key, UserTokens value) {
     key = String.format(USER_TOKEN_FORMAT, key);
-    redis.opsForHash().put(key, value.getRefreshToken(), value.getDeviceToken());
+    String deviceToken = Objects.nonNull(value.getDeviceToken()) ? value.getDeviceToken() : ""; // 임시 코드. FCM 추가 이후 삭제
+    redis.opsForHash().put(key, value.getRefreshToken(), deviceToken);
     redis.expire(key, Duration.ofDays(TTL));
   }
 

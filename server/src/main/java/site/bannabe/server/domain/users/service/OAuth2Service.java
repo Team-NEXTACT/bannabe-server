@@ -3,6 +3,7 @@ package site.bannabe.server.domain.users.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bannabe.server.domain.users.controller.request.OAuth2AuthorizationRequest;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.api.OAuth2ApiClient;
@@ -24,13 +25,13 @@ public class OAuth2Service {
   private final PasswordService passwordService;
 
   @Transactional
-  public TokenResponse processOAuth2Login(String provider, String accessToken) {
+  public TokenResponse processOAuth2Login(String provider, OAuth2AuthorizationRequest authorizationRequest) {
     OAuth2ProviderType oAuth2ProviderType = OAuth2ProviderRegistry.getType(provider);
-    OAuth2UserInfo oAuth2UserInfo = oAuth2ApiClient.getOAuth2UserInfo(oAuth2ProviderType, accessToken);
-    return registerOrAuthenticateUser(oAuth2UserInfo);
+    OAuth2UserInfo oAuth2UserInfo = oAuth2ApiClient.getOAuth2UserInfo(oAuth2ProviderType, authorizationRequest.accessToken());
+    return registerOrAuthenticateUser(oAuth2UserInfo, authorizationRequest.deviceToken());
   }
 
-  private TokenResponse registerOrAuthenticateUser(OAuth2UserInfo oAuth2UserInfo) {
+  private TokenResponse registerOrAuthenticateUser(OAuth2UserInfo oAuth2UserInfo, String deviceToken) {
     Users user;
 
     try {
@@ -39,7 +40,7 @@ public class OAuth2Service {
       user = registerNewUser(oAuth2UserInfo);
     }
 
-    GenerateToken token = jwtService.createJWT(user.getEmail(), user.getRole().getRoleKey());
+    GenerateToken token = jwtService.createJWT(user.getEmail(), user.getRole().getRoleKey(), deviceToken);
     return TokenResponse.create(token);
   }
 

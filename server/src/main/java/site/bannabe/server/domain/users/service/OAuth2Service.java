@@ -23,6 +23,7 @@ public class OAuth2Service {
   private final UserRepository userRepository;
   private final RestClient restClient;
   private final JwtService jwtService;
+  private final PasswordService passwordService;
 
   @Transactional
   public TokenResponse processOAuth2Login(String provider, String accessToken) {
@@ -43,6 +44,8 @@ public class OAuth2Service {
   private TokenResponse registerOrAuthenticateUser(OAuth2UserInfo oAuth2UserInfo) {
     Users user = userRepository.findByEmail(oAuth2UserInfo.email()).orElseGet(() -> {
       Users newUser = oAuth2UserInfo.toUser();
+      String encodedPassword = passwordService.encodePassword(newUser.getProviderType().name() + "_" + newUser.getEmail());
+      newUser.changePassword(encodedPassword);
       return userRepository.save(newUser);
     });
 

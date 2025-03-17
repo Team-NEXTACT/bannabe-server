@@ -31,17 +31,18 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    GenerateToken tokens = generateToken(authentication);
+    String deviceToken = (String) request.getSession().getAttribute("deviceToken");
+    GenerateToken tokens = generateToken(authentication, deviceToken);
     ApiResponse<TokenResponse> apiResponse = ApiResponse.success("로그인 성공", TokenResponse.create(tokens));
     writeResponse(response, apiResponse);
     clearLoginUsedSession(request);
   }
 
-  private GenerateToken generateToken(Authentication authentication) {
+  private GenerateToken generateToken(Authentication authentication, String deviceToken) {
     PrincipalDetails user = (PrincipalDetails) authentication.getPrincipal();
-    String email = user.getUsername();
+    String entityToken = user.getEntityToken();
     String authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
-    return jwtService.createJWT(email, authorities);
+    return jwtService.createJWT(entityToken, authorities, deviceToken);
   }
 
   private void writeResponse(HttpServletResponse response, ApiResponse<TokenResponse> apiResponse) throws IOException {

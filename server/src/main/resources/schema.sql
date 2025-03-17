@@ -24,6 +24,7 @@ CREATE TABLE users
     password      VARCHAR(255),
     profile_image VARCHAR(255),
     nickname      VARCHAR(255) UNIQUE,
+    token         VARCHAR(255),
     role          VARCHAR(255),
     provider_type VARCHAR(255),
     create_at     DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,

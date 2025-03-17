@@ -40,11 +40,11 @@ public class PaymentService {
   }
 
   @Transactional
-  public RentalHistoryTokenResponse confirmPayment(String email, PaymentConfirmRequest paymentConfirmRequest) {
+  public RentalHistoryTokenResponse confirmPayment(String entityToken, PaymentConfirmRequest paymentConfirmRequest) {
     OrderInfo orderInfo = getOrderInfoAndValidateAmount(paymentConfirmRequest);
     TossPaymentConfirmResponse paymentConfirmResponse = tossApiClient.confirmPaymentRequest(paymentConfirmRequest);
     RentalItems rentalItem = rentalItemRepository.findByToken(orderInfo.getRentalItemToken());
-    RentalHistory rentalHistory = createRentalHistory(email, orderInfo, paymentConfirmResponse, rentalItem);
+    RentalHistory rentalHistory = createRentalHistory(entityToken, orderInfo, paymentConfirmResponse, rentalItem);
     saveRentalPaymentsAndRentalHistory(paymentConfirmResponse, orderInfo, rentalHistory);
     processRental(paymentConfirmRequest, rentalItem);
     return new RentalHistoryTokenResponse(rentalHistory.getToken());
@@ -58,9 +58,9 @@ public class PaymentService {
     return orderInfo;
   }
 
-  private RentalHistory createRentalHistory(String email, OrderInfo orderInfo,
+  private RentalHistory createRentalHistory(String entityToken, OrderInfo orderInfo,
       TossPaymentConfirmResponse paymentConfirmResponse, RentalItems rentalItem) {
-    Users user = userRepository.findByEmail(email);
+    Users user = userRepository.findByToken(entityToken);
     return RentalHistory.create(rentalItem, user, orderInfo, paymentConfirmResponse.approvedAt());
   }
 

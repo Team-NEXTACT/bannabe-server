@@ -41,14 +41,14 @@ public class UserService {
   private String defaultProfileImage;
 
   @Transactional
-  public void changePassword(String email, UserChangePasswordRequest passwordRequest) {
+  public void changePassword(String entityToken, UserChangePasswordRequest passwordRequest) {
     String newPassword = passwordRequest.newPassword();
     String newPasswordConfirm = passwordRequest.newPasswordConfirm();
     String currentPassword = passwordRequest.currentPassword();
 
     passwordService.validateNewPassword(newPassword, newPasswordConfirm);
 
-    Users findUser = userRepository.findByEmail(email);
+    Users findUser = userRepository.findByToken(entityToken);
 
     passwordService.validateCurrentPassword(currentPassword, findUser.getPassword());
     passwordService.validateReusedPassword(newPassword, findUser.getPassword());
@@ -59,18 +59,18 @@ public class UserService {
   }
 
   @Transactional
-  public void changeNickname(String email, UserChangeNicknameRequest nicknameRequest) {
+  public void changeNickname(String entityToken, UserChangeNicknameRequest nicknameRequest) {
     if (userRepository.existsByNickname(nicknameRequest.nickname())) {
       throw new BannabeServiceException(ErrorCode.DUPLICATE_NICKNAME);
     }
 
-    Users user = userRepository.findByEmail(email);
+    Users user = userRepository.findByToken(entityToken);
     user.changeNickname(nicknameRequest.nickname());
   }
 
   @Transactional
-  public void changeProfileImage(String email, UserChangeProfileImageRequest changeProfileImageRequest) {
-    Users user = userRepository.findByEmail(email);
+  public void changeProfileImage(String entityToken, UserChangeProfileImageRequest changeProfileImageRequest) {
+    Users user = userRepository.findByToken(entityToken);
     String currentProfileImage = user.getProfileImage();
 
     String newProfileImage = changeProfileImageRequest.imageUrl();
@@ -89,8 +89,8 @@ public class UserService {
   }
 
   @Transactional
-  public List<RentalHistoryResponse> getActiveRentalHistory(String email) {
-    List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(email);
+  public List<RentalHistoryResponse> getActiveRentalHistory(String entityToken) {
+    List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(entityToken);
     if (rentalHistories.isEmpty()) {
       return Collections.emptyList();
     }
@@ -100,8 +100,8 @@ public class UserService {
   }
 
   @Transactional
-  public Page<RentalHistoryResponse> getRentalHistory(String email, Pageable pageable) {
-    Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(email, pageable);
+  public Page<RentalHistoryResponse> getRentalHistory(String entityToken, Pageable pageable) {
+    Page<RentalHistory> rentalHistories = rentalHistoryRepository.findAllRentalsBy(entityToken, pageable);
     if (rentalHistories.isEmpty()) {
       return new PageImpl<>(Collections.emptyList());
     }
@@ -111,14 +111,14 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
-  public UserBookmarkStationsResponse getBookmarkStations(String email) {
-    List<BookmarkStationResponse> bookmarkStations = bookmarkStationRepository.findBookmarkStationsBy(email);
+  public UserBookmarkStationsResponse getBookmarkStations(String entityToken) {
+    List<BookmarkStationResponse> bookmarkStations = bookmarkStationRepository.findBookmarkStationsBy(entityToken);
     return new UserBookmarkStationsResponse(bookmarkStations);
   }
 
   @Transactional
-  public void removeBookmarkStation(String email, Long bookmarkId) {
-    boolean isUserBookmark = bookmarkStationRepository.existsByEmailAndId(email, bookmarkId);
+  public void removeBookmarkStation(String entityToken, Long bookmarkId) {
+    boolean isUserBookmark = bookmarkStationRepository.existsByTokenAndId(entityToken, bookmarkId);
     if (!isUserBookmark) {
       throw new BannabeServiceException(ErrorCode.BOOKMARK_NOT_EXIST);
     }

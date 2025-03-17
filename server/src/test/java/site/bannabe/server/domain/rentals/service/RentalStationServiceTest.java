@@ -27,7 +27,7 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 class RentalStationServiceTest {
 
   private final Long stationId = 1L;
-  private final String email = "test@test.com";
+  private final String entityToken = "entityToken";
   private final Users mockUser = mock(Users.class);
   private final RentalStations mockStation = mock(RentalStations.class);
 
@@ -44,13 +44,12 @@ class RentalStationServiceTest {
   @DisplayName("북마크 추가 성공")
   void bookmarkRentalStation() {
     //given
-
-    given(userRepository.findByEmail(email)).willReturn(mockUser);
+    given(userRepository.findByToken(entityToken)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.of(mockStation));
     given(bookmarkStationRepository.existsByUserAndStation(mockUser, mockStation)).willReturn(false);
 
     //when
-    rentalStationService.bookmarkRentalStation(stationId, email);
+    rentalStationService.bookmarkRentalStation(stationId, entityToken);
 
     //then
     verify(bookmarkStationRepository).save(any(BookmarkStations.class));
@@ -60,15 +59,15 @@ class RentalStationServiceTest {
   @DisplayName("스테이션 정보가 존재하지 않으면 예외 발생")
   void notFoundRentalStation() {
     //given
-    given(userRepository.findByEmail(email)).willReturn(mockUser);
+    given(userRepository.findByToken(entityToken)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.empty());
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> rentalStationService.bookmarkRentalStation(stationId, email))
+        .isThrownBy(() -> rentalStationService.bookmarkRentalStation(stationId, entityToken))
         .withMessage(ErrorCode.RENTAL_STATION_NOT_FOUND.getMessage());
 
-    verify(bookmarkStationRepository, never()).existsByEmailAndId(email, stationId);
+    verify(bookmarkStationRepository, never()).existsByTokenAndId(entityToken, stationId);
     verify(bookmarkStationRepository, never()).save(any(BookmarkStations.class));
   }
 
@@ -76,13 +75,13 @@ class RentalStationServiceTest {
   @DisplayName("이미 북마크한 스테이션이면 예외 발생")
   void alreadyBookmarked() {
     //given
-    given(userRepository.findByEmail(email)).willReturn(mockUser);
+    given(userRepository.findByToken(entityToken)).willReturn(mockUser);
     given(rentalStationRepository.findById(stationId)).willReturn(Optional.of(mockStation));
     given(bookmarkStationRepository.existsByUserAndStation(mockUser, mockStation)).willReturn(true);
 
     //when
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> rentalStationService.bookmarkRentalStation(stationId, email))
+        .isThrownBy(() -> rentalStationService.bookmarkRentalStation(stationId, entityToken))
         .withMessage(ErrorCode.ALREADY_BOOKMARKED.getMessage());
 
     verify(bookmarkStationRepository, never()).save(any(BookmarkStations.class));

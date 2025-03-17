@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -22,8 +21,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
   @Override
   public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    // 응답객체 리팩토링 후 수정 필요.
-    ApiResponse<Object> objectApiResponse = new ApiResponse<>(true, "로그아웃에 성공했습니다.", Map.of());
+    ApiResponse<?> objectApiResponse = ApiResponse.success(null);
     String body = objectMapper.writeValueAsString(objectApiResponse);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());

@@ -45,8 +45,8 @@ public class RentalStationService {
   }
 
   @Transactional
-  public void bookmarkRentalStation(Long stationId, String email) {
-    Users user = userRepository.findByEmail(email);
+  public void bookmarkRentalStation(Long stationId, String entityToken) {
+    Users user = userRepository.findByToken(entityToken);
     RentalStations rentalStation = rentalStationRepository.findById(stationId)
                                                           .orElseThrow(() ->
                                                               new BannabeServiceException(ErrorCode.RENTAL_STATION_NOT_FOUND));

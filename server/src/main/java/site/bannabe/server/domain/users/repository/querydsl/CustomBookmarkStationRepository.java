@@ -7,9 +7,9 @@ import site.bannabe.server.domain.users.entity.Users;
 
 public interface CustomBookmarkStationRepository {
 
-  List<BookmarkStationResponse> findBookmarkStationsBy(String email);
+  List<BookmarkStationResponse> findBookmarkStationsBy(String entityToken);
 
-  boolean existsByEmailAndId(String email, Long bookmarkId);
+  boolean existsByTokenAndId(String entityToken, Long bookmarkId);
 
   boolean existsByUserAndStation(Users user, RentalStations station);
 

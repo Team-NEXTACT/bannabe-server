@@ -37,7 +37,7 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
 
   @BeforeEach
   void init() {
-    user = Users.builder().email("test@test.com").providerType(ProviderType.LOCAL).role(Role.USER).build();
+    user = Users.builder().email("test@test.com").token("test-token").providerType(ProviderType.LOCAL).role(Role.USER).build();
     em.persist(user);
     List<RentalStations> rentalStations = IntStream.range(0, 10).mapToObj(i -> {
       RentalStations station = RentalStations.builder()
@@ -62,7 +62,7 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
     //given
     bookmarkStations.sort(Comparator.comparing(bookmark -> bookmark.getRentalStation().getName()));
     //when
-    List<BookmarkStationResponse> results = bookmarkStationRepository.findBookmarkStationsBy(user.getEmail());
+    List<BookmarkStationResponse> results = bookmarkStationRepository.findBookmarkStationsBy(user.getToken());
 
     //then
     assertThat(results).hasSize(bookmarkStations.size());
@@ -89,8 +89,8 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
     //given
     RentalStations rentalStation = setupNotExistRentalStation();
     //when
-    boolean isExist = bookmarkStationRepository.existsByEmailAndId(user.getEmail(), bookmarkStations.get(0).getId());
-    boolean isNotExist = bookmarkStationRepository.existsByEmailAndId(user.getEmail(), rentalStation.getId());
+    boolean isExist = bookmarkStationRepository.existsByTokenAndId(user.getToken(), bookmarkStations.get(0).getId());
+    boolean isNotExist = bookmarkStationRepository.existsByTokenAndId(user.getToken(), rentalStation.getId());
     //then
     assertThat(isExist).isTrue();
     assertThat(isNotExist).isFalse();
@@ -117,7 +117,7 @@ class BookmarkStationRepositoryTest extends AbstractTestContainers {
     //given when
     bookmarkStationRepository.deleteBookmarkById(bookmarkStations.get(0).getId());
 
-    List<BookmarkStationResponse> bookmarkStations = bookmarkStationRepository.findBookmarkStationsBy(user.getEmail());
+    List<BookmarkStationResponse> bookmarkStations = bookmarkStationRepository.findBookmarkStationsBy(user.getToken());
     //then
     assertThat(bookmarkStations).hasSize(9);
   }

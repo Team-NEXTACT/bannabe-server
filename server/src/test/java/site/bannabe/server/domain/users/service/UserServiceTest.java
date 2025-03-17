@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -47,6 +48,7 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 class UserServiceTest {
 
   private static final String EMAIL = "test@test.com";
+  private final String entityToken = "entityToken";
   @Mock
   private UserRepository userRepository;
   @Mock
@@ -77,11 +79,11 @@ class UserServiceTest {
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
     Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(user);
+    given(userRepository.findByToken(entityToken)).willReturn(user);
     given(passwordService.encodePassword(newPassword)).willReturn(encodedPassword);
 
     //when
-    userService.changePassword(EMAIL, request);
+    userService.changePassword(entityToken, request);
 
     //then
     assertThat(user.getPassword()).isEqualTo(encodedPassword);
@@ -122,13 +124,13 @@ class UserServiceTest {
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
     Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(user);
+    given(userRepository.findByToken(entityToken)).willReturn(user);
     willThrow(new BannabeServiceException(ErrorCode.PASSWORD_MISMATCH)).given(passwordService)
                                                                        .validateCurrentPassword(currentPassword,
                                                                            user.getPassword());
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changePassword(EMAIL, request))
+        .isThrownBy(() -> userService.changePassword(entityToken, request))
         .withMessage(ErrorCode.PASSWORD_MISMATCH.getMessage());
 
     verify(passwordService).validateNewPassword(newPassword, newPasswordConfirm);
@@ -146,15 +148,16 @@ class UserServiceTest {
     String newPassword = "newPassword";
     String newPasswordConfirm = "newPasswordConfirm";
     UserChangePasswordRequest request = new UserChangePasswordRequest(currentPassword, newPassword, newPasswordConfirm);
-    Users user = Users.builder().email(EMAIL).password(currentEncodedPassword).build();
+    Users user = mock(Users.class);
 
-    given(userRepository.findByEmail(EMAIL)).willReturn(user);
+    given(userRepository.findByToken(entityToken)).willReturn(user);
+    given(user.getPassword()).willReturn(currentEncodedPassword);
     willThrow(new BannabeServiceException(ErrorCode.DUPLICATE_PASSWORD)).given(passwordService)
                                                                         .validateReusedPassword(newPassword,
                                                                             currentEncodedPassword);
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changePassword(EMAIL, request))
+        .isThrownBy(() -> userService.changePassword(entityToken, request))
         .withMessage(ErrorCode.DUPLICATE_PASSWORD.getMessage());
 
     verify(passwordService).validateNewPassword(newPassword, newPasswordConfirm);
@@ -172,16 +175,16 @@ class UserServiceTest {
     Users user = Users.builder().email(EMAIL).nickname(currentNickname).build();
 
     given(userRepository.existsByNickname(newNickname)).willReturn(Boolean.FALSE);
-    given(userRepository.findByEmail(EMAIL)).willReturn(user);
+    given(userRepository.findByToken(entityToken)).willReturn(user);
 
     //when
-    userService.changeNickname(EMAIL, new UserChangeNicknameRequest(newNickname));
+    userService.changeNickname(entityToken, new UserChangeNicknameRequest(newNickname));
 
     //then
     assertThat(user.getNickname()).isEqualTo(newNickname);
 
     verify(userRepository).existsByNickname(newNickname);
-    verify(userRepository).findByEmail(EMAIL);
+    verify(userRepository).findByToken(entityToken);
   }
 
   @Test
@@ -194,10 +197,10 @@ class UserServiceTest {
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changeNickname(EMAIL, new UserChangeNicknameRequest(newNickname)))
+        .isThrownBy(() -> userService.changeNickname(entityToken, new UserChangeNicknameRequest(newNickname)))
         .withMessage(ErrorCode.DUPLICATE_NICKNAME.getMessage());
 
-    verify(userRepository, never()).findByEmail(EMAIL);
+    verify(userRepository, never()).findByToken(entityToken);
   }
 
   @Test
@@ -207,10 +210,10 @@ class UserServiceTest {
     String newImageUrl = "newImageUrl";
     String currentProfileImage = "currentProfileImage";
     Users user = Users.builder().email(EMAIL).profileImage(currentProfileImage).build();
-    given(userRepository.findByEmail(EMAIL)).willReturn(user);
+    given(userRepository.findByToken(entityToken)).willReturn(user);
 
     //when
-    userService.changeProfileImage(EMAIL, new UserChangeProfileImageRequest(newImageUrl));
+    userService.changeProfileImage(entityToken, new UserChangeProfileImageRequest(newImageUrl));
 
     //then
     assertThat(user.getProfileImage()).isEqualTo(newImageUrl);
@@ -342,7 +345,7 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsByEmailAndId(EMAIL, bookmarkId)).willReturn(Boolean.TRUE);
+    given(bookmarkStationRepository.existsByTokenAndId(EMAIL, bookmarkId)).willReturn(Boolean.TRUE);
 
     //when
     userService.removeBookmarkStation(EMAIL, bookmarkId);
@@ -357,7 +360,7 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsByEmailAndId(EMAIL, bookmarkId)).willReturn(Boolean.FALSE);
+    given(bookmarkStationRepository.existsByTokenAndId(EMAIL, bookmarkId)).willReturn(Boolean.FALSE);
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)

@@ -39,8 +39,8 @@ public class RentalStationController {
   @PostMapping("/{stationId}/bookmark")
   public void bookmarkRentalStation(@PathVariable("stationId") Long stationId,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    rentalStationService.bookmarkRentalStation(stationId, email);
+    String userToken = principalDetails.getEntityToken();
+    rentalStationService.bookmarkRentalStation(stationId, userToken);
   }
 
 }

@@ -11,11 +11,13 @@ on:
 
 jobs:
   build:
+    if: github.event.action == 'opened' || github.event.action == 'synchronize'
     uses: ./.github/workflows/build.yml
     permissions:
       contents: read
 
   slack_nofitication:
+    needs: build
     runs-on: ubuntu-22.04
     steps:
       - name: Send Slack Notification on PR Opened

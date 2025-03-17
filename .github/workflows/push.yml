@@ -2,12 +2,9 @@ name: Push Workflow (Build & Test)
 
 on:
   push:
-    branches:
-      - feature/**
-      - fix/**
-      - chore/**
-      - refactor/**
-      - test/**
+    branches-ignore:
+      - main
+      - develop
 
 jobs:
   build:

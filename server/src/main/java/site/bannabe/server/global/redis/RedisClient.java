@@ -1,19 +1,13 @@
 package site.bannabe.server.global.redis;
 
-public interface RedisClient<V> {
+public interface RedisClient {
 
-  String REFRESH_TOKEN_PREFIX = "RefreshToken:";
-  String AUTH_CODE_PREFIX = "AuthCode:";
-  String ORDER_INFO_PREFIX = "OrderInfo:";
-
-  void save(String key, V value);
-
-  V findBy(String key);
-
-  void deleteBy(String key);
+  String USER_TOKEN_FORMAT = "UserToken:%s";
+  String AUTH_CODE_FORMAT = "AuthCode:%s";
+  String ORDER_INFO_FORMAT = "OrderInfo:%s";
 
   default String generateKey(String prefix, String key) {
-    return prefix + key;
+    return String.format(prefix, key);
   }
 
 }

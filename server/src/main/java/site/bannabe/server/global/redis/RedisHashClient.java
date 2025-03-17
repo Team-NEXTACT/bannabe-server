@@ -1,6 +1,6 @@
 package site.bannabe.server.global.redis;
 
-public interface RedisHashClient<T> {
+public interface RedisHashClient<T> extends RedisClient {
 
   void save(String key, T value);
 

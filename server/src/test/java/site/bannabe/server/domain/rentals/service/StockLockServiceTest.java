@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.payments.service;
+package site.bannabe.server.domain.rentals.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,82 +27,23 @@ import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
 
 @Slf4j
 @SpringBootTest
-class PaymentLockServiceTest extends AbstractTestContainers {
+class StockLockServiceTest extends AbstractTestContainers {
 
   private static final String TOKEN = "token";
-
+  private static final int STOCK = 100;
   @Autowired
-  private PaymentLockService paymentLockService;
-
+  private StockLockService stockLockService;
   @Autowired
   private TestRentalStockService testRentalStockService;
-
   @Autowired
   private RentalStationItemRepository rentalStationItemRepository;
-
   @Autowired
   private RentalItemRepository rentalItemRepository;
-
   @Autowired
   private RentalItemTypeRepository rentalItemTypeRepository;
-
   @Autowired
   private RentalStationRepository rentalStationRepository;
-
   private RentalItems rentalItems;
-
-  @Test
-  @DisplayName("재고 감소 분산락 적용 테스트")
-  void decreaseStockWithDistributedLock() throws InterruptedException {
-    //given
-    int threadSize = 100;
-    ExecutorService executorService = Executors.newFixedThreadPool(threadSize);
-    CountDownLatch latch = new CountDownLatch(threadSize);
-    //when
-    for (int i = 0; i < threadSize; i++) {
-      executorService.execute(() -> {
-        try {
-          paymentLockService.decreaseStock(rentalItems);
-        } finally {
-          latch.countDown();
-        }
-      });
-    }
-
-    latch.await();
-    //then
-    RentalStationItems rentalStationItems = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
-        rentalItems.getCurrentStation());
-
-    assertThat(rentalStationItems.getStock()).isZero();
-  }
-
-  @Test
-  @DisplayName("재고 감소 분산락 미적용 테스트")
-  void decreaseStockWithOutDistributedLock() throws InterruptedException {
-    //given
-    int threadSize = 100;
-    ExecutorService executorService = Executors.newFixedThreadPool(threadSize);
-    CountDownLatch latch = new CountDownLatch(threadSize);
-    //when
-    for (int i = 0; i < threadSize; i++) {
-      executorService.execute(() -> {
-        try {
-          testRentalStockService.decreaseStock(rentalItems);
-        } finally {
-          latch.countDown();
-        }
-      });
-    }
-
-    latch.await();
-    //then
-    RentalStationItems rentalStationItems = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
-        rentalItems.getCurrentStation());
-
-    assertThat(rentalStationItems.getStock()).isNotZero();
-  }
-
 
   @BeforeEach
   void init() {
@@ -124,7 +65,7 @@ class PaymentLockServiceTest extends AbstractTestContainers {
                              .currentStation(rentalStations)
                              .build();
 
-    RentalStationItems rentalStationItems = new RentalStationItems(rentalItemTypes, rentalStations, 100);
+    RentalStationItems rentalStationItems = new RentalStationItems(rentalItemTypes, rentalStations, STOCK);
     rentalItemRepository.saveAndFlush(rentalItems);
     rentalStationItemRepository.saveAndFlush(rentalStationItems);
   }
@@ -135,6 +76,75 @@ class PaymentLockServiceTest extends AbstractTestContainers {
     rentalItemRepository.deleteAllInBatch();
     rentalItemTypeRepository.deleteAllInBatch();
     rentalStationRepository.deleteAllInBatch();
+  }
+
+  @Test
+  @DisplayName("재고 감소 분산락 적용 테스트")
+  void decreaseStockWithDistributedLock() throws InterruptedException {
+    //given when
+    executeConcurrentStockOperation(() -> stockLockService.decreaseStock(rentalItems));
+
+    RentalStationItems rentalStationItems = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
+        rentalItems.getCurrentStation());
+
+    //then
+    assertThat(rentalStationItems.getStock()).isZero();
+  }
+
+  @Test
+  @DisplayName("재고 감소 분산락 미적용 테스트")
+  void decreaseStockWithOutDistributedLock() throws InterruptedException {
+    //given when
+    executeConcurrentStockOperation(() -> testRentalStockService.decreaseStock(rentalItems));
+
+    RentalStationItems rentalStationItems = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
+        rentalItems.getCurrentStation());
+
+    //then
+    assertThat(rentalStationItems.getStock()).isNotZero();
+  }
+
+  @Test
+  @DisplayName("재고 증가 분산락 적용 테스트")
+  void increaseStockWithDistributedLock() throws InterruptedException {
+    //given when
+    executeConcurrentStockOperation(() -> stockLockService.increaseStock(rentalItems));
+    RentalStationItems result = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
+        rentalItems.getCurrentStation());
+
+    //then
+    assertThat(result.getStock()).isEqualTo(STOCK + 100);
+  }
+
+  @Test
+  @DisplayName("재고 증가 분산락 미적용 테스트")
+  void increaseStockWithOutDistributedLock() throws InterruptedException {
+    //given when
+    executeConcurrentStockOperation(() -> testRentalStockService.increaseStock(rentalItems));
+
+    RentalStationItems result = rentalStationItemRepository.findByItemTypeAndStation(rentalItems.getRentalItemType(),
+        rentalItems.getCurrentStation());
+
+    //then
+    assertThat(result.getStock()).isNotEqualTo(STOCK + 100);
+  }
+
+  private void executeConcurrentStockOperation(Runnable stockOperation) throws InterruptedException {
+    int threadSize = 100;
+    ExecutorService executorService = Executors.newFixedThreadPool(threadSize);
+    CountDownLatch latch = new CountDownLatch(threadSize);
+
+    for (int i = 0; i < threadSize; i++) {
+      executorService.execute(() -> {
+        try {
+          stockOperation.run();
+        } finally {
+          latch.countDown();
+        }
+      });
+    }
+
+    latch.await();
   }
 
 }

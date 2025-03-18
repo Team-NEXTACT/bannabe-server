@@ -26,6 +26,7 @@ import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
+import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.api.TossPaymentApiClient;
@@ -59,7 +60,7 @@ class PaymentServiceTest {
   @Mock
   private OrderInfoService orderInfoService;
   @Mock
-  private PaymentLockService paymentLockService;
+  private StockLockService stockLockService;
 
   @Test
   @DisplayName("최종 결제 금액 계산 후 데이터 응답")
@@ -110,7 +111,7 @@ class PaymentServiceTest {
     verify(rentalItemRepository).findByToken(orderInfo.getRentalItemToken());
     verify(userRepository).findByToken(entityToken);
     verify(rentalPaymentRepository).save(any(RentalPayments.class));
-    verify(paymentLockService).decreaseStock(mockItem);
+    verify(stockLockService).decreaseStock(mockItem);
     verify(mockItem).rentOut();
     verify(orderInfoService).removeOrderInfo(confirmRequest.orderId());
   }
@@ -132,7 +133,7 @@ class PaymentServiceTest {
     verify(rentalItemRepository, never()).findByToken(rentalItemToken);
     verify(userRepository, never()).findByToken(entityToken);
     verify(rentalPaymentRepository, never()).save(any(RentalPayments.class));
-    verify(paymentLockService, never()).decreaseStock(any(RentalItems.class));
+    verify(stockLockService, never()).decreaseStock(any(RentalItems.class));
     verify(orderInfoService, never()).removeOrderInfo(confirmRequest.orderId());
   }
 

@@ -39,4 +39,8 @@ public class RentalStationItems extends BaseEntity {
     this.stock--;
   }
 
+  public void increaseStock() {
+    this.stock++;
+  }
+
 }

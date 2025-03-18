@@ -92,7 +92,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
       RentalStatus status = i % 2 == 0 ? RentalStatus.RENTAL : RentalStatus.OVERDUE;
       rentalHistories.add(createRentalHistory(i, status, now));
     }
-    rentalHistories.add(createRentalHistory(5, RentalStatus.RETURN, now.minusDays(1)));
+    rentalHistories.add(createRentalHistory(5, RentalStatus.RETURNED, now.minusDays(1)));
     rentalHistoryRepository.saveAllAndFlush(rentalHistories);
 
     //when
@@ -115,7 +115,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
       RentalStatus status = switch (i % 3) {
         case 0 -> RentalStatus.RENTAL;
         case 1 -> RentalStatus.OVERDUE;
-        default -> RentalStatus.RETURN;
+        default -> RentalStatus.RETURNED;
       };
       rentalHistories.add(createRentalHistory(i, status, now));
     }

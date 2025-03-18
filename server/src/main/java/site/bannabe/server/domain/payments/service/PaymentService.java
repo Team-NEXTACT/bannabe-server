@@ -12,6 +12,7 @@ import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
+import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.api.TossPaymentApiClient;
@@ -29,7 +30,7 @@ public class PaymentService {
   private final UserRepository userRepository;
   private final TossPaymentApiClient tossApiClient;
   private final OrderInfoService orderInfoService;
-  private final PaymentLockService paymentLockService;
+  private final StockLockService stockLockService;
 
   @Transactional(readOnly = true)
   public PaymentCalculateResponse calculateAmount(PaymentCalculateRequest paymentRequest) {
@@ -71,7 +72,7 @@ public class PaymentService {
   }
 
   private void processRental(PaymentConfirmRequest paymentConfirmRequest, RentalItems rentalItem) {
-    paymentLockService.decreaseStock(rentalItem);
+    stockLockService.decreaseStock(rentalItem);
     rentalItem.rentOut();
     orderInfoService.removeOrderInfo(paymentConfirmRequest.orderId());
   }

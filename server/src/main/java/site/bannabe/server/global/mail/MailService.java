@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -36,7 +37,7 @@ public class MailService {
       String htmlContent = generateAuthCodeMailContent(authCode);
       mimeMessageHelper.setText(htmlContent, true);
       mailSender.send(mimeMessage);
-    } catch (MessagingException e) {
+    } catch (MessagingException | MailException e) {
       throw new BannabeServiceException(ErrorCode.MAIL_SEND_FAILED);
     }
 

@@ -4,6 +4,7 @@ import io.awspring.cloud.s3.S3Operations;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class S3Service {
     try {
       URI uri = new URI(imageUrl);
       String path = uri.getPath();
+      if (Objects.isNull(path) || !path.contains(PROFILE_IMAGE_DIRECTORY)) {
+        throw new BannabeServiceException(ErrorCode.INVALID_S3_URL_FORMAT);
+      }
       return path.startsWith("/") ? path.substring(1) : path;
     } catch (URISyntaxException e) {
       throw new BannabeServiceException(ErrorCode.INVALID_S3_URL_FORMAT);

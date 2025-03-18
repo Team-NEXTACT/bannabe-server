@@ -39,7 +39,7 @@ import site.bannabe.server.global.type.OrderInfo;
 class PaymentServiceTest {
 
   private final String rentalItemToken = "rentalItemToken";
-  private final String email = "test@test.com";
+  private final String entityToken = "entityToken";
   private final Integer rentalTime = 1;
   private final Integer amount = 1000;
   private final String orderId = "orderId";
@@ -93,11 +93,11 @@ class PaymentServiceTest {
     given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
     given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
     given(rentalItemRepository.findByToken(orderInfo.getRentalItemToken())).willReturn(mockItem);
-    given(userRepository.findByEmail(email)).willReturn(mockUser);
+    given(userRepository.findByToken(entityToken)).willReturn(mockUser);
     given(mockItem.getCurrentStation()).willReturn(mockStation);
 
     //when
-    RentalHistoryTokenResponse response = paymentService.confirmPayment(email, confirmRequest);
+    RentalHistoryTokenResponse response = paymentService.confirmPayment(entityToken, confirmRequest);
 
     //then
     assertThat(response).isNotNull()
@@ -108,7 +108,7 @@ class PaymentServiceTest {
     verify(orderInfoService).findOrderInfoBy(confirmRequest.orderId());
     verify(tossApiClient).confirmPaymentRequest(confirmRequest);
     verify(rentalItemRepository).findByToken(orderInfo.getRentalItemToken());
-    verify(userRepository).findByEmail(email);
+    verify(userRepository).findByToken(entityToken);
     verify(rentalPaymentRepository).save(any(RentalPayments.class));
     verify(paymentLockService).decreaseStock(mockItem);
     verify(mockItem).rentOut();
@@ -125,12 +125,12 @@ class PaymentServiceTest {
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> paymentService.confirmPayment(email, confirmRequest))
+        .isThrownBy(() -> paymentService.confirmPayment(entityToken, confirmRequest))
         .withMessage(ErrorCode.AMOUNT_MISMATCH.getMessage());
 
     verify(tossApiClient, never()).confirmPaymentRequest(confirmRequest);
     verify(rentalItemRepository, never()).findByToken(rentalItemToken);
-    verify(userRepository, never()).findByEmail(email);
+    verify(userRepository, never()).findByToken(entityToken);
     verify(rentalPaymentRepository, never()).save(any(RentalPayments.class));
     verify(paymentLockService, never()).decreaseStock(any(RentalItems.class));
     verify(orderInfoService, never()).removeOrderInfo(confirmRequest.orderId());

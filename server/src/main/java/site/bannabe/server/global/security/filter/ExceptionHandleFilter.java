@@ -7,6 +7,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.filter.OncePerRequestFilter;
 import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.utils.ErrorResponseWriter;
 
@@ -20,11 +21,12 @@ public class ExceptionHandleFilter extends OncePerRequestFilter {
       throws IOException {
     try {
       filterChain.doFilter(request, response);
-    } catch (BannabeAuthenticationException e) {
+    } catch (BannabeAuthenticationException | BannabeServiceException e) {
       errorResponseWriter.writeErrorResponse(response, e.getErrorCode());
     } catch (Exception e) {
       ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
       errorResponseWriter.writeErrorResponse(response, errorCode);
     }
   }
+
 }

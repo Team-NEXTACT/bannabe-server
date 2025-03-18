@@ -25,4 +25,13 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
     return Optional.ofNullable(user).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
   }
 
+  @Override
+  public Users findByToken(String token) {
+    Users user = jpaQueryFactory.selectFrom(users)
+                                .where(users.token.eq(token))
+                                .fetchFirst();
+
+    return Optional.ofNullable(user).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+  }
+
 }

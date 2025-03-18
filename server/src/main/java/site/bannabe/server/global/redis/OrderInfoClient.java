@@ -13,30 +13,30 @@ import site.bannabe.server.global.type.OrderInfo;
 
 @Component
 @RequiredArgsConstructor
-public class OrderInfoClient implements RedisClient<OrderInfo> {
+public class OrderInfoClient implements RedisValueClient<OrderInfo> {
 
   private static final long TTL = 5L;
   private final RedisTemplate<String, OrderInfo> redis;
 
   @Override
   public void save(String key, OrderInfo value) {
-    key = generateKey(ORDER_INFO_PREFIX, key);
+    key = generateKey(ORDER_INFO_FORMAT, key);
     redis.opsForValue().set(key, value, Duration.ofMinutes(TTL));
   }
 
   @Override
   public OrderInfo findBy(String key) {
-    OrderInfo orderInfo = redis.opsForValue().get(generateKey(ORDER_INFO_PREFIX, key));
+    OrderInfo orderInfo = redis.opsForValue().get(generateKey(ORDER_INFO_FORMAT, key));
     return Optional.ofNullable(orderInfo).orElseThrow(() -> new BannabeServiceException(ErrorCode.ORDER_INFO_NOT_FOUND));
   }
 
   @Override
   public void deleteBy(String key) {
-    redis.delete(generateKey(ORDER_INFO_PREFIX, key));
+    redis.delete(generateKey(ORDER_INFO_FORMAT, key));
   }
 
   public boolean existByRentalToken(String rentalItemToken) {
-    ScanOptions options = ScanOptions.scanOptions().match(ORDER_INFO_PREFIX.concat("*")).count(100).build();
+    ScanOptions options = ScanOptions.scanOptions().match(ORDER_INFO_FORMAT.concat("*")).count(100).build();
     try (var cursor = redis.scan(options)) {
       while (cursor.hasNext()) {
         String key = cursor.next();

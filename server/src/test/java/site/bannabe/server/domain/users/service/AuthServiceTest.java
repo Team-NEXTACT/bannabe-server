@@ -28,7 +28,6 @@ import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtService;
 import site.bannabe.server.global.mail.MailService;
 import site.bannabe.server.global.type.AuthCode;
-import site.bannabe.server.global.type.RefreshToken;
 import site.bannabe.server.global.type.TokenResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,8 +114,7 @@ class AuthServiceTest {
     //given
     String newAccessToken = "newAccessToken";
     String newRefreshToken = "newRefreshToken";
-    RefreshToken refreshTokenEntity = new RefreshToken("test@test.com", newRefreshToken);
-    given(jwtService.refreshJWT(refreshToken)).willReturn(new GenerateToken(newAccessToken, refreshTokenEntity));
+    given(jwtService.refreshJWT(refreshToken)).willReturn(new GenerateToken(newAccessToken, newRefreshToken));
 
     //when
     TokenResponse tokenResponse = authService.refreshToken(refreshToken);

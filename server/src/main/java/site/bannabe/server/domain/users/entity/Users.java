@@ -25,16 +25,21 @@ public class Users extends BaseEntity {
   private String nickname = RandomCodeGenerator.generateRandomNickname();
 
   @Default
+  private String token = RandomCodeGenerator.generateRandomToken(Users.class);
+
+  @Default
   private Role role = Role.USER;
 
   @Default
   private ProviderType providerType = ProviderType.LOCAL;
 
-  private Users(String email, String password, String profileImage, String nickname, Role role, ProviderType providerType) {
+  private Users(String email, String password, String profileImage, String nickname, String token, Role role,
+      ProviderType providerType) {
     this.email = email;
     this.password = password;
     this.profileImage = profileImage;
     this.nickname = nickname;
+    this.token = token;
     this.role = role;
     this.providerType = providerType;
   }

@@ -1,7 +1,8 @@
 -- User
-INSERT INTO users (email, password, profile_image, nickname, role, provider_type)
+INSERT INTO users (email, password, profile_image, nickname, token, role, provider_type)
 VALUES ('test@test.com', '$2a$10$Ce1gYtGZXnW7u1fP35m5zefMI95YB3CoJMiGowrtOmInTJ10y1LNO',
-        'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/profile-images/anonymous.png', 'TestUser', 'USER', 'LOCAL');
+        'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/profile-images/anonymous.png', 'TestUser',
+        'USR_dab4fvx32c', 'USER', 'LOCAL');
 
 -- RentalStation
 INSERT INTO rental_stations (name, address, latitude, longitude, open_time, close_time, close_day, status, grade)

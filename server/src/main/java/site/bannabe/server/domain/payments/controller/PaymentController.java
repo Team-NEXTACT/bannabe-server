@@ -40,8 +40,8 @@ public class PaymentController {
   @PostMapping("/confirm")
   public RentalHistoryTokenResponse confirmPayment(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @RequestBody PaymentConfirmRequest paymentConfirmRequest) {
-    String email = principalDetails.getUsername();
-    return paymentService.confirmPayment(email, paymentConfirmRequest);
+    String entityToken = principalDetails.getEntityToken();
+    return paymentService.confirmPayment(entityToken, paymentConfirmRequest);
   }
 
 }

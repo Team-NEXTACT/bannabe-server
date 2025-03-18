@@ -12,7 +12,7 @@ import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.jwt.JwtProvider.TokenClaims;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
-import site.bannabe.server.global.type.RefreshToken;
+import site.bannabe.server.global.type.UserTokens;
 
 @Service
 @RequiredArgsConstructor
@@ -20,22 +20,22 @@ public class JwtService {
 
   private final JwtProvider jwtProvider;
 
-  private final RefreshTokenService refreshTokenService;
+  private final UserTokenService userTokenService;
 
-  public GenerateToken createJWT(String email, String authorities) {
-    GenerateToken generateToken = jwtProvider.generateToken(email, authorities);
-    refreshTokenService.save(generateToken.refreshToken());
+  public GenerateToken createJWT(String entityToken, String authorities, String deviceToken) {
+    GenerateToken generateToken = jwtProvider.generateToken(entityToken, authorities);
+    userTokenService.save(entityToken, generateToken.refreshToken(), deviceToken);
     return generateToken;
   }
 
   public GenerateToken refreshJWT(String requestRefreshToken) {
     TokenClaims tokenClaims = jwtProvider.getTokenClaims(requestRefreshToken);
-    RefreshToken refreshToken = refreshTokenService.findRefreshTokenBy(tokenClaims.email());
-    if (!requestRefreshToken.equals(refreshToken.getRefreshToken())) {
+    UserTokens userTokens = userTokenService.findBy(tokenClaims.entityToken(), requestRefreshToken);
+    if (!requestRefreshToken.equals(userTokens.getRefreshToken())) {
       throw new BannabeAuthenticationException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
-    GenerateToken newToken = jwtProvider.generateToken(tokenClaims.email(), tokenClaims.authorities());
-    refreshTokenService.updateRefreshToken(tokenClaims.email(), newToken.refreshToken());
+    GenerateToken newToken = jwtProvider.generateToken(tokenClaims.entityToken(), tokenClaims.authorities());
+    userTokenService.updateUserToken(tokenClaims.entityToken(), newToken.refreshToken(), userTokens.getDeviceToken());
     return newToken;
   }
 
@@ -43,18 +43,18 @@ public class JwtService {
     jwtProvider.verifyToken(token);
   }
 
-  public void saveAuthentication(String token) {
-    String email = jwtProvider.getEmail(token);
-    String role = jwtProvider.getAuthorities(token);
+  public void saveAuthentication(String accessToken) {
+    String entityToken = jwtProvider.getEntityToken(accessToken);
+    String role = jwtProvider.getAuthorities(accessToken);
     List<SimpleGrantedAuthority> authorities = Arrays.stream(role.split(",")).map(SimpleGrantedAuthority::new).toList();
-    PrincipalDetails user = PrincipalDetails.create(email, authorities);
+    PrincipalDetails user = PrincipalDetails.create(entityToken, authorities);
     Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 
-  public void removeRefreshToken(String accessToken) {
-    String email = jwtProvider.getEmail(accessToken);
-    refreshTokenService.removeRefreshToken(email);
+  public void removeRefreshToken(String accessToken, String refreshToken) {
+    String entityToken = jwtProvider.getEntityToken(accessToken);
+    userTokenService.removeUserToken(entityToken, refreshToken);
   }
 
 }

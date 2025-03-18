@@ -20,7 +20,7 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public List<BookmarkStationResponse> findBookmarkStationsBy(String email) {
+  public List<BookmarkStationResponse> findBookmarkStationsBy(String entityToken) {
     return jpaQueryFactory.select(
                               Projections.constructor(
                                   BookmarkStationResponse.class,
@@ -31,18 +31,18 @@ public class CustomBookmarkStationRepositoryImpl implements CustomBookmarkStatio
                           .from(bookmarkStations)
                           .join(bookmarkStations.user, users)
                           .join(bookmarkStations.rentalStation, rentalStations)
-                          .where(users.email.eq(email))
+                          .where(users.token.eq(entityToken))
                           .orderBy(rentalStations.name.asc())
                           .fetch();
   }
 
   @Override
-  public boolean existsByEmailAndId(String email, Long bookmarkId) {
+  public boolean existsByTokenAndId(String entityToken, Long bookmarkId) {
     Integer findBookmark = jpaQueryFactory.selectOne()
                                           .from(bookmarkStations)
                                           .join(bookmarkStations.user, users)
                                           .where(bookmarkStations.id.eq(bookmarkId)
-                                                                    .and(users.email.eq(email)))
+                                                                    .and(users.token.eq(entityToken)))
                                           .fetchFirst();
     return findBookmark != null;
   }

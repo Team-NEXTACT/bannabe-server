@@ -1,8 +1,11 @@
 package site.bannabe.server.global.security.auth;
 
 import java.util.List;
+import java.util.stream.Stream;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public record EndPoint(
     HttpMethod method,
@@ -30,11 +33,12 @@ public record EndPoint(
       new EndPoint(HttpMethod.POST, "/oauth2/login/{provider}")
   );
 
-  public static final List<AntPathRequestMatcher> PERMIT_ALL_MATCHERS = PERMIT_ALL.stream()
-                                                                                  .map(EndPoint::toMatcher)
-                                                                                  .toList();
+  public static final List<RequestMatcher> PERMIT_ALL_MATCHERS = Stream.concat(
+      PERMIT_ALL.stream().map(EndPoint::toMatcher),
+      Stream.of(PathRequest.toStaticResources().atCommonLocations())
+  ).toList();
 
-  private AntPathRequestMatcher toMatcher() {
+  private RequestMatcher toMatcher() {
     return AntPathRequestMatcher.antMatcher(this.method(), this.pattern());
   }
 

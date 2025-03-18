@@ -36,22 +36,22 @@ public class UserController {
   @PutMapping("/me/password")
   public void changePassword(@RequestBody @Valid UserChangePasswordRequest changePasswordRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changePassword(email, changePasswordRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changePassword(entityToken, changePasswordRequest);
   }
 
   @PatchMapping("/me/profile-image")
   public void changeProfileImage(@RequestBody UserChangeProfileImageRequest changeProfileImageRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changeProfileImage(email, changeProfileImageRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeProfileImage(entityToken, changeProfileImageRequest);
   }
 
   @PatchMapping("/me/nickname")
   public void changeNickname(@RequestBody @Valid UserChangeNicknameRequest changeNicknameRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changeNickname(email, changeNicknameRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeNickname(entityToken, changeNicknameRequest);
   }
 
   @GetMapping("/me/profile-image/pre-signed")
@@ -61,28 +61,28 @@ public class UserController {
 
   @GetMapping("/me/rentals/active")
   public List<RentalHistoryResponse> getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    return userService.getActiveRentalHistory(email);
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getActiveRentalHistory(entityToken);
   }
 
   @GetMapping("/me/rentals")
   public Page<RentalHistoryResponse> getRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @PageableDefault(sort = "startTime", direction = Direction.DESC) Pageable pageable) {
-    String email = principalDetails.getUsername();
-    return userService.getRentalHistory(email, pageable);
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getRentalHistory(entityToken, pageable);
   }
 
   @GetMapping("/me/stations/bookmark")
   public UserBookmarkStationsResponse getBookmarkStations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    return userService.getBookmarkStations(email);
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getBookmarkStations(entityToken);
   }
 
   @DeleteMapping("/me/stations/bookmark/{bookmarkId}")
   public void deleteBookmarkStation(@PathVariable("bookmarkId") Long bookmarkId,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.removeBookmarkStation(email, bookmarkId);
+    String entityToken = principalDetails.getEntityToken();
+    userService.removeBookmarkStation(entityToken, bookmarkId);
   }
 
 }

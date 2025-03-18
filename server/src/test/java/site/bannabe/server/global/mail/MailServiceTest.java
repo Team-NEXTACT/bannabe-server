@@ -27,7 +27,6 @@ import site.bannabe.server.global.exceptions.ErrorCode;
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
 
-  // sendMail 정상적으로 동작하는지 확인하는 테스트
   @InjectMocks
   private MailService mailService;
 

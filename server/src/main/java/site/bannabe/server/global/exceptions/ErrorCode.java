@@ -35,6 +35,7 @@ public enum ErrorCode {
   RENTAL_STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 정보가 존재하지 않습니다."),
   RENTAL_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여물품 정보가 존재하지 않습니다."),
   RENTAL_STATION_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 대여물품 정보가 존재하지 않습니다."),
+  RENTAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND,"대여내역이 존재하지 않습니다." ),
 
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),

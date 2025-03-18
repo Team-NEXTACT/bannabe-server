@@ -1,5 +1,13 @@
 package site.bannabe.server.domain.rentals.repository.querydsl;
 
+import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
+import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
+import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
+import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
+import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
+
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -14,15 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
 import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpleResponse;
-import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
-import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
-import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
-import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 
@@ -78,6 +79,15 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
                                                         .where(rentalHistory.token.eq(token))
                                                         .fetchOne();
     return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.ORDER_INFO_NOT_FOUND));
+  }
+
+  @Override
+  public RentalHistory findByItemToken(String rentalItemToken) {
+    RentalHistory result = jpaQueryFactory.selectFrom(rentalHistory)
+                                          .join(rentalHistory.rentalItem, rentalItems).fetchJoin()
+                                          .join(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
+                                          .where(rentalItems.token.eq(rentalItemToken)).fetchOne();
+    return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_HISTORY_NOT_FOUND));
   }
 
   @SuppressWarnings("unchecked")

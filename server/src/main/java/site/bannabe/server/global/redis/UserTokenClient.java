@@ -1,6 +1,8 @@
 package site.bannabe.server.global.redis;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,19 @@ public class UserTokenClient implements RedisHashClient<UserTokens> {
     return Optional.ofNullable(deviceToken)
                    .map(token -> new UserTokens(hashKey, token))
                    .orElseThrow(() -> new BannabeServiceException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+  }
+
+  public List<UserTokens> findAll(String key) {
+    key = generateKey(USER_TOKEN_FORMAT, key);
+    Map<Object, Object> entries = redis.opsForHash().entries(key);
+
+    if (entries.isEmpty()) {
+      throw new BannabeServiceException(ErrorCode.USER_TOKEN_NOT_FOUND);
+    }
+
+    return entries.entrySet().stream()
+                  .map(entry -> new UserTokens(String.valueOf(entry.getKey()), String.valueOf(entry.getValue())))
+                  .toList();
   }
 
   @Override

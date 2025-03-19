@@ -1,5 +1,6 @@
 package site.bannabe.server.global.jwt;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import site.bannabe.server.global.redis.UserTokenClient;
@@ -23,6 +24,10 @@ public class UserTokenService {
 
   public UserTokens findBy(String key, String refreshToken) {
     return userTokenClient.findBy(key, refreshToken);
+  }
+
+  public List<UserTokens> findAllUserTokens(String key) {
+    return userTokenClient.findAll(key);
   }
 
   public void removeUserToken(String key, String refreshToken) {

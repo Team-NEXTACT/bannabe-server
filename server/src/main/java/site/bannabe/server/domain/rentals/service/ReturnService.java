@@ -1,6 +1,7 @@
 package site.bannabe.server.domain.rentals.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +12,11 @@ import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
 import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
+import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
+import site.bannabe.server.global.jwt.UserTokenService;
+import site.bannabe.server.global.type.UserTokens;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class ReturnService {
   private final RentalHistoryRepository rentalHistoryRepository;
   private final RentalStationRepository rentalStationRepository;
   private final StockLockService stockLockService;
+  private final UserTokenService userTokenService;
 
   @Transactional
   public ReturnItemDetailResponse getReturnItemInfo(String rentalItemToken, Long currentStationId) {
@@ -33,6 +38,7 @@ public class ReturnService {
     RentalStations currentStation = rentalStationRepository.findById(currentStationId)
                                                            .orElseThrow(() ->
                                                                new BannabeServiceException(ErrorCode.RENTAL_STATION_NOT_FOUND));
+    sendOverduePushAlert(rentalHistory);
     return ReturnItemDetailResponse.from(rentalHistory, currentStation);
   }
 
@@ -50,6 +56,19 @@ public class ReturnService {
     rentalHistory.updateOnReturn(currentStation, LocalDateTime.now());
     rentalItem.updateOnReturn(currentStation);
     stockLockService.increaseStock(rentalItem);
+  }
+
+  private void sendOverduePushAlert(RentalHistory rentalHistory) {
+    if (!rentalHistory.getStatus().equals(RentalStatus.OVERDUE)) {
+      return;
+    }
+    Users user = rentalHistory.getUser();
+    String entityToken = user.getToken();
+    List<UserTokens> userTokens = userTokenService.findAllUserTokens(entityToken);
+
+    userTokens.stream().map(UserTokens::getDeviceToken).forEach(deviceToken -> {
+      // 여기서 FCM에게 푸시알림 보내는 로직 수행하도록 처리
+    });
   }
 
 }

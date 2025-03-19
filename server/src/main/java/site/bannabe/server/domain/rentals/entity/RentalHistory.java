@@ -97,7 +97,7 @@ public class RentalHistory extends BaseEntity {
   }
 
   public void validateOverdue(LocalDateTime now) {
-    if (this.status.equals(RentalStatus.RENTAL) && isOverdue(now)) {
+    if ((this.status.equals(RentalStatus.RENTAL) || this.status.equals(RentalStatus.EXTENSION)) && isOverdue(now)) {
       changeStatus(RentalStatus.OVERDUE);
     }
   }

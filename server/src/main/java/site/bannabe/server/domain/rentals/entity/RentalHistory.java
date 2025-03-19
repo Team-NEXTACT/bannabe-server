@@ -81,6 +81,11 @@ public class RentalHistory extends BaseEntity {
     this.status = status;
   }
 
+  public void extendRentalTime(Integer rentalTime) {
+    this.expectedReturnTime = this.expectedReturnTime.plusHours(rentalTime);
+    this.rentalTimeHour += rentalTime;
+  }
+
   public void updateOnReturn(RentalStations returnStation, LocalDateTime returnTime) {
     changeStatus(RentalStatus.RETURNED);
     this.returnStation = returnStation;
@@ -88,7 +93,7 @@ public class RentalHistory extends BaseEntity {
   }
 
   public boolean isOverdue(LocalDateTime now) {
-    return !this.expectedReturnTime.isAfter(now);
+    return this.expectedReturnTime.isBefore(now);
   }
 
   public void validateOverdue(LocalDateTime now) {

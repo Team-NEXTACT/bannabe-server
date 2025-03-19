@@ -11,6 +11,8 @@ import site.bannabe.server.domain.payments.entity.RentalPayments;
 import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
+import site.bannabe.server.domain.rentals.entity.RentalStatus;
+import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
 import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
@@ -27,6 +29,7 @@ public class PaymentService {
 
   private final RentalItemRepository rentalItemRepository;
   private final RentalPaymentRepository rentalPaymentRepository;
+  private final RentalHistoryRepository rentalHistoryRepository;
   private final UserRepository userRepository;
   private final TossPaymentApiClient tossApiClient;
   private final OrderInfoService orderInfoService;
@@ -44,11 +47,39 @@ public class PaymentService {
   public RentalHistoryTokenResponse confirmPayment(String entityToken, PaymentConfirmRequest paymentConfirmRequest) {
     OrderInfo orderInfo = getOrderInfoAndValidateAmount(paymentConfirmRequest);
     TossPaymentConfirmResponse paymentConfirmResponse = tossApiClient.confirmPaymentRequest(paymentConfirmRequest);
+    RentalHistory rentalHistory = switch (orderInfo.getPaymentType()) {
+      case RENT -> handleRentalPayment(entityToken, orderInfo, paymentConfirmResponse);
+      case EXTENSION -> handleExtensionPayment(orderInfo, paymentConfirmResponse);
+      case OVERDUE -> handleOverduePayment(orderInfo, paymentConfirmResponse);
+    };
+    return new RentalHistoryTokenResponse(rentalHistory.getToken());
+  }
+
+  private RentalHistory handleRentalPayment(String entityToken, OrderInfo orderInfo,
+      TossPaymentConfirmResponse paymentConfirmResponse) {
     RentalItems rentalItem = rentalItemRepository.findByToken(orderInfo.getRentalItemToken());
     RentalHistory rentalHistory = createRentalHistory(entityToken, orderInfo, paymentConfirmResponse, rentalItem);
     saveRentalPaymentsAndRentalHistory(paymentConfirmResponse, orderInfo, rentalHistory);
-    processRental(paymentConfirmRequest, rentalItem);
-    return new RentalHistoryTokenResponse(rentalHistory.getToken());
+    processRental(paymentConfirmResponse, rentalItem);
+    return rentalHistory;
+  }
+
+  private RentalHistory handleExtensionPayment(OrderInfo orderInfo, TossPaymentConfirmResponse paymentConfirmResponse) {
+    String rentalItemToken = orderInfo.getRentalItemToken();
+    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    rentalHistory.extendRentalTime(orderInfo.getRentalTime());
+    RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
+    rentalPaymentRepository.save(rentalPayments);
+    return rentalHistory;
+  }
+
+  private RentalHistory handleOverduePayment(OrderInfo orderInfo, TossPaymentConfirmResponse paymentConfirmResponse) {
+    String rentalItemToken = orderInfo.getRentalItemToken();
+    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    rentalHistory.changeStatus(RentalStatus.OVERDUE_PAID);
+    RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
+    rentalPaymentRepository.save(rentalPayments);
+    return rentalHistory;
   }
 
   private OrderInfo getOrderInfoAndValidateAmount(PaymentConfirmRequest paymentConfirmRequest) {
@@ -71,10 +102,10 @@ public class PaymentService {
     rentalPaymentRepository.save(rentalPayments);
   }
 
-  private void processRental(PaymentConfirmRequest paymentConfirmRequest, RentalItems rentalItem) {
+  private void processRental(TossPaymentConfirmResponse paymentConfirmResponse, RentalItems rentalItem) {
     stockLockService.decreaseStock(rentalItem);
     rentalItem.rentOut();
-    orderInfoService.removeOrderInfo(paymentConfirmRequest.orderId());
+    orderInfoService.removeOrderInfo(paymentConfirmResponse.orderId());
   }
 
 }

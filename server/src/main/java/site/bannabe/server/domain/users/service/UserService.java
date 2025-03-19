@@ -20,6 +20,7 @@ import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlRespon
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.BookmarkStationRepository;
 import site.bannabe.server.domain.users.repository.UserRepository;
@@ -39,6 +40,12 @@ public class UserService {
 
   @Value("${bannabe.default-profile-image}")
   private String defaultProfileImage;
+
+  @Transactional(readOnly = true)
+  public UserGetSimpleResponse getUserInfo(String entityToken) {
+    Users user = userRepository.findByToken(entityToken);
+    return UserGetSimpleResponse.of(user);
+  }
 
   @Transactional
   public void changePassword(String entityToken, UserChangePasswordRequest passwordRequest) {

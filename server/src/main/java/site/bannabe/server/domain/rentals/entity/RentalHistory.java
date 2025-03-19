@@ -32,7 +32,8 @@ public class RentalHistory extends BaseEntity {
 
   private Integer rentalTimeHour;
 
-  private String token;
+  @Default
+  private String token = RandomCodeGenerator.generateRandomToken(RentalHistory.class);
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
@@ -70,7 +71,6 @@ public class RentalHistory extends BaseEntity {
                         .startTime(startTime)
                         .expectedReturnTime(startTime.plusHours(orderInfo.getRentalTime()))
                         .rentalTimeHour(orderInfo.getRentalTime())
-                        .token(RandomCodeGenerator.generateRandomToken(RentalHistory.class))
                         .user(user)
                         .rentalItem(rentalItem)
                         .rentalStation(rentalItem.getCurrentStation())
@@ -81,12 +81,23 @@ public class RentalHistory extends BaseEntity {
     this.status = status;
   }
 
+  public void extendRentalTime(Integer rentalTime) {
+    this.expectedReturnTime = this.expectedReturnTime.plusHours(rentalTime);
+    this.rentalTimeHour += rentalTime;
+  }
+
+  public void updateOnReturn(RentalStations returnStation, LocalDateTime returnTime) {
+    changeStatus(RentalStatus.RETURNED);
+    this.returnStation = returnStation;
+    this.returnTime = returnTime;
+  }
+
   public boolean isOverdue(LocalDateTime now) {
-    return !this.expectedReturnTime.isAfter(now);
+    return this.expectedReturnTime.isBefore(now);
   }
 
   public void validateOverdue(LocalDateTime now) {
-    if (this.status.equals(RentalStatus.RENTAL) && isOverdue(now)) {
+    if ((this.status.equals(RentalStatus.RENTAL) || this.status.equals(RentalStatus.EXTENSION)) && isOverdue(now)) {
       changeStatus(RentalStatus.OVERDUE);
     }
   }

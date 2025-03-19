@@ -14,4 +14,6 @@ public interface CustomRentalHistoryRepository {
 
   RentalSuccessSimpleResponse findRentalHistoryInfoBy(String token);
 
+  RentalHistory findByItemToken(String rentalItemToken);
+
 }

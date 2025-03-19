@@ -15,6 +15,7 @@ public enum ErrorCode {
   VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "요청 데이터가 올바르지 않습니다."),
   INVALID_LOGIN_CREDENTIALS(HttpStatus.BAD_REQUEST, "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."),
   INVALID_S3_URL_FORMAT(HttpStatus.BAD_REQUEST, "S3 URL 형식이 올바르지 않습니다."),
+  RENTAL_ITEM_NOT_RENTED(HttpStatus.BAD_REQUEST, "대여되지 않은 물품입니다."),
 
   // 401 UNAUTHORIZED
   UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "사용자 인증이 필요합니다."),
@@ -25,6 +26,7 @@ public enum ErrorCode {
 
   // 403 FORBIDDEN
   FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+  RENTAL_ITEM_OVERDUE(HttpStatus.FORBIDDEN, "연체된 물품은 반납할 수 없습니다. 결제를 진행해주세요."),
 
   // 404 NOT_FOUND
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원정보가 존재하지 않습니다."),
@@ -35,6 +37,8 @@ public enum ErrorCode {
   RENTAL_STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 정보가 존재하지 않습니다."),
   RENTAL_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여물품 정보가 존재하지 않습니다."),
   RENTAL_STATION_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "대여소 대여물품 정보가 존재하지 않습니다."),
+  RENTAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "대여내역이 존재하지 않습니다."),
+  USER_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자 토큰이 존재하지 않습니다."),
 
   // 409 CONFLICT
   NEW_PASSWORD_MISMATCH(HttpStatus.CONFLICT, "새 비밀번호가 일치하지 않습니다."),
@@ -48,8 +52,9 @@ public enum ErrorCode {
   ALREADY_BOOKMARKED(HttpStatus.CONFLICT, "이미 즐겨찾기한 대여 스테이션입니다."),
   AMOUNT_MISMATCH(HttpStatus.CONFLICT, "금액이 일치하지 않습니다."),
   LOCK_CONFLICT(HttpStatus.CONFLICT, "현재 요청이 많아 처리가 지연되고 있습니다. 다시 시도해주세요."),
-  ALREADY_EXIST_ORDER_INFO(HttpStatus.CONFLICT, "해당 대여물품에 대한 주문 정보가 이미 존재합니다."),
-  RENTAL_ITEM_STOCK_EMPTY(HttpStatus.CONFLICT, "대여물품 재고가 없습니다."),
+  ORDER_INFO_EXISTS(HttpStatus.CONFLICT, "해당 대여물품에 대한 주문 정보가 이미 존재합니다."),
+  RENTAL_ITEM_STOCK_EMPTY(HttpStatus.CONFLICT, "대여물품 재고가 부족합니다."),
+  RENTAL_ITEM_ALREADY_RENTED(HttpStatus.CONFLICT, "해당 물품은 이미 대여 중 입니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다. 관리자에게 문의하세요."),

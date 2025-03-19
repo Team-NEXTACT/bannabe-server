@@ -269,7 +269,7 @@ class UserServiceTest {
     //given
     PageRequest pageRequest = PageRequest.of(0, 10);
     int rentalTimeHour = 1;
-    LocalDateTime startTime = LocalDateTime.now().minusHours(1);
+    LocalDateTime startTime = LocalDateTime.now().minusHours(2);
     RentalHistory rentalHistory = RentalHistory.builder()
                                                .status(RentalStatus.RENTAL)
                                                .rentalItem(

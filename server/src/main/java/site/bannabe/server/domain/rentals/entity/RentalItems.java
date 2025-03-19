@@ -46,4 +46,13 @@ public class RentalItems extends BaseEntity {
     this.currentStation = null;
   }
 
+  public boolean isRented() {
+    return this.status.equals(RentalItemStatus.RENTED);
+  }
+
+  public void updateOnReturn(RentalStations currentStation) {
+    this.status = RentalItemStatus.AVAILABLE;
+    this.currentStation = currentStation;
+  }
+
 }

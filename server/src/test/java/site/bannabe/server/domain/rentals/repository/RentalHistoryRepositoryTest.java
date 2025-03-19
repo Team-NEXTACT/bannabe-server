@@ -92,7 +92,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
       RentalStatus status = i % 2 == 0 ? RentalStatus.RENTAL : RentalStatus.OVERDUE;
       rentalHistories.add(createRentalHistory(i, status, now));
     }
-    rentalHistories.add(createRentalHistory(5, RentalStatus.RETURN, now.minusDays(1)));
+    rentalHistories.add(createRentalHistory(5, RentalStatus.RETURNED, now.minusDays(1)));
     rentalHistoryRepository.saveAllAndFlush(rentalHistories);
 
     //when
@@ -115,7 +115,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
       RentalStatus status = switch (i % 3) {
         case 0 -> RentalStatus.RENTAL;
         case 1 -> RentalStatus.OVERDUE;
-        default -> RentalStatus.RETURN;
+        default -> RentalStatus.RETURNED;
       };
       rentalHistories.add(createRentalHistory(i, status, now));
     }
@@ -194,6 +194,57 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
     em.clear();
   }
 
+  @Test
+  @Transactional
+  @DisplayName("대여물품 토큰 기반 대여내역 조회 테스트")
+  void findByItemToken() {
+    //given
+    String rentalItemToken = "rentalItemToken";
+    String itemName = "65W충전기";
+    String stationName = "대여스테이션";
+    LocalDateTime now = LocalDateTime.now();
+    int rentalTimeHour = 2;
+    RentalItemTypes itemType = RentalItemTypes.builder().name(itemName).category(RentalItemCategory.CHARGER).price(2000).build();
+    em.persist(itemType);
+
+    RentalItems rentalItem = RentalItems.builder()
+                                        .status(RentalItemStatus.RENTED)
+                                        .token(rentalItemToken)
+                                        .rentalItemType(itemType)
+                                        .build();
+
+    em.persist(rentalItem);
+    RentalStations station = RentalStations.builder()
+                                           .name(stationName)
+                                           .grade(StationGrade.FIRST)
+                                           .status(StationStatus.OPEN)
+                                           .build();
+    em.persist(station);
+    RentalHistory rentalHistory = RentalHistory.builder()
+                                               .rentalItem(rentalItem)
+                                               .user(user)
+                                               .rentalTimeHour(rentalTimeHour)
+                                               .startTime(now)
+                                               .expectedReturnTime(now.plusHours(rentalTimeHour))
+                                               .rentalStation(station)
+                                               .build();
+    em.persist(rentalHistory);
+    em.flush();
+    em.clear();
+
+    //when
+    RentalHistory result = rentalHistoryRepository.findByItemToken(rentalItemToken);
+
+    //then
+    assertThat(result).isNotNull()
+                      .extracting(RentalHistory::getRentalTimeHour).isEqualTo(rentalTimeHour);
+    assertThat(result.getRentalItem().getRentalItemType()).isNotNull()
+                                                          .extracting(RentalItemTypes::getName)
+                                                          .isEqualTo(itemName);
+    assertThat(result.getRentalStation()).isNotNull()
+                                         .extracting(RentalStations::getName)
+                                         .isEqualTo(stationName);
+  }
 
   private RentalHistory createRentalHistory(int index, RentalStatus status, LocalDateTime now) {
     return RentalHistory.builder()

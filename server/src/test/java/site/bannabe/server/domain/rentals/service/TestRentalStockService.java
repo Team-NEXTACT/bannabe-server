@@ -1,4 +1,4 @@
-package site.bannabe.server.domain.payments.service;
+package site.bannabe.server.domain.rentals.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,6 +24,14 @@ public class TestRentalStockService {
     RentalStations currentStation = rentalItems.getCurrentStation();
     RentalStationItems rentalStationItem = rentalStationItemRepository.findByItemTypeAndStation(rentalItemType, currentStation);
     rentalStationItem.decreaseStock();
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  void increaseStock(RentalItems rentalItems) {
+    RentalItemTypes rentalItemType = rentalItems.getRentalItemType();
+    RentalStations currentStation = rentalItems.getCurrentStation();
+    RentalStationItems rentalStationItem = rentalStationItemRepository.findByItemTypeAndStation(rentalItemType, currentStation);
+    rentalStationItem.increaseStock();
   }
 
 }

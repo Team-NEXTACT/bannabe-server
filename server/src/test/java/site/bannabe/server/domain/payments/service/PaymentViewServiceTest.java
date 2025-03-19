@@ -84,7 +84,7 @@ class PaymentViewServiceTest {
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
         .isThrownBy(() -> paymentViewService.getPaymentRequest(rentalItemToken, rentalTime, paymentType))
-        .withMessage(ErrorCode.ALREADY_EXIST_ORDER_INFO.getMessage());
+        .withMessage(ErrorCode.ORDER_INFO_EXISTS.getMessage());
 
     verify(rentalItemRepository, never()).findByToken(anyString());
     verify(orderInfoService, never()).saveOrderInfo(anyString(), eq(rentalItemToken), eq(rentalTime), anyInt(), eq(paymentType));

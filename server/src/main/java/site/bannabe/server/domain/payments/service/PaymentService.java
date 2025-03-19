@@ -52,6 +52,7 @@ public class PaymentService {
       case EXTENSION -> handleExtensionPayment(orderInfo, paymentConfirmResponse);
       case OVERDUE -> handleOverduePayment(orderInfo, paymentConfirmResponse);
     };
+    orderInfoService.removeOrderInfo(paymentConfirmResponse.orderId());
     return new RentalHistoryTokenResponse(rentalHistory.getToken());
   }
 
@@ -60,7 +61,8 @@ public class PaymentService {
     RentalItems rentalItem = rentalItemRepository.findByToken(orderInfo.getRentalItemToken());
     RentalHistory rentalHistory = createRentalHistory(entityToken, orderInfo, paymentConfirmResponse, rentalItem);
     saveRentalPaymentsAndRentalHistory(paymentConfirmResponse, orderInfo, rentalHistory);
-    processRental(paymentConfirmResponse, rentalItem);
+    stockLockService.decreaseStock(rentalItem);
+    rentalItem.rentOut();
     return rentalHistory;
   }
 
@@ -100,12 +102,6 @@ public class PaymentService {
       RentalHistory rentalHistory) {
     RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
     rentalPaymentRepository.save(rentalPayments);
-  }
-
-  private void processRental(TossPaymentConfirmResponse paymentConfirmResponse, RentalItems rentalItem) {
-    stockLockService.decreaseStock(rentalItem);
-    rentalItem.rentOut();
-    orderInfoService.removeOrderInfo(paymentConfirmResponse.orderId());
   }
 
 }

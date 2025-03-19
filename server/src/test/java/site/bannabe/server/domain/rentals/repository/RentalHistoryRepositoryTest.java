@@ -96,7 +96,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
     rentalHistoryRepository.saveAllAndFlush(rentalHistories);
 
     //when
-    List<RentalHistory> result = rentalHistoryRepository.findActiveRentalsBy(EMAIL);
+    List<RentalHistory> result = rentalHistoryRepository.findActiveRentalsBy(user.getToken());
 
     //then
     assertThat(result).isNotEmpty().hasSize(5)
@@ -125,7 +125,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
     Pageable pageable = PageRequest.of(0, 10, Sort.by(Direction.DESC, "startTime"));
 
     //when
-    Page<RentalHistory> result = rentalHistoryRepository.findAllRentalsBy(EMAIL, pageable);
+    Page<RentalHistory> result = rentalHistoryRepository.findAllRentalsBy(user.getToken(), pageable);
 
     //then
     assertThat(result.getContent()).isNotEmpty().hasSize(10)

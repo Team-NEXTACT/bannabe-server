@@ -7,6 +7,7 @@ import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems
 import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
 import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
+import static site.bannabe.server.domain.users.entity.QUsers.users;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -34,32 +35,34 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public List<RentalHistory> findActiveRentalsBy(String email) {
+  public List<RentalHistory> findActiveRentalsBy(String entityToken) {
     return jpaQueryFactory.selectFrom(rentalHistory)
-                          .join(rentalHistory.user)
+                          .join(rentalHistory.user, users)
                           .leftJoin(rentalHistory.rentalItem, rentalItems).fetchJoin()
                           .leftJoin(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
                           .where(
-                              rentalHistory.user.email.eq(email)
-                                                      .and(rentalHistory.status.in(RENTAL, OVERDUE))
+                              users.token.eq(entityToken)
+                                         .and(rentalHistory.status.in(RENTAL, OVERDUE))
                           )
                           .orderBy(rentalHistory.startTime.desc())
                           .fetch();
   }
 
   @Override
-  public Page<RentalHistory> findAllRentalsBy(String email, Pageable pageable) {
+  public Page<RentalHistory> findAllRentalsBy(String entityToken, Pageable pageable) {
     List<RentalHistory> rentalHistories = jpaQueryFactory.selectFrom(rentalHistory)
                                                          .leftJoin(rentalHistory.rentalItem, rentalItems).fetchJoin()
                                                          .leftJoin(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
-                                                         .where(rentalHistory.user.email.eq(email))
+                                                         .leftJoin(rentalHistory.user, users)
+                                                         .where(users.token.eq(entityToken))
                                                          .orderBy(getOrderSpecifiers(pageable.getSort()))
                                                          .offset(pageable.getOffset())
                                                          .limit(pageable.getPageSize())
                                                          .fetch();
     JPAQuery<Long> queryCount = jpaQueryFactory.select(rentalHistory.count())
                                                .from(rentalHistory)
-                                               .where(rentalHistory.user.email.eq(email));
+                                               .leftJoin(rentalHistory.user, users)
+                                               .where(users.token.eq(entityToken));
     return PageableExecutionUtils.getPage(rentalHistories, pageable, queryCount::fetchOne);
   }
 

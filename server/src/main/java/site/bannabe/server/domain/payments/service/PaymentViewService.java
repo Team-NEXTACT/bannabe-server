@@ -42,7 +42,7 @@ public class PaymentViewService {
 
   private void validateOrderInfoNotExist(String rentalItemToken) {
     if (orderInfoService.isExistOrderInfo(rentalItemToken)) {
-      throw new BannabeServiceException(ErrorCode.ALREADY_EXIST_ORDER_INFO);
+      throw new BannabeServiceException(ErrorCode.ORDER_INFO_EXISTS);
     }
   }
 

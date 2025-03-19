@@ -37,6 +37,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangeProfileImag
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.BookmarkStationRepository;
 import site.bannabe.server.domain.users.repository.UserRepository;
@@ -65,6 +66,30 @@ class UserServiceTest {
   @BeforeEach
   void setUp() {
     ReflectionTestUtils.setField(userService, "defaultProfileImage", "defaultProfileImage.png");
+  }
+
+  @Test
+  @DisplayName("회원정보 조회 성공")
+  void getUserInfo() {
+    //given
+    String entityToken = "entityToken";
+    Users user = Users.builder().nickname("테스트 닉네임").profileImage("프로필 이미지").email("이메일").build();
+
+    given(userRepository.findByToken(entityToken)).willReturn(user);
+
+    //when
+    UserGetSimpleResponse result = userService.getUserInfo(entityToken);
+
+    //then
+    assertThat(result).isNotNull()
+                      .extracting(UserGetSimpleResponse::email,
+                          UserGetSimpleResponse::nickname,
+                          UserGetSimpleResponse::profileImage)
+                      .containsExactly(
+                          user.getEmail(),
+                          user.getNickname(),
+                          user.getProfileImage()
+                      );
   }
 
   @Test

@@ -23,6 +23,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangeProfileImag
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.service.UserService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
 
@@ -32,6 +33,12 @@ import site.bannabe.server.global.security.auth.PrincipalDetails;
 public class UserController {
 
   private final UserService userService;
+
+  @GetMapping("/me")
+  public UserGetSimpleResponse getUserInfo(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getUserInfo(entityToken);
+  }
 
   @PutMapping("/me/password")
   public void changePassword(@RequestBody @Valid UserChangePasswordRequest changePasswordRequest,

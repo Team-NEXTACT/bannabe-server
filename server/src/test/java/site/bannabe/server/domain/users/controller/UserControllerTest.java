@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import io.restassured.RestAssured;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +18,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import site.bannabe.server.config.AbstractTestContainers;
-import site.bannabe.server.config.IntegrationTest;
+import site.bannabe.server.config.AbstractIntegrationTest;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItemCategory;
 import site.bannabe.server.domain.rentals.entity.RentalItemTypes;
@@ -53,11 +50,8 @@ import site.bannabe.server.global.aws.S3Service;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtProvider;
 
-@IntegrationTest
-class UserControllerTest extends AbstractTestContainers {
+class UserControllerTest extends AbstractIntegrationTest {
 
-  @LocalServerPort
-  private int port;
   @Autowired
   private UserRepository userRepository;
   @Autowired
@@ -82,7 +76,6 @@ class UserControllerTest extends AbstractTestContainers {
 
   @BeforeEach
   void setup() {
-    RestAssured.port = port;
     user = Users.builder()
                 .email("test@test.com")
                 .nickname("TestUser")

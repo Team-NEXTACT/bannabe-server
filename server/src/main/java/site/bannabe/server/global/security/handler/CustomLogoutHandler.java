@@ -26,7 +26,7 @@ public class CustomLogoutHandler implements LogoutHandler {
   public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (authHeader == null || !authHeader.startsWith(PREFIX)) {
-      return;
+      throw new BannabeAuthenticationException(ErrorCode.TOKEN_NOT_FOUND);
     }
     String accessToken = authHeader.substring(PREFIX.length());
     String refreshToken = getRefreshToken(request);

@@ -25,6 +25,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpleResponse;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
+import site.bannabe.server.domain.rentals.entity.RentalStatus;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 
@@ -89,7 +90,10 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
     RentalHistory result = jpaQueryFactory.selectFrom(rentalHistory)
                                           .join(rentalHistory.rentalItem, rentalItems).fetchJoin()
                                           .join(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
-                                          .where(rentalItems.token.eq(rentalItemToken)).fetchOne();
+                                          .where(rentalItems.token.eq(rentalItemToken)
+                                                                  .and(rentalHistory.status.ne(RentalStatus.RETURNED)))
+                                          .orderBy(rentalHistory.startTime.desc())
+                                          .fetchFirst();
     return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_HISTORY_NOT_FOUND));
   }
 

@@ -1,7 +1,6 @@
 package site.bannabe.server.domain.users.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +21,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangePasswordReq
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.service.UserService;
@@ -67,7 +67,7 @@ public class UserController {
   }
 
   @GetMapping("/me/rentals/active")
-  public List<RentalHistoryResponse> getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+  public UserGetActiveRentalResponse getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
     String entityToken = principalDetails.getEntityToken();
     return userService.getActiveRentalHistory(entityToken);
   }

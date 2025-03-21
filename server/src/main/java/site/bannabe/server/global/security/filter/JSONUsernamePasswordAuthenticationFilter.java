@@ -76,7 +76,7 @@ public class JSONUsernamePasswordAuthenticationFilter extends AbstractAuthentica
     session.setAttribute("deviceToken", loginRequest.deviceToken());
   }
 
-  private record LoginRequest(
+  public record LoginRequest(
       String email,
       String password,
       String deviceToken

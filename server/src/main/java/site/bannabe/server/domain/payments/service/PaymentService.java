@@ -69,6 +69,7 @@ public class PaymentService {
   private RentalHistory handleExtensionPayment(OrderInfo orderInfo, TossPaymentConfirmResponse paymentConfirmResponse) {
     String rentalItemToken = orderInfo.getRentalItemToken();
     RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    rentalHistory.changeStatus(RentalStatus.EXTENSION);
     rentalHistory.extendRentalTime(orderInfo.getRentalTime());
     RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
     rentalPaymentRepository.save(rentalPayments);

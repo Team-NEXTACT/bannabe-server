@@ -1,14 +1,12 @@
 package site.bannabe.server.global.api;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import site.bannabe.server.domain.payments.controller.request.PaymentConfirmRequest;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TossPaymentApiClient {

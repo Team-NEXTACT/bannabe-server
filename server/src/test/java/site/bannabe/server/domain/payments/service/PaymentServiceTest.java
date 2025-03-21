@@ -23,8 +23,11 @@ import site.bannabe.server.domain.payments.entity.PaymentMethod;
 import site.bannabe.server.domain.payments.entity.PaymentType;
 import site.bannabe.server.domain.payments.entity.RentalPayments;
 import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
+import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
+import site.bannabe.server.domain.rentals.entity.RentalStatus;
+import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
 import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
@@ -53,6 +56,8 @@ class PaymentServiceTest {
   private RentalItemRepository rentalItemRepository;
   @Mock
   private RentalPaymentRepository rentalPaymentRepository;
+  @Mock
+  private RentalHistoryRepository rentalHistoryRepository;
   @Mock
   private UserRepository userRepository;
   @Mock
@@ -135,6 +140,60 @@ class PaymentServiceTest {
     verify(rentalPaymentRepository, never()).save(any(RentalPayments.class));
     verify(stockLockService, never()).decreaseStock(any(RentalItems.class));
     verify(orderInfoService, never()).removeOrderInfo(confirmRequest.orderId());
+  }
+
+  @Test
+  @DisplayName("연장 결제시 대여내역을 수정한다.")
+  void confirmExtensionPayment() {
+    //given
+    PaymentType paymentType = PaymentType.EXTENSION;
+    OrderInfo orderInfo = new OrderInfo(rentalItemToken, rentalTime, amount, paymentType);
+    TossPaymentConfirmResponse confirmResponse = new TossPaymentConfirmResponse(paymentKey, PaymentMethod.CARD, orderId,
+        "충전기/1시간", amount, LocalDateTime.now(), new ReceiptInfo("receiptUrl"));
+    RentalHistory rentalHistory = RentalHistory.builder()
+                                               .rentalTimeHour(1)
+                                               .expectedReturnTime(LocalDateTime.now())
+                                               .status(RentalStatus.RENTAL)
+                                               .build();
+    given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
+    given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
+    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(rentalHistory);
+
+    //when
+    paymentService.confirmPayment(entityToken, confirmRequest);
+
+    //then
+    assertThat(rentalHistory.getStatus()).isEqualTo(RentalStatus.EXTENSION);
+    verify(orderInfoService).findOrderInfoBy(confirmRequest.orderId());
+    verify(tossApiClient).confirmPaymentRequest(confirmRequest);
+    verify(rentalHistoryRepository).findByItemToken(rentalItemToken);
+  }
+
+  @Test
+  @DisplayName("연체 결제시 대여내역을 수정한다.")
+  void confirmOverduePayment() {
+    //given
+    PaymentType paymentType = PaymentType.OVERDUE;
+    OrderInfo orderInfo = new OrderInfo(rentalItemToken, rentalTime, amount, paymentType);
+    TossPaymentConfirmResponse confirmResponse = new TossPaymentConfirmResponse(paymentKey, PaymentMethod.CARD, orderId,
+        "충전기/1시간", amount, LocalDateTime.now(), new ReceiptInfo("receiptUrl"));
+    RentalHistory rentalHistory = RentalHistory.builder()
+                                               .rentalTimeHour(1)
+                                               .expectedReturnTime(LocalDateTime.now())
+                                               .status(RentalStatus.OVERDUE)
+                                               .build();
+    given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
+    given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
+    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(rentalHistory);
+
+    //when
+    paymentService.confirmPayment(entityToken, confirmRequest);
+
+    //then
+    assertThat(rentalHistory.getStatus()).isEqualTo(RentalStatus.OVERDUE_PAID);
+    verify(orderInfoService).findOrderInfoBy(confirmRequest.orderId());
+    verify(tossApiClient).confirmPaymentRequest(confirmRequest);
+    verify(rentalHistoryRepository).findByItemToken(rentalItemToken);
   }
 
 }

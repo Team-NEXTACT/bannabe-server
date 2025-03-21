@@ -8,9 +8,9 @@ import site.bannabe.server.domain.rentals.entity.RentalHistory;
 
 public interface CustomRentalHistoryRepository {
 
-  List<RentalHistory> findActiveRentalsBy(String email);
+  List<RentalHistory> findActiveRentalsBy(String entityToken);
 
-  Page<RentalHistory> findAllRentalsBy(String email, Pageable pageable);
+  Page<RentalHistory> findAllRentalsBy(String entityToken, Pageable pageable);
 
   RentalSuccessSimpleResponse findRentalHistoryInfoBy(String token);
 

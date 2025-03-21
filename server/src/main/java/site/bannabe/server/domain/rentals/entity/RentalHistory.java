@@ -1,5 +1,6 @@
 package site.bannabe.server.domain.rentals.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -24,10 +25,13 @@ public class RentalHistory extends BaseEntity {
   @Default
   private RentalStatus status = RentalStatus.RENTAL;
 
+  @Column(columnDefinition = "datetime")
   private LocalDateTime startTime;
 
+  @Column(columnDefinition = "datetime")
   private LocalDateTime expectedReturnTime;
 
+  @Column(columnDefinition = "datetime")
   private LocalDateTime returnTime;
 
   private Integer rentalTimeHour;

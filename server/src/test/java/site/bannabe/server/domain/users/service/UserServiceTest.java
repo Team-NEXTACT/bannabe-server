@@ -36,6 +36,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangePasswordReq
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.entity.Users;
@@ -130,7 +131,7 @@ class UserServiceTest {
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.changePassword(EMAIL, request))
+        .isThrownBy(() -> userService.changePassword(entityToken, request))
         .withMessage(ErrorCode.NEW_PASSWORD_MISMATCH.getMessage());
 
     verify(passwordService, never()).validateCurrentPassword(eq(currentPassword), anyString());
@@ -263,29 +264,29 @@ class UserServiceTest {
                                                .status(RentalStatus.RENTAL)
                                                .build();
     List<RentalHistory> rentalHistories = List.of(rentalHistory);
-    given(rentalHistoryRepository.findActiveRentalsBy(EMAIL)).willReturn(rentalHistories);
+    given(rentalHistoryRepository.findActiveRentalsBy(entityToken)).willReturn(rentalHistories);
 
     //when
-    List<RentalHistoryResponse> result = userService.getActiveRentalHistory(EMAIL);
+    UserGetActiveRentalResponse result = userService.getActiveRentalHistory(entityToken);
 
     //then
-    assertThat(result).isNotEmpty();
-    assertThat(result.get(0)).isNotNull()
-                             .extracting(RentalHistoryResponse::status)
-                             .isEqualTo(RentalStatus.OVERDUE.getDescription());
+    assertThat(result).isNotNull();
+    assertThat(result.rentals().get(0)).isNotNull()
+                                       .extracting(RentalHistoryResponse::status)
+                                       .isEqualTo(RentalStatus.OVERDUE.getDescription());
   }
 
   @Test
   @DisplayName("현재 대여중인 내역이 없다면 빈 List 반환")
   void isEmptyActiveRentalHistory() {
     //given
-    given(rentalHistoryRepository.findActiveRentalsBy(EMAIL)).willReturn(List.of());
+    given(rentalHistoryRepository.findActiveRentalsBy(entityToken)).willReturn(List.of());
 
     //when
-    List<RentalHistoryResponse> result = userService.getActiveRentalHistory(EMAIL);
+    UserGetActiveRentalResponse result = userService.getActiveRentalHistory(entityToken);
 
     //then
-    assertThat(result).isEmpty();
+    assertThat(result.rentals()).isEmpty();
   }
 
   @Test
@@ -308,10 +309,10 @@ class UserServiceTest {
                                                .build();
     List<RentalHistory> rentalHistories = List.of(rentalHistory);
     PageImpl<RentalHistory> rentalHistoryPage = new PageImpl<>(rentalHistories);
-    given(rentalHistoryRepository.findAllRentalsBy(EMAIL, pageRequest)).willReturn(rentalHistoryPage);
+    given(rentalHistoryRepository.findAllRentalsBy(entityToken, pageRequest)).willReturn(rentalHistoryPage);
 
     //when
-    Page<RentalHistoryResponse> result = userService.getRentalHistory(EMAIL, pageRequest);
+    Page<RentalHistoryResponse> result = userService.getRentalHistory(entityToken, pageRequest);
 
     //then
     assertThat(result).isNotEmpty();
@@ -325,10 +326,10 @@ class UserServiceTest {
   void isEmptyRentalHistory() {
     //given
     PageRequest pageRequest = PageRequest.of(0, 10);
-    given(rentalHistoryRepository.findAllRentalsBy(EMAIL, pageRequest)).willReturn(new PageImpl<>(List.of()));
+    given(rentalHistoryRepository.findAllRentalsBy(entityToken, pageRequest)).willReturn(new PageImpl<>(List.of()));
 
     //when
-    Page<RentalHistoryResponse> result = userService.getRentalHistory(EMAIL, pageRequest);
+    Page<RentalHistoryResponse> result = userService.getRentalHistory(entityToken, pageRequest);
 
     //then
     assertThat(result).isEmpty();
@@ -370,10 +371,10 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsByTokenAndId(EMAIL, bookmarkId)).willReturn(Boolean.TRUE);
+    given(bookmarkStationRepository.existsByTokenAndId(entityToken, bookmarkId)).willReturn(Boolean.TRUE);
 
     //when
-    userService.removeBookmarkStation(EMAIL, bookmarkId);
+    userService.removeBookmarkStation(entityToken, bookmarkId);
 
     //then
     verify(bookmarkStationRepository).deleteBookmarkById(bookmarkId);
@@ -385,11 +386,11 @@ class UserServiceTest {
     //given
     Long bookmarkId = 1L;
 
-    given(bookmarkStationRepository.existsByTokenAndId(EMAIL, bookmarkId)).willReturn(Boolean.FALSE);
+    given(bookmarkStationRepository.existsByTokenAndId(entityToken, bookmarkId)).willReturn(Boolean.FALSE);
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)
-        .isThrownBy(() -> userService.removeBookmarkStation(EMAIL, bookmarkId))
+        .isThrownBy(() -> userService.removeBookmarkStation(entityToken, bookmarkId))
         .withMessage(ErrorCode.BOOKMARK_NOT_EXIST.getMessage());
   }
 

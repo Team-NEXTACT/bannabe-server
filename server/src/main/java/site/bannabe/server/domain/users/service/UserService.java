@@ -19,6 +19,7 @@ import site.bannabe.server.domain.users.controller.request.UserChangeProfileImag
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse.BookmarkStationResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.entity.Users;
@@ -96,14 +97,14 @@ public class UserService {
   }
 
   @Transactional
-  public List<RentalHistoryResponse> getActiveRentalHistory(String entityToken) {
+  public UserGetActiveRentalResponse getActiveRentalHistory(String entityToken) {
     List<RentalHistory> rentalHistories = rentalHistoryRepository.findActiveRentalsBy(entityToken);
     if (rentalHistories.isEmpty()) {
-      return Collections.emptyList();
+      return new UserGetActiveRentalResponse(Collections.emptyList());
     }
     LocalDateTime now = LocalDateTime.now();
     rentalHistories.forEach(rentalHistory -> rentalHistory.validateOverdue(now));
-    return rentalHistories.stream().map(RentalHistoryResponse::of).toList();
+    return new UserGetActiveRentalResponse(rentalHistories.stream().map(RentalHistoryResponse::of).toList());
   }
 
   @Transactional

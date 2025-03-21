@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -41,8 +40,6 @@ class AuthControllerTest extends AbstractIntegrationTest {
   @Autowired
   private UserRepository userRepository;
   @Autowired
-  private RedisTemplate<String, ?> redisTemplate;
-  @Autowired
   private JwtService jwtService;
   @Autowired
   private AuthCodeService authCodeService;
@@ -67,7 +64,7 @@ class AuthControllerTest extends AbstractIntegrationTest {
   @AfterEach
   void tearDown() {
     userRepository.deleteAllInBatch();
-    redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
+    authCodeService.removeAuthCode(email);
   }
 
   @Test

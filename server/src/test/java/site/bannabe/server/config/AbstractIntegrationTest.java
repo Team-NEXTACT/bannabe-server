@@ -16,6 +16,7 @@ import org.springframework.restdocs.RestDocumentationExtension;
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class AbstractIntegrationTest extends AbstractTestContainers {
 
+  protected static final String DEFAULT_RESTDOC_PATH = "{class_name}/{method_name}";
   protected RequestSpecification spec;
 
   @LocalServerPort

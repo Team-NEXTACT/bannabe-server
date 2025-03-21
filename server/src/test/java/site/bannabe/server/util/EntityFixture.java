@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import site.bannabe.server.domain.payments.entity.PaymentMethod;
+import site.bannabe.server.domain.payments.entity.PaymentStatus;
 import site.bannabe.server.domain.payments.entity.PaymentType;
 import site.bannabe.server.domain.payments.entity.RentalPayments;
 import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
@@ -61,7 +63,7 @@ public class EntityFixture {
                       .providerType(ProviderType.LOCAL)
                       .role(Role.USER)
                       .build();
-    return userRepository.save(user);
+    return userRepository.saveAndFlush(user);
   }
 
   public RentalItemTypes createItemType(String name, int price, RentalItemCategory category) {
@@ -69,8 +71,10 @@ public class EntityFixture {
                                               .name(name)
                                               .price(price)
                                               .category(category)
+                                              .image("test-image.png")
+                                              .description("테스트 설명")
                                               .build();
-    return rentalItemTypeRepository.save(itemType);
+    return rentalItemTypeRepository.saveAndFlush(itemType);
   }
 
   public RentalStations createStation(String name) {
@@ -84,7 +88,7 @@ public class EntityFixture {
                                            .latitude(BigDecimal.valueOf(37.514575))
                                            .longitude(BigDecimal.valueOf(127.049555))
                                            .build();
-    return rentalStationRepository.save(station);
+    return rentalStationRepository.saveAndFlush(station);
   }
 
   public RentalItems createItem(RentalItemStatus status, RentalStations station, RentalItemTypes itemType) {
@@ -93,28 +97,31 @@ public class EntityFixture {
                                   .rentalItemType(itemType)
                                   .status(status)
                                   .build();
-    return rentalItemRepository.save(item);
+    return rentalItemRepository.saveAndFlush(item);
   }
 
-  public RentalStationItems createStationItem(RentalStations station, RentalItemTypes itemType) {
+  public RentalStationItems createStationItem(RentalItemTypes itemType, RentalStations station) {
     RentalStationItems stationItem = new RentalStationItems(itemType, station, 10);
-    return rentalStationItemRepository.save(stationItem);
+    return rentalStationItemRepository.saveAndFlush(stationItem);
   }
 
   public BookmarkStations createBookmark(Users user, RentalStations station) {
     BookmarkStations bookmark = new BookmarkStations(user, station);
-    return bookmarkStationRepository.save(bookmark);
+    return bookmarkStationRepository.saveAndFlush(bookmark);
   }
 
+  @Transactional
   public RentalPayments createPayment(PaymentType type, String name, Integer totalAmount, RentalHistory rentalHistory) {
+    RentalHistory findHistory = rentalHistoryRepository.findById(rentalHistory.getId()).get();
     RentalPayments rentalPayments = RentalPayments.builder()
                                                   .orderName(name)
                                                   .paymentMethod(PaymentMethod.CARD)
+                                                  .status(PaymentStatus.APPROVED)
                                                   .paymentType(type)
-                                                  .rentalHistory(rentalHistory)
+                                                  .rentalHistory(findHistory)
                                                   .totalAmount(totalAmount)
                                                   .build();
-    return rentalPaymentRepository.save(rentalPayments);
+    return rentalPaymentRepository.saveAndFlush(rentalPayments);
   }
 
   public RentalHistory createRentalHistory(RentalStatus status, Users user, RentalItems item, RentalStations station,
@@ -128,6 +135,6 @@ public class EntityFixture {
                                                .expectedReturnTime(startTime.plusHours(1))
                                                .status(status)
                                                .build();
-    return rentalHistoryRepository.save(rentalHistory);
+    return rentalHistoryRepository.saveAndFlush(rentalHistory);
   }
 }

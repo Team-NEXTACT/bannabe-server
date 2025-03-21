@@ -99,17 +99,17 @@ openapi3 {
 tasks.register("copyOasToSwagger", Copy) {
     dependsOn 'openapi3'
     doFirst {
-        delete("src/main/resources/static/swagger-ui/openapi3.yaml")
+        delete("src/main/resources/static/swagger/openapi3.yaml")
     }
     from(layout.buildDirectory.file("api-spec/openapi3.yaml"))
-    into(layout.projectDirectory.dir("src/main/resources/static/swagger-ui"))
+    into(layout.projectDirectory.dir("src/main/resources/static/swagger"))
 }
 
 tasks.named('test') {
     useJUnitPlatform()
     //OpenJDK 64-bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended 방지
     jvmArgs '-Xshare:off'
-    finalizedBy 'openapi3'
+    finalizedBy 'copyOasToSwagger'
 }
 
 tasks.named('build') {

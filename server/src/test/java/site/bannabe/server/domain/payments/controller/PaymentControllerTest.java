@@ -1,10 +1,19 @@
 package site.bannabe.server.domain.payments.controller;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import io.restassured.http.ContentType;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
@@ -13,69 +22,42 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.restassured.RestDocumentationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import site.bannabe.server.config.AbstractIntegrationTest;
 import site.bannabe.server.domain.payments.controller.request.PaymentCalculateRequest;
 import site.bannabe.server.domain.payments.controller.request.PaymentConfirmRequest;
 import site.bannabe.server.domain.payments.entity.PaymentMethod;
 import site.bannabe.server.domain.payments.entity.PaymentType;
-import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.payments.service.OrderInfoService;
 import site.bannabe.server.domain.rentals.entity.RentalItemCategory;
 import site.bannabe.server.domain.rentals.entity.RentalItemStatus;
 import site.bannabe.server.domain.rentals.entity.RentalItemTypes;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
-import site.bannabe.server.domain.rentals.entity.RentalStationItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
-import site.bannabe.server.domain.rentals.entity.StationGrade;
-import site.bannabe.server.domain.rentals.entity.StationStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
-import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
-import site.bannabe.server.domain.rentals.repository.RentalItemTypeRepository;
-import site.bannabe.server.domain.rentals.repository.RentalStationItemRepository;
-import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
-import site.bannabe.server.domain.users.entity.ProviderType;
-import site.bannabe.server.domain.users.entity.Role;
 import site.bannabe.server.domain.users.entity.Users;
-import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.api.TossPaymentApiClient;
 import site.bannabe.server.global.api.TossPaymentConfirmResponse;
 import site.bannabe.server.global.api.TossPaymentConfirmResponse.ReceiptInfo;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtProvider;
+import site.bannabe.server.util.EntityFixture;
 
 class PaymentControllerTest extends AbstractIntegrationTest {
 
   @Autowired
-  private RentalItemRepository rentalItemRepository;
-  @Autowired
-  private RentalItemTypeRepository rentalItemTypeRepository;
-  @Autowired
-  private RentalStationRepository rentalStationRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private RentalStationItemRepository rentalStationItemRepository;
-  @Autowired
-  private RentalHistoryRepository rentalHistoryRepository;
-  @Autowired
-  private RentalPaymentRepository rentalPaymentRepository;
-  @Autowired
   private JwtProvider jwtProvider;
   @Autowired
   private OrderInfoService orderInfoService;
+  @Autowired
+  private EntityFixture entityFixture;
   @MockitoBean
   private TossPaymentApiClient tossPaymentApiClient;
 
   @AfterEach
   void tearDown() {
-    rentalPaymentRepository.deleteAllInBatch();
-    rentalHistoryRepository.deleteAllInBatch();
-    rentalItemRepository.deleteAllInBatch();
-    rentalStationItemRepository.deleteAllInBatch();
-    rentalStationRepository.deleteAllInBatch();
-    rentalItemTypeRepository.deleteAllInBatch();
-    userRepository.deleteAllInBatch();
+    entityFixture.clearAll();
     orderInfoService.removeOrderInfo("orderId");
   }
 
@@ -83,25 +65,23 @@ class PaymentControllerTest extends AbstractIntegrationTest {
   @DisplayName("rentalItemToken과 rentalTime을 받아서 결제금액을 계산한다.")
   void calculateAmount() {
     //given
-    RentalItemTypes rentalItemTypes = RentalItemTypes.builder().category(RentalItemCategory.CHARGER).price(1000).build();
-    rentalItemTypeRepository.save(rentalItemTypes);
-
-    RentalItems rentalItems = RentalItems.builder().status(RentalItemStatus.AVAILABLE).rentalItemType(rentalItemTypes).build();
-    rentalItemRepository.save(rentalItems);
-
+    RentalItemTypes rentalItemTypes = entityFixture.createItemType("", 1000, RentalItemCategory.CHARGER);
+    RentalItems rentalItems = entityFixture.createItem(RentalItemStatus.AVAILABLE, null, rentalItemTypes);
     PaymentCalculateRequest request = new PaymentCalculateRequest(rentalItems.getToken(), 2);
     GenerateToken generateToken = jwtProvider.generateToken("entityToken", "ROLE_USER");
+
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
-           .body(request)
-           .when()
-           .post("/v1/payments/calculate")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value())
-           .body("data.amount", equalTo(rentalItemTypes.getPrice() * request.rentalTime()));
+    given(this.spec)
+        .filter(createCalculateAmountDocument()).log().all()
+        .contentType(ContentType.JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
+        .body(request)
+        .when()
+        .post("/v1/payments/calculate")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("data.amount", equalTo(rentalItemTypes.getPrice() * request.rentalTime()));
   }
 
   @Test
@@ -111,44 +91,28 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     GenerateToken generateToken = jwtProvider.generateToken("entityToken", "ROLE_USER");
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
-           .when()
-           .get("/v1/payments/checkout-url")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value())
-           .body("data.checkoutUrl", equalTo("http://localhost:8080/v1/payments/checkout"));
+    given(this.spec)
+        .filter(createGetCheckoutUrlDocument()).log().all()
+        .log().all()
+        .contentType(ContentType.JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
+        .when()
+        .get("/v1/payments/checkout-url")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("data.checkoutUrl", equalTo("http://localhost:8080/v1/payments/checkout"));
   }
 
-  // 결제 승인 테스트 작성 (대여만)
   @Test
   @DisplayName("결제승인 요청시 PG사 결제 승인과 대여내역을 저장하고, 대여내역 토큰을 응답한다.")
   void confirmPayment() {
     //given
-    Users user = Users.builder().providerType(ProviderType.LOCAL).role(Role.USER).build();
-    userRepository.save(user);
-    RentalItemTypes rentalItemTypes = RentalItemTypes.builder()
-                                                     .category(RentalItemCategory.CHARGER)
-                                                     .price(1000)
-                                                     .name("65W 충전기")
-                                                     .build();
-    rentalItemTypeRepository.save(rentalItemTypes);
-    RentalStations rentalStations = RentalStations.builder()
-                                                  .name("강남역")
-                                                  .grade(StationGrade.FIRST)
-                                                  .status(StationStatus.OPEN)
-                                                  .build();
-    rentalStationRepository.save(rentalStations);
-    RentalItems rentalItems = RentalItems.builder()
-                                         .rentalItemType(rentalItemTypes)
-                                         .currentStation(rentalStations)
-                                         .status(RentalItemStatus.AVAILABLE)
-                                         .build();
-    rentalItemRepository.save(rentalItems);
-    RentalStationItems rentalStationItems = new RentalStationItems(rentalItemTypes, rentalStations, 10);
-    rentalStationItemRepository.save(rentalStationItems);
+    Users user = entityFixture.createUser("test@test.com");
+    RentalItemTypes rentalItemTypes = entityFixture.createItemType("65W 충전기", 1000, RentalItemCategory.CHARGER);
+    RentalStations rentalStations = entityFixture.createStation("강남역");
+    RentalItems rentalItems = entityFixture.createItem(RentalItemStatus.AVAILABLE, rentalStations, rentalItemTypes);
+    entityFixture.createStationItem(rentalItemTypes, rentalStations);
 
     GenerateToken generateToken = jwtProvider.generateToken(user.getToken(), user.getRole().getRoleKey());
     PaymentConfirmRequest confirmRequest = new PaymentConfirmRequest("paymentKey", 1000, "orderId");
@@ -159,16 +123,84 @@ class PaymentControllerTest extends AbstractIntegrationTest {
     given(tossPaymentApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
 
     //when
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
-           .body(confirmRequest)
-           .when()
-           .post("/v1/payments/confirm")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value())
-           .body("data.rentalHistoryToken", startsWith("RH_"));
+    given(this.spec)
+        .filter(createConfirmPaymentDocument()).log().all()
+        .log().all()
+        .contentType(ContentType.JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
+        .body(confirmRequest)
+        .when()
+        .post("/v1/payments/confirm")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("data.rentalHistoryToken", startsWith("RH_"));
+  }
+
+  private RestDocumentationFilter createCalculateAmountDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("결제 금액 계산 API")
+                                          .build()
+        ),
+        requestHeaders(
+            headerWithName(AUTHORIZATION).description("Bearer JWT")
+        ),
+        requestFields(
+            fieldWithPath("rentalItemToken").type(JsonFieldType.STRING).description("대여 아이템 토큰"),
+            fieldWithPath("rentalTime").type(JsonFieldType.NUMBER).description("대여 시간")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("응답 성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data.amount").type(JsonFieldType.NUMBER).description("결제 금액"),
+            fieldWithPath("data.pricePerHour").type(JsonFieldType.NUMBER).description("시간당 가격"),
+            fieldWithPath("data.rentalTime").type(JsonFieldType.NUMBER).description("대여 시간"),
+            fieldWithPath("data.rentalItemToken").type(JsonFieldType.STRING).description("대여 물품 토큰")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createGetCheckoutUrlDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("결제창 호출 URL 조회 API")
+                                          .build()
+        ),
+        requestHeaders(
+            headerWithName(AUTHORIZATION).description("Bearer JWT")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("응답 성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data.checkoutUrl").type(JsonFieldType.STRING).description("결제창 URL")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createConfirmPaymentDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("결제 승인 API")
+                                          .build()
+        ),
+        requestHeaders(
+            headerWithName(AUTHORIZATION).description("Bearer JWT")
+        ),
+        requestFields(
+            fieldWithPath("paymentKey").type(JsonFieldType.STRING).description("결제 고유 키"),
+            fieldWithPath("amount").type(JsonFieldType.NUMBER).description("결제 금액"),
+            fieldWithPath("orderId").type(JsonFieldType.STRING).description("주문 번호")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("응답 성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data.rentalHistoryToken").type(JsonFieldType.STRING).description("대여내역 토큰")
+        )
+    );
   }
 
 }

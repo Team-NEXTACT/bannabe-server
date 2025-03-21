@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.epages.restdocs-api-spec' version '0.19.0'
 }
 
 group = 'site.bannabe'
@@ -80,12 +81,39 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:mysql'
     testImplementation 'com.redis:testcontainers-redis'
+
+    // RestDocs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+    testImplementation 'com.epages:restdocs-api-spec-restassured:0.19.0'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.19.0'
+}
+
+openapi3 {
+    server = 'http://localhost:8080'
+    title = 'Bannabe API'
+    description = 'Bannabe API 문서'
+    version = '0.0.1'
+    format = 'yaml'
+}
+
+tasks.register("copyOasToSwagger", Copy) {
+    dependsOn 'openapi3'
+    doFirst {
+        delete("src/main/resources/static/swagger-ui/openapi3.yaml")
+    }
+    from(layout.buildDirectory.file("api-spec/openapi3.yaml"))
+    into(layout.projectDirectory.dir("src/main/resources/static/swagger-ui"))
 }
 
 tasks.named('test') {
     useJUnitPlatform()
     //OpenJDK 64-bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended 방지
     jvmArgs '-Xshare:off'
+    finalizedBy 'openapi3'
+}
+
+tasks.named('build') {
+    finalizedBy 'copyOasToSwagger'
 }
 
 /*QueryDSL Config*/

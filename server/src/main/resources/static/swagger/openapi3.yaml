@@ -1,0 +1,81 @@
+openapi: 3.0.1
+info:
+  title: Bannabe API
+  description: Bannabe API 문서
+  version: 0.0.1
+servers:
+- url: http://localhost:8080
+tags: []
+paths:
+  /v1/oauth2/login/{provider}:
+    post:
+      tags:
+      - v1
+      operationId: OAuth2 인증 요청 API
+      parameters:
+      - name: provider
+        in: path
+        description: ""
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/v1-oauth2-login-provider-1023840387"
+            examples:
+              OAuth2 인증 요청 API:
+                value: "{\r\n  \"accessToken\" : \"accessToken\",\r\n  \"deviceToken\"\
+                  \ : \"deviceToken\"\r\n}"
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v1-oauth2-login-provider1499229327"
+              examples:
+                OAuth2 인증 요청 API:
+                  value: "{\r\n  \"success\" : true,\r\n  \"message\" : \"요청이 성공적으\
+                    로 처리되었습니다.\",\r\n  \"data\" : {\r\n    \"accessToken\" : \"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiUk9MRSI6IlJPTEVfVVNFUiIsImlhdCI6MTc0MjU2ODUyOCwiZXhwIjoxNzQyNTcwMzI4fQ.ubF3TAN25xccpwV_NLLNgiyG9MCUlWosHYaS7LDyzR4fqczsrAFDmvbtbXma5d-fvFVZg8BlVVWRoLb4uYJfzQ\"\
+                    ,\r\n    \"refreshToken\" : \"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiUk9MRSI6IlJPTEVfVVNFUiIsImlhdCI6MTc0MjU2ODUyOCwiZXhwIjoxNzQzMTczMzI4fQ.x0B7NKzUb2qmlGMk7zVNnvkPzFH82rgpCNUoGqTXNd_wisWJLjcaFUCltFZo0GqEixFF9y7jAbiRmSXMkZhTHQ\"\
+                    \r\n  }\r\n}"
+components:
+  schemas:
+    v1-oauth2-login-provider1499229327:
+      required:
+      - message
+      - success
+      type: object
+      properties:
+        data:
+          required:
+          - accessToken
+          - refreshToken
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: JWT 토큰
+            refreshToken:
+              type: string
+              description: JWT 리프레시 토큰
+        success:
+          type: boolean
+          description: 응답 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+    v1-oauth2-login-provider-1023840387:
+      required:
+      - accessToken
+      - deviceToken
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: 소셜로그인 인증 토큰
+        deviceToken:
+          type: string
+          description: 디바이스 토큰

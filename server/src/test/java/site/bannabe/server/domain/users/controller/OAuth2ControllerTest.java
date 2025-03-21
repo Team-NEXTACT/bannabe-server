@@ -1,7 +1,13 @@
 package site.bannabe.server.domain.users.controller;
 
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -10,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import site.bannabe.server.config.AbstractIntegrationTest;
 import site.bannabe.server.domain.users.controller.request.OAuth2AuthorizationRequest;
@@ -46,7 +53,23 @@ class OAuth2ControllerTest extends AbstractIntegrationTest {
     given(oAuth2ApiClient.getOAuth2UserInfo(providerType, request.accessToken())).willReturn(oAuth2UserInfo);
 
     //when then
-    RestAssured.given().log().all()
+    RestAssured.given(this.spec)
+               .filter(document("OAuth2 인증 요청 API",
+                   pathParameters(
+                       parameterWithName("provider").description("소셜로그인 Provider")
+                   ),
+                   requestFields(
+                       fieldWithPath("accessToken").type(JsonFieldType.STRING).description("소셜로그인 인증 토큰"),
+                       fieldWithPath("deviceToken").type(JsonFieldType.STRING).description("디바이스 토큰")
+                   ),
+                   responseFields(
+                       fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("응답 성공 여부"),
+                       fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                       fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("JWT 토큰"),
+                       fieldWithPath("data.refreshToken").type(JsonFieldType.STRING).description("JWT 리프레시 토큰")
+                   )
+               ))
+               .log().all()
                .contentType(ContentType.JSON)
                .body(request)
                .when()

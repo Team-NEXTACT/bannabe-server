@@ -12,8 +12,8 @@ import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
+import site.bannabe.server.domain.rentals.service.RentalHistoryService;
 import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
@@ -29,9 +29,9 @@ public class PaymentService {
 
   private final RentalItemRepository rentalItemRepository;
   private final RentalPaymentRepository rentalPaymentRepository;
-  private final RentalHistoryRepository rentalHistoryRepository;
   private final UserRepository userRepository;
   private final TossPaymentApiClient tossApiClient;
+  private final RentalHistoryService rentalHistoryService;
   private final OrderInfoService orderInfoService;
   private final StockLockService stockLockService;
 
@@ -56,11 +56,22 @@ public class PaymentService {
     return new RentalHistoryTokenResponse(rentalHistory.getToken());
   }
 
+  private OrderInfo getOrderInfoAndValidateAmount(PaymentConfirmRequest paymentConfirmRequest) {
+    OrderInfo orderInfo = orderInfoService.findOrderInfoBy(paymentConfirmRequest.orderId());
+    if (!orderInfo.getAmount().equals(paymentConfirmRequest.amount())) {
+      throw new BannabeServiceException(ErrorCode.AMOUNT_MISMATCH);
+    }
+    return orderInfo;
+  }
+
   private RentalHistory handleRentalPayment(String entityToken, OrderInfo orderInfo,
       TossPaymentConfirmResponse paymentConfirmResponse) {
     RentalItems rentalItem = rentalItemRepository.findByToken(orderInfo.getRentalItemToken());
-    RentalHistory rentalHistory = createRentalHistory(entityToken, orderInfo, paymentConfirmResponse, rentalItem);
-    saveRentalPaymentsAndRentalHistory(paymentConfirmResponse, orderInfo, rentalHistory);
+    Users user = userRepository.findByToken(entityToken);
+    RentalHistory rentalHistory = rentalHistoryService.saveRentalHistory(rentalItem, user, orderInfo,
+        paymentConfirmResponse.approvedAt());
+    RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
+    rentalPaymentRepository.save(rentalPayments);
     stockLockService.decreaseStock(rentalItem);
     rentalItem.rentOut();
     return rentalHistory;
@@ -68,7 +79,7 @@ public class PaymentService {
 
   private RentalHistory handleExtensionPayment(OrderInfo orderInfo, TossPaymentConfirmResponse paymentConfirmResponse) {
     String rentalItemToken = orderInfo.getRentalItemToken();
-    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    RentalHistory rentalHistory = rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken);
     rentalHistory.changeStatus(RentalStatus.EXTENSION);
     rentalHistory.extendRentalTime(orderInfo.getRentalTime());
     RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
@@ -78,31 +89,11 @@ public class PaymentService {
 
   private RentalHistory handleOverduePayment(OrderInfo orderInfo, TossPaymentConfirmResponse paymentConfirmResponse) {
     String rentalItemToken = orderInfo.getRentalItemToken();
-    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    RentalHistory rentalHistory = rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken);
     rentalHistory.changeStatus(RentalStatus.OVERDUE_PAID);
     RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
     rentalPaymentRepository.save(rentalPayments);
     return rentalHistory;
-  }
-
-  private OrderInfo getOrderInfoAndValidateAmount(PaymentConfirmRequest paymentConfirmRequest) {
-    OrderInfo orderInfo = orderInfoService.findOrderInfoBy(paymentConfirmRequest.orderId());
-    if (!orderInfo.getAmount().equals(paymentConfirmRequest.amount())) {
-      throw new BannabeServiceException(ErrorCode.AMOUNT_MISMATCH);
-    }
-    return orderInfo;
-  }
-
-  private RentalHistory createRentalHistory(String entityToken, OrderInfo orderInfo,
-      TossPaymentConfirmResponse paymentConfirmResponse, RentalItems rentalItem) {
-    Users user = userRepository.findByToken(entityToken);
-    return RentalHistory.create(rentalItem, user, orderInfo, paymentConfirmResponse.approvedAt());
-  }
-
-  private void saveRentalPaymentsAndRentalHistory(TossPaymentConfirmResponse paymentConfirmResponse, OrderInfo orderInfo,
-      RentalHistory rentalHistory) {
-    RentalPayments rentalPayments = RentalPayments.create(paymentConfirmResponse, orderInfo, rentalHistory);
-    rentalPaymentRepository.save(rentalPayments);
   }
 
 }

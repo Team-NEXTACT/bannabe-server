@@ -10,7 +10,6 @@ import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
@@ -22,14 +21,14 @@ import site.bannabe.server.global.type.UserTokens;
 @RequiredArgsConstructor
 public class ReturnService {
 
-  private final RentalHistoryRepository rentalHistoryRepository;
   private final RentalStationRepository rentalStationRepository;
+  private final RentalHistoryService rentalHistoryService;
   private final StockLockService stockLockService;
   private final UserTokenService userTokenService;
 
   @Transactional
   public ReturnItemDetailResponse getReturnItemInfo(String rentalItemToken, Long currentStationId) {
-    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    RentalHistory rentalHistory = rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken);
     RentalItems rentalItem = rentalHistory.getRentalItem();
     if (!rentalItem.isRented()) {
       throw new BannabeServiceException(ErrorCode.RENTAL_ITEM_NOT_RENTED);
@@ -44,7 +43,7 @@ public class ReturnService {
 
   @Transactional
   public void returnRentalItem(String rentalItemToken, Long returnStationId) {
-    RentalHistory rentalHistory = rentalHistoryRepository.findByItemToken(rentalItemToken);
+    RentalHistory rentalHistory = rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken);
     if (rentalHistory.getStatus().equals(RentalStatus.OVERDUE)) {
       throw new BannabeServiceException(ErrorCode.RENTAL_ITEM_OVERDUE);
     }

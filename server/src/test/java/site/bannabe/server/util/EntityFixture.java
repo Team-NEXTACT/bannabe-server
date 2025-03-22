@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import site.bannabe.server.domain.payments.entity.PaymentMethod;
 import site.bannabe.server.domain.payments.entity.PaymentStatus;
 import site.bannabe.server.domain.payments.entity.PaymentType;
@@ -110,15 +109,13 @@ public class EntityFixture {
     return bookmarkStationRepository.saveAndFlush(bookmark);
   }
 
-  @Transactional
   public RentalPayments createPayment(PaymentType type, String name, Integer totalAmount, RentalHistory rentalHistory) {
-    RentalHistory findHistory = rentalHistoryRepository.findById(rentalHistory.getId()).get();
     RentalPayments rentalPayments = RentalPayments.builder()
                                                   .orderName(name)
                                                   .paymentMethod(PaymentMethod.CARD)
                                                   .status(PaymentStatus.APPROVED)
                                                   .paymentType(type)
-                                                  .rentalHistory(findHistory)
+                                                  .rentalHistory(rentalHistory)
                                                   .totalAmount(totalAmount)
                                                   .build();
     return rentalPaymentRepository.saveAndFlush(rentalPayments);

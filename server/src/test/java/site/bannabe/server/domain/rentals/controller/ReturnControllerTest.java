@@ -17,11 +17,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import site.bannabe.server.config.AbstractIntegrationTest;
-import site.bannabe.server.domain.payments.entity.PaymentMethod;
-import site.bannabe.server.domain.payments.entity.PaymentStatus;
 import site.bannabe.server.domain.payments.entity.PaymentType;
 import site.bannabe.server.domain.payments.entity.RentalPayments;
-import site.bannabe.server.domain.payments.repository.RentalPaymentRepository;
 import site.bannabe.server.domain.rentals.controller.request.ReturnStationRequest;
 import site.bannabe.server.domain.rentals.controller.response.ReturnItemDetailResponse;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
@@ -32,91 +29,43 @@ import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStationItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
-import site.bannabe.server.domain.rentals.entity.StationGrade;
-import site.bannabe.server.domain.rentals.entity.StationStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
-import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
-import site.bannabe.server.domain.rentals.repository.RentalItemTypeRepository;
 import site.bannabe.server.domain.rentals.repository.RentalStationItemRepository;
-import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
-import site.bannabe.server.domain.users.entity.ProviderType;
-import site.bannabe.server.domain.users.entity.Role;
 import site.bannabe.server.domain.users.entity.Users;
-import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtProvider;
 import site.bannabe.server.global.jwt.UserTokenService;
 import site.bannabe.server.global.type.UserTokens;
+import site.bannabe.server.util.EntityFixture;
 
 class ReturnControllerTest extends AbstractIntegrationTest {
 
   @Autowired
-  private RentalPaymentRepository rentalPaymentRepository;
-  @Autowired
-  private RentalHistoryRepository rentalHistoryRepository;
-  @Autowired
-  private RentalItemRepository rentalItemRepository;
-  @Autowired
-  private RentalItemTypeRepository rentalItemTypeRepository;
-  @Autowired
-  private RentalStationRepository rentalStationRepository;
-  @Autowired
   private RentalStationItemRepository rentalStationItemRepository;
   @Autowired
-  private UserRepository userRepository;
-  @Autowired
   private JwtProvider jwtProvider;
+  @Autowired
+  private EntityFixture entityFixture;
   @MockitoBean
   private UserTokenService userTokenService;
 
   @AfterEach
   void tearDown() {
-    rentalStationItemRepository.deleteAllInBatch();
-    rentalPaymentRepository.deleteAllInBatch();
-    rentalHistoryRepository.deleteAllInBatch();
-    rentalItemRepository.deleteAllInBatch();
-    rentalStationRepository.deleteAllInBatch();
-    rentalItemTypeRepository.deleteAllInBatch();
-    userRepository.deleteAllInBatch();
+    entityFixture.clearAll();
   }
 
   @Test
   @DisplayName("rentalItemToken과 currentStationId로 반납 물품 데이터와 반납스테이션 정보를 조회한다.")
   void getReturnItemInfo() {
     //given
-    RentalItemTypes rentalItemTypes = RentalItemTypes.builder().category(RentalItemCategory.CHARGER).name("65W 충전기").build();
-    rentalItemTypeRepository.saveAndFlush(rentalItemTypes);
-    RentalItems rentalItems = RentalItems.builder().status(RentalItemStatus.RENTED).rentalItemType(rentalItemTypes).build();
-    rentalItemRepository.saveAndFlush(rentalItems);
+    RentalItemTypes rentalItemTypes = entityFixture.createItemType("65W 충전기", 1000, RentalItemCategory.CHARGER);
+    RentalItems rentalItems = entityFixture.createItem(RentalItemStatus.RENTED, null, rentalItemTypes);
 
-    RentalStations rentalStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("대여 스테이션")
-                                                 .build();
-    RentalStations returnStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("반납 스테이션")
-                                                 .build();
-    rentalStationRepository.saveAllAndFlush(List.of(rentalStation, returnStation));
+    RentalStations rentalStation = entityFixture.createStation("대여 스테이션");
+    RentalStations returnStation = entityFixture.createStation("반납 스테이션");
+
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-    RentalHistory rentalHistory = RentalHistory.builder()
-                                               .rentalItem(rentalItems)
-                                               .rentalStation(rentalStation)
-                                               .status(RentalStatus.RENTAL)
-                                               .rentalTimeHour(1)
-                                               .startTime(now)
-                                               .expectedReturnTime(now.plusHours(1))
-                                               .build();
-    RentalPayments rentalPayments = RentalPayments.builder()
-                                                  .rentalHistory(rentalHistory)
-                                                  .status(PaymentStatus.APPROVED)
-                                                  .paymentType(PaymentType.RENT)
-                                                  .paymentMethod(
-                                                      PaymentMethod.CARD)
-                                                  .build();
-    rentalPaymentRepository.saveAndFlush(rentalPayments);
+    RentalHistory rentalHistory = entityFixture.createRentalHistory(RentalStatus.RENTAL, null, rentalItems, rentalStation, now);
+    entityFixture.createPayment(PaymentType.RENT, "테스트주문", 1000, rentalHistory);
 
     GenerateToken generateToken = jwtProvider.generateToken("user", "ROLE_USER");
     //when
@@ -157,45 +106,16 @@ class ReturnControllerTest extends AbstractIntegrationTest {
   @DisplayName("연체 상태라면 푸시알림을 전송한다.")
   void sendOverduePushAlert() {
     //given
-    Users user = Users.builder().role(Role.USER).providerType(ProviderType.LOCAL).build();
-    userRepository.saveAndFlush(user);
+    Users user = entityFixture.createUser("test@test.com");
+    RentalItemTypes rentalItemTypes = entityFixture.createItemType("65W 충전기", 1000, RentalItemCategory.CHARGER);
+    RentalItems rentalItems = entityFixture.createItem(RentalItemStatus.RENTED, null, rentalItemTypes);
 
-    RentalItemTypes rentalItemTypes = RentalItemTypes.builder().category(RentalItemCategory.CHARGER).name("65W 충전기").build();
-    rentalItemTypeRepository.saveAndFlush(rentalItemTypes);
-
-    RentalItems rentalItems = RentalItems.builder().status(RentalItemStatus.RENTED).rentalItemType(rentalItemTypes).build();
-    rentalItemRepository.saveAndFlush(rentalItems);
-
-    RentalStations rentalStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("대여 스테이션")
-                                                 .build();
-    RentalStations returnStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("반납 스테이션")
-                                                 .build();
-    rentalStationRepository.saveAllAndFlush(List.of(rentalStation, returnStation));
+    RentalStations rentalStation = entityFixture.createStation("대여 스테이션");
+    RentalStations returnStation = entityFixture.createStation("반납 스테이션");
 
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-    RentalHistory rentalHistory = RentalHistory.builder()
-                                               .user(user)
-                                               .rentalItem(rentalItems)
-                                               .rentalStation(rentalStation)
-                                               .status(RentalStatus.OVERDUE)
-                                               .rentalTimeHour(1)
-                                               .startTime(now)
-                                               .expectedReturnTime(now.plusHours(1))
-                                               .build();
-    RentalPayments rentalPayments = RentalPayments.builder()
-                                                  .rentalHistory(rentalHistory)
-                                                  .status(PaymentStatus.APPROVED)
-                                                  .paymentType(PaymentType.RENT)
-                                                  .paymentMethod(
-                                                      PaymentMethod.CARD)
-                                                  .build();
-    rentalPaymentRepository.saveAndFlush(rentalPayments);
+    RentalHistory rentalHistory = entityFixture.createRentalHistory(RentalStatus.OVERDUE, user, rentalItems, rentalStation, now);
+    RentalPayments rentalPayments = entityFixture.createPayment(PaymentType.RENT, "테스트주문", 1000, rentalHistory);
 
     GenerateToken generateToken = jwtProvider.generateToken(user.getToken(), user.getRole().getRoleKey());
     given(userTokenService.findAllUserTokens(user.getToken())).willReturn(
@@ -239,41 +159,15 @@ class ReturnControllerTest extends AbstractIntegrationTest {
   @DisplayName("반납 성공 시 200 응답")
   void returnItem() {
     //given
-    RentalItemTypes rentalItemTypes = RentalItemTypes.builder().category(RentalItemCategory.CHARGER).name("65W 충전기").build();
-    rentalItemTypeRepository.saveAndFlush(rentalItemTypes);
-    RentalItems rentalItems = RentalItems.builder().status(RentalItemStatus.RENTED).rentalItemType(rentalItemTypes).build();
-    rentalItemRepository.saveAndFlush(rentalItems);
+    RentalItemTypes rentalItemTypes = entityFixture.createItemType("65W 충전기", 1000, RentalItemCategory.CHARGER);
+    RentalItems rentalItems = entityFixture.createItem(RentalItemStatus.RENTED, null, rentalItemTypes);
 
-    RentalStations rentalStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("대여 스테이션")
-                                                 .build();
-    RentalStations returnStation = RentalStations.builder()
-                                                 .status(StationStatus.OPEN)
-                                                 .grade(StationGrade.FIRST)
-                                                 .name("반납 스테이션")
-                                                 .build();
-    rentalStationRepository.saveAllAndFlush(List.of(rentalStation, returnStation));
+    RentalStations rentalStation = entityFixture.createStation("대여 스테이션");
+    RentalStations returnStation = entityFixture.createStation("반납 스테이션");
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-    RentalHistory rentalHistory = RentalHistory.builder()
-                                               .rentalItem(rentalItems)
-                                               .rentalStation(rentalStation)
-                                               .status(RentalStatus.RENTAL)
-                                               .rentalTimeHour(1)
-                                               .startTime(now)
-                                               .expectedReturnTime(now.plusHours(1))
-                                               .build();
-    RentalPayments rentalPayments = RentalPayments.builder()
-                                                  .rentalHistory(rentalHistory)
-                                                  .status(PaymentStatus.APPROVED)
-                                                  .paymentType(PaymentType.RENT)
-                                                  .paymentMethod(
-                                                      PaymentMethod.CARD)
-                                                  .build();
-    rentalPaymentRepository.saveAndFlush(rentalPayments);
-    RentalStationItems rentalStationItems = new RentalStationItems(rentalItemTypes, returnStation, 10);
-    rentalStationItemRepository.saveAndFlush(rentalStationItems);
+    RentalHistory rentalHistory = entityFixture.createRentalHistory(RentalStatus.RENTAL, null, rentalItems, rentalStation, now);
+    entityFixture.createPayment(PaymentType.RENT, "테스트주문", 1000, rentalHistory);
+    entityFixture.createStationItem(rentalItemTypes, returnStation);
 
     GenerateToken generateToken = jwtProvider.generateToken("user", "ROLE_USER");
 
@@ -290,8 +184,7 @@ class ReturnControllerTest extends AbstractIntegrationTest {
                .assertThat()
                .statusCode(HttpStatus.OK.value());
     //then
-    RentalStationItems result = rentalStationItemRepository.findByItemTypeAndStation(rentalItemTypes,
-        returnStation);
+    RentalStationItems result = rentalStationItemRepository.findByItemTypeAndStation(rentalItemTypes, returnStation);
     assertThat(result.getStock()).isEqualTo(11);
   }
 

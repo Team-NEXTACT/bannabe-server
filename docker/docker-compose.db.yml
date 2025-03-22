@@ -2,7 +2,7 @@ name: project_bannabe
 services:
   mysql:
     image: mysql:8.0.34
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: '1234'
       MYSQL_DATABASE: 'bannabe'
@@ -15,7 +15,7 @@ services:
 
   redis:
     image: redis:latest
-    restart: always
+    restart: unless-stopped
     command: redis-server --requirepass 1234
     ports:
       - '6379:6379'

@@ -13,7 +13,21 @@ window.onload = function () {
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout"
+    layout: "StandaloneLayout",
+    requestInterceptor: function (req) {
+      const token = sessionStorage.getItem("accessToken");
+      if (token) {
+        req.headers["Authorization"] = "Bearer " + token;
+      }
+      return req;
+    },
+
+    responseInterceptor: function (res) {
+      if (res.url.includes('/v1/auth/login') && res.body?.data) {
+        sessionStorage.setItem('accessToken', res.body.data.accessToken);
+      }
+      return res;
+    }
   });
 
   //</editor-fold>

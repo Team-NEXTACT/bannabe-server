@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.epages.restdocs-api-spec' version '0.19.0'
+    id 'com.github.node-gradle.node' version '7.0.1'
 }
 
 group = 'site.bannabe'
@@ -12,6 +13,13 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+node {
+    download = true
+    version = '20.9.0'
+    npmVersion = '10.8.2'
+    nodeProjectDir = layout.projectDirectory.dir('src/main/resources/static').asFile
 }
 
 configurations {
@@ -117,17 +125,37 @@ tasks.named('build') {
 }
 
 /*QueryDSL Config*/
-def querydslDir = layout.buildDirectory.dir('generated/querydsl').get().asFile
+def querydslDir = layout.buildDirectory.dir('generated/querydsl')
 
 sourceSets {
-    main.java.srcDirs += querydslDir
+    main {
+        java {
+            srcDirs(querydslDir)
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.generatedSourceOutputDirectory.set(file(querydslDir))
 }
 
-clean.doLast {
-    file(querydslDir).deleteDir()
+tasks.register('cleanQuerydsl', Delete) {
+    delete(querydslDir)
+}
+
+tasks.named('clean') {
+    dependsOn 'cleanQuerydsl'
 }
 /*QueryDSL Config*/
+
+/*TailwindCss Config*/
+tasks.register('tailwindCss', NpmTask) {
+    npmCommand.set(['run'])
+    args.set(["build"])
+    dependsOn npmInstall
+}
+
+tasks.named('processResources') {
+    dependsOn 'tailwindCss'
+}
+/*TailwindCss Config*/

@@ -27,8 +27,8 @@ import site.bannabe.server.domain.rentals.entity.RentalHistory;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
+import site.bannabe.server.domain.rentals.service.RentalHistoryService;
 import site.bannabe.server.domain.rentals.service.StockLockService;
 import site.bannabe.server.domain.users.entity.Users;
 import site.bannabe.server.domain.users.repository.UserRepository;
@@ -38,6 +38,7 @@ import site.bannabe.server.global.api.TossPaymentConfirmResponse.ReceiptInfo;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 import site.bannabe.server.global.type.OrderInfo;
+import site.bannabe.server.global.utils.RandomCodeGenerator;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -57,7 +58,7 @@ class PaymentServiceTest {
   @Mock
   private RentalPaymentRepository rentalPaymentRepository;
   @Mock
-  private RentalHistoryRepository rentalHistoryRepository;
+  private RentalHistoryService rentalHistoryService;
   @Mock
   private UserRepository userRepository;
   @Mock
@@ -95,12 +96,15 @@ class PaymentServiceTest {
     RentalItems mockItem = mock(RentalItems.class);
     RentalStations mockStation = mock(RentalStations.class);
     Users mockUser = mock(Users.class);
+    RentalHistory mockHistory = mock(RentalHistory.class);
 
     given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
     given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
     given(rentalItemRepository.findByToken(orderInfo.getRentalItemToken())).willReturn(mockItem);
     given(userRepository.findByToken(entityToken)).willReturn(mockUser);
-    given(mockItem.getCurrentStation()).willReturn(mockStation);
+    given(rentalHistoryService.saveRentalHistory(mockItem, mockUser, orderInfo, confirmResponse.approvedAt()))
+        .willReturn(mockHistory);
+    given(mockHistory.getToken()).willReturn(RandomCodeGenerator.generateRandomToken(RentalHistory.class));
 
     //when
     RentalHistoryTokenResponse response = paymentService.confirmPayment(entityToken, confirmRequest);
@@ -115,6 +119,7 @@ class PaymentServiceTest {
     verify(tossApiClient).confirmPaymentRequest(confirmRequest);
     verify(rentalItemRepository).findByToken(orderInfo.getRentalItemToken());
     verify(userRepository).findByToken(entityToken);
+    verify(rentalHistoryService).saveRentalHistory(mockItem, mockUser, orderInfo, confirmResponse.approvedAt());
     verify(rentalPaymentRepository).save(any(RentalPayments.class));
     verify(stockLockService).decreaseStock(mockItem);
     verify(mockItem).rentOut();
@@ -157,7 +162,7 @@ class PaymentServiceTest {
                                                .build();
     given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
     given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(rentalHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(rentalHistory);
 
     //when
     paymentService.confirmPayment(entityToken, confirmRequest);
@@ -166,7 +171,7 @@ class PaymentServiceTest {
     assertThat(rentalHistory.getStatus()).isEqualTo(RentalStatus.EXTENSION);
     verify(orderInfoService).findOrderInfoBy(confirmRequest.orderId());
     verify(tossApiClient).confirmPaymentRequest(confirmRequest);
-    verify(rentalHistoryRepository).findByItemToken(rentalItemToken);
+    verify(rentalHistoryService).findRentalHistoryByRentalItemToken(rentalItemToken);
   }
 
   @Test
@@ -184,7 +189,7 @@ class PaymentServiceTest {
                                                .build();
     given(orderInfoService.findOrderInfoBy(confirmRequest.orderId())).willReturn(orderInfo);
     given(tossApiClient.confirmPaymentRequest(confirmRequest)).willReturn(confirmResponse);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(rentalHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(rentalHistory);
 
     //when
     paymentService.confirmPayment(entityToken, confirmRequest);
@@ -193,7 +198,7 @@ class PaymentServiceTest {
     assertThat(rentalHistory.getStatus()).isEqualTo(RentalStatus.OVERDUE_PAID);
     verify(orderInfoService).findOrderInfoBy(confirmRequest.orderId());
     verify(tossApiClient).confirmPaymentRequest(confirmRequest);
-    verify(rentalHistoryRepository).findByItemToken(rentalItemToken);
+    verify(rentalHistoryService).findRentalHistoryByRentalItemToken(rentalItemToken);
   }
 
 }

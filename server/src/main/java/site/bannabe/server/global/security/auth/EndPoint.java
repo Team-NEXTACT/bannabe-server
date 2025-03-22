@@ -30,7 +30,8 @@ public record EndPoint(
       new EndPoint(HttpMethod.GET, "/v1/payments/failure"),
       new EndPoint(HttpMethod.GET, "/payment-test"),
       new EndPoint(HttpMethod.GET, "/payment-complete"),
-      new EndPoint(HttpMethod.POST, "/v1/oauth2/login/{provider}")
+      new EndPoint(HttpMethod.POST, "/v1/oauth2/login/{provider}"),
+      new EndPoint(HttpMethod.GET, "/swagger/**")
   );
 
   public static final List<RequestMatcher> PERMIT_ALL_MATCHERS = Stream.concat(

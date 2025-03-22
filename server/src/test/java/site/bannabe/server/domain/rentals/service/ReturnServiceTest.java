@@ -22,7 +22,6 @@ import site.bannabe.server.domain.rentals.entity.RentalItemTypes;
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalStatus;
-import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
@@ -34,7 +33,7 @@ class ReturnServiceTest {
   private ReturnService returnService;
 
   @Mock
-  private RentalHistoryRepository rentalHistoryRepository;
+  private RentalHistoryService rentalHistoryService;
   @Mock
   private RentalStationRepository rentalStationRepository;
   @Mock
@@ -71,7 +70,7 @@ class ReturnServiceTest {
     given(mockItemType.getName()).willReturn(itemName);
     given(rentalStation.getName()).willReturn(rentalStationName);
     given(currentStation.getName()).willReturn(currentStationName);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(rentalHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(rentalHistory);
     given(rentalStationRepository.findById(currentStationId)).willReturn(Optional.of(currentStation));
 
     //when
@@ -110,7 +109,7 @@ class ReturnServiceTest {
 
     given(mockHistory.getRentalItem()).willReturn(mockItem);
     given(mockItem.isRented()).willReturn(false);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(mockHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(mockHistory);
 
     //when
     assertThatExceptionOfType(BannabeServiceException.class)
@@ -134,14 +133,14 @@ class ReturnServiceTest {
 
     given(mockHistory.getRentalItem()).willReturn(mockItem);
     given(mockHistory.getStatus()).willReturn(RentalStatus.RENTAL);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(mockHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(mockHistory);
     given(rentalStationRepository.findById(returnStationId)).willReturn(Optional.of(mockStation));
 
     //when
     returnService.returnRentalItem(rentalItemToken, returnStationId);
 
     //then
-    verify(rentalHistoryRepository).findByItemToken(rentalItemToken);
+    verify(rentalHistoryService).findRentalHistoryByRentalItemToken(rentalItemToken);
     verify(rentalStationRepository).findById(returnStationId);
     verify(stockLockService).increaseStock(mockItem);
   }
@@ -155,7 +154,7 @@ class ReturnServiceTest {
     RentalHistory mockHistory = mock(RentalHistory.class);
 
     given(mockHistory.getStatus()).willReturn(RentalStatus.OVERDUE);
-    given(rentalHistoryRepository.findByItemToken(rentalItemToken)).willReturn(mockHistory);
+    given(rentalHistoryService.findRentalHistoryByRentalItemToken(rentalItemToken)).willReturn(mockHistory);
 
     //when then
     assertThatExceptionOfType(BannabeServiceException.class)

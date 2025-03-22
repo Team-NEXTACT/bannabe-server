@@ -1,10 +1,18 @@
 package site.bannabe.server.domain.users.controller;
 
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import io.restassured.http.ContentType;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.AfterEach;
@@ -16,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.restassured.RestDocumentationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import site.bannabe.server.config.AbstractIntegrationTest;
@@ -76,14 +86,16 @@ class AuthControllerTest extends AbstractIntegrationTest {
     UserRegisterRequest request = new UserRegisterRequest(email, password);
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .post("/v1/auth/register")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createRegisterUserDocument())
+        .log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .post("/v1/auth/register")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -112,16 +124,17 @@ class AuthControllerTest extends AbstractIntegrationTest {
     LoginRequest request = new LoginRequest(email, "1234", "deviceToken");
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .post("/v1/auth/login")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value())
-           .body("data.accessToken", notNullValue())
-           .body("data.refreshToken", notNullValue());
+    given(this.spec)
+        .filter(createLoginSuccessDocument()).log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .post("/v1/auth/login")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value())
+        .body("data.accessToken", notNullValue())
+        .body("data.refreshToken", notNullValue());
   }
 
   @Test
@@ -167,14 +180,16 @@ class AuthControllerTest extends AbstractIntegrationTest {
     TokenRefreshRequest request = new TokenRefreshRequest(generateToken.refreshToken());
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .post("/v1/auth/token/refresh")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createRefreshJWTDocument())
+        .log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .post("/v1/auth/token/refresh")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -201,14 +216,15 @@ class AuthControllerTest extends AbstractIntegrationTest {
     AuthSendCodeRequest request = new AuthSendCodeRequest(email);
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .post("/v1/auth/send-code")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createSendAuthCodeDocument()).log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .post("/v1/auth/send-code")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -238,14 +254,16 @@ class AuthControllerTest extends AbstractIntegrationTest {
     AuthVerifyCodeRequest request = new AuthVerifyCodeRequest(email, authCode);
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .post("/v1/auth/verify-code")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createVerifyAuthCodeDocument())
+        .log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .post("/v1/auth/verify-code")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -279,14 +297,16 @@ class AuthControllerTest extends AbstractIntegrationTest {
     AuthResetPasswordRequest request = new AuthResetPasswordRequest(authCode, email, newPassword, newPasswordConfirm);
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .body(request)
-           .when()
-           .put("/v1/auth/reset-password")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createResetPasswordDocument())
+        .log().all()
+        .contentType(ContentType.JSON)
+        .body(request)
+        .when()
+        .put("/v1/auth/reset-password")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -341,15 +361,17 @@ class AuthControllerTest extends AbstractIntegrationTest {
     TokenRefreshRequest request = new TokenRefreshRequest(generateToken.refreshToken());
 
     //when then
-    given().log().all()
-           .contentType(ContentType.JSON)
-           .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
-           .body(request)
-           .when()
-           .post("/v1/auth/logout")
-           .then().log().all()
-           .assertThat()
-           .statusCode(HttpStatus.OK.value());
+    given(this.spec)
+        .filter(createLogoutSuccessDocument())
+        .log().all()
+        .contentType(ContentType.JSON)
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + generateToken.accessToken())
+        .body(request)
+        .when()
+        .post("/v1/auth/logout")
+        .then().log().all()
+        .assertThat()
+        .statusCode(HttpStatus.OK.value());
   }
 
   @Test
@@ -368,6 +390,144 @@ class AuthControllerTest extends AbstractIntegrationTest {
            .assertThat()
            .statusCode(HttpStatus.UNAUTHORIZED.value())
            .body("data.status", equalTo(ErrorCode.TOKEN_NOT_FOUND.name()));
+  }
+
+  private RestDocumentationFilter createRegisterUserDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("회원가입 API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("email").type(JsonFieldType.STRING).description("회원 이메일"),
+            fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createLoginSuccessDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("Form 로그인 API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("email").type(JsonFieldType.STRING).description("회원 이메일"),
+            fieldWithPath("password").type(JsonFieldType.STRING).description("비밀번호"),
+            fieldWithPath("deviceToken").type(JsonFieldType.STRING).description("디바이스 토큰")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("JWT AccessToken"),
+            fieldWithPath("data.refreshToken").type(JsonFieldType.STRING).description("JWT RefreshToken")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createRefreshJWTDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("토큰 재발급 API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT RefreshToken")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data.accessToken").type(JsonFieldType.STRING).description("JWT AccessToken"),
+            fieldWithPath("data.refreshToken").type(JsonFieldType.STRING).description("JWT RefreshToken")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createSendAuthCodeDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("인증코드 발송 API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("email").type(JsonFieldType.STRING).description("회원 이메일")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createVerifyAuthCodeDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("인증코드 검증 API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("email").type(JsonFieldType.STRING).description("회원 이메일"),
+            fieldWithPath("authCode").type(JsonFieldType.STRING).description("인증코드")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createResetPasswordDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("비밀번호 재설정(비 로그인) API")
+                                          .build()
+        ),
+        requestFields(
+            fieldWithPath("authCode").type(JsonFieldType.STRING).description("인증코드"),
+            fieldWithPath("email").type(JsonFieldType.STRING).description("회원 이메일"),
+            fieldWithPath("newPassword").type(JsonFieldType.STRING).description("새로운 비밀번호"),
+            fieldWithPath("newPasswordConfirm").type(JsonFieldType.STRING).description("새로운 비밀번호 확인")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createLogoutSuccessDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("로그아웃 API")
+                                          .build()
+        ),
+        requestHeaders(
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
+        ),
+        requestFields(
+            fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("JWT RefreshToken")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
   }
 
 }

@@ -181,6 +181,7 @@ class RentalHistoryRepositoryTest extends AbstractTestContainers {
                                                .rentalItem(rentalItems)
                                                .rentalStation(rentalStations.get(0))
                                                .build();
+    em.persist(rentalHistory);
 
     RentalPayments rentalPayments = RentalPayments.builder()
                                                   .totalAmount(totalAmount)

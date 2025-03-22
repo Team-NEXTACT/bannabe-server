@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.restassured.RestDocumentationFilter;
@@ -113,7 +114,7 @@ class RentalControllerTest extends AbstractIntegrationTest {
                                           .build()
         ),
         requestHeaders(
-            headerWithName(AUTHORIZATION).description("Bearer JWT")
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         pathParameters(
             parameterWithName("rentalItemToken").description("대여물품 토큰")
@@ -136,7 +137,7 @@ class RentalControllerTest extends AbstractIntegrationTest {
                                           .build()
         ),
         requestHeaders(
-            headerWithName(AUTHORIZATION).description("Bearer JWT")
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         pathParameters(
             parameterWithName("rentalHistoryToken").description("대여내역 토큰")

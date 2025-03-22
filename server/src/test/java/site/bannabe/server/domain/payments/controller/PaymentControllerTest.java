@@ -6,7 +6,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -145,7 +144,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
                                           .build()
         ),
         requestHeaders(
-            headerWithName(AUTHORIZATION).description("Bearer JWT")
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         requestFields(
             fieldWithPath("rentalItemToken").type(JsonFieldType.STRING).description("대여 아이템 토큰"),
@@ -170,7 +169,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
                                           .build()
         ),
         requestHeaders(
-            headerWithName(AUTHORIZATION).description("Bearer JWT")
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         responseFields(
             fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("응답 성공 여부"),
@@ -188,7 +187,7 @@ class PaymentControllerTest extends AbstractIntegrationTest {
                                           .build()
         ),
         requestHeaders(
-            headerWithName(AUTHORIZATION).description("Bearer JWT")
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         requestFields(
             fieldWithPath("paymentKey").type(JsonFieldType.STRING).description("결제 고유 키"),

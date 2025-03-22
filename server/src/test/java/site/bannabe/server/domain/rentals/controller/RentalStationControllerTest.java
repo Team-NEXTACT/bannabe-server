@@ -5,6 +5,8 @@ import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.do
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -27,28 +29,13 @@ import site.bannabe.server.domain.rentals.entity.RentalItemCategory;
 import site.bannabe.server.domain.rentals.entity.RentalItemTypes;
 import site.bannabe.server.domain.rentals.entity.RentalStationItems;
 import site.bannabe.server.domain.rentals.entity.RentalStations;
-import site.bannabe.server.domain.rentals.repository.RentalItemTypeRepository;
-import site.bannabe.server.domain.rentals.repository.RentalStationItemRepository;
-import site.bannabe.server.domain.rentals.repository.RentalStationRepository;
 import site.bannabe.server.domain.users.entity.Users;
-import site.bannabe.server.domain.users.repository.BookmarkStationRepository;
-import site.bannabe.server.domain.users.repository.UserRepository;
 import site.bannabe.server.global.jwt.GenerateToken;
 import site.bannabe.server.global.jwt.JwtProvider;
 import site.bannabe.server.util.EntityFixture;
 
 class RentalStationControllerTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private RentalStationRepository rentalStationRepository;
-  @Autowired
-  private RentalItemTypeRepository rentalItemTypeRepository;
-  @Autowired
-  private RentalStationItemRepository rentalStationItemRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private BookmarkStationRepository bookmarkStationRepository;
   @Autowired
   private EntityFixture entityFixture;
   @Autowired
@@ -265,6 +252,9 @@ class RentalStationControllerTest extends AbstractIntegrationTest {
                                           .tag(this.getClass().getSimpleName().replace("Test", ""))
                                           .summary("스테이션 북마크 API")
                                           .build()
+        ),
+        requestHeaders(
+            headerWithName(HttpHeaders.AUTHORIZATION).description("Bearer Token")
         ),
         pathParameters(
             parameterWithName("stationId").description("대여 스테이션 ID")

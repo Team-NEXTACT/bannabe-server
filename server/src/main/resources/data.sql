@@ -13,23 +13,37 @@ VALUES ('강남역점', '서울특별시 강남구 강남대로 396', 37.498095,
 
 -- RentalItemType
 INSERT INTO rental_item_types (id, category, name, image, description, price)
-VALUES (1, 'CHARGER', '노트북 고출력 충전기', 'example.png', '100W PD 고속 충전기', 2000),
-       (2, 'CHARGER', '노트북 PD 충전기', 'charger-2.png', '65W PD 충전기', 1500),
-       (3, 'CHARGER', 'C타입 충전기', 'charger-3.png', '25W 고속 충전기', 1000),
-       (4, 'CHARGER', '8핀 충전기', 'charger-4.png', '20W 고속 충전기', 1000),
+VALUES (1, 'CHARGER', '노트북 고출력 충전기', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/charger-100w.png',
+        '100W PD 고속 충전기', 2000),
+       (2, 'CHARGER', '노트북 PD 충전기', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/charger-65w.png',
+        '65W PD 충전기', 1500),
+       (3, 'CHARGER', 'C타입 충전기', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/charger-25w.png',
+        '25W 고속 충전기', 1000),
+       (4, 'CHARGER', '8핀 충전기', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/charger-20w.png', '20W 고속 충전기',
+        1000),
 
-       (5, 'CABLE', 'HDMI 케이블', 'cable-1.png', '4K 지원 HDMI 2.0', 1000),
-       (6, 'CABLE', 'DP 케이블', 'cable-2.png', '4K 지원 DisplayPort 1.4', 1000),
-       (7, 'CABLE', 'C to C 케이블', 'cable-3.png', '100W PD 지원', 500),
-       (8, 'CABLE', 'C to A 케이블', 'cable-4.png', '고속 데이터 전송', 500),
+       (5, 'CABLE', 'HDMI 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/hdmi-cable.png',
+        '4K 지원 HDMI 2.0', 1000),
+       (6, 'CABLE', 'DP 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/cable-dp.png',
+        '4K 지원 DisplayPort 1.4', 1000),
+       (7, 'CABLE', 'C to C 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/cable-c2c.png', '100W PD 지원',
+        500),
+       (8, 'CABLE', 'C to A 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/cable-c2a.png', '고속 데이터 전송',
+        500),
 
-       (9, 'HUB', 'SD 카드 독 (Type-C)', 'dock-1.png', 'SD/MicroSD 지원', 1500),
-       (10, 'HUB', 'USB 독 (Type-C)', 'dock-2.png', 'USB 3.0 4포트', 1500),
-       (11, 'HUB', '멀티 독 (Type-C)', 'dock-3.png', 'HDMI, USB, SD 카드 지원', 2000),
+       (9, 'HUB', 'SD 카드 독 (Type-C)', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/dock-sd.png',
+        'SD/MicroSD 지원', 1500),
+       (10, 'HUB', 'USB 독 (Type-C)', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/dock-usb.png',
+        'USB 3.0 4포트', 1500),
+       (11, 'HUB', '멀티 독 (Type-C)', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/dock-multi.png',
+        'HDMI, USB, SD 카드 지원', 2000),
 
-       (12, 'POWER_BANK', '노트북용 보조배터리', 'powerbank-1.png', '30000mAh, 100W PD', 3000),
-       (13, 'POWER_BANK', '휴대폰용 보조배터리', 'powerbank-2.png', '10000mAh, 25W', 1500),
-       (14, 'ETC', '발표용 리모콘', 'etc-1.png', '레이저 포인터 내장', 1000);
+       (12, 'POWER_BANK', '노트북용 보조배터리',
+        'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/powerbank-30000mah.png', '30000mAh, 100W PD', 3000),
+       (13, 'POWER_BANK', '휴대폰용 보조배터리',
+        'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/powerbank-10000mah.png', '10000mAh, 25W', 1500),
+       (14, 'ETC', '발표용 리모콘', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/etc-remote.png', '레이저 포인터 내장',
+        1000);
 
 -- RentalItem
 INSERT INTO rental_items (status, token, rental_item_type_id, current_station_id)

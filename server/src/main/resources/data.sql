@@ -22,7 +22,7 @@ VALUES (1, 'CHARGER', '노트북 고출력 충전기', 'https://bannabe-test-buc
        (4, 'CHARGER', '8핀 충전기', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/charger-20w.png', '20W 고속 충전기',
         1000),
 
-       (5, 'CABLE', 'HDMI 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/hdmi-cable.png',
+       (5, 'CABLE', 'HDMI 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/cable-hdmi.png',
         '4K 지원 HDMI 2.0', 1000),
        (6, 'CABLE', 'DP 케이블', 'https://bannabe-test-bucket.s3.ap-northeast-2.amazonaws.com/items/cable-dp.png',
         '4K 지원 DisplayPort 1.4', 1000),

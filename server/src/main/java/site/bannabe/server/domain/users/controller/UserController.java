@@ -54,6 +54,12 @@ public class UserController {
     userService.changeProfileImage(entityToken, changeProfileImageRequest);
   }
 
+  @PatchMapping("/me/profile-image/default")
+  public void changeProfileImageToDefault(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeProfileImageToDefault(entityToken);
+  }
+
   @PatchMapping("/me/nickname")
   public void changeNickname(@RequestBody @Valid UserChangeNicknameRequest changeNicknameRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {

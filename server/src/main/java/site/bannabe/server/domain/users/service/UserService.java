@@ -45,7 +45,7 @@ public class UserService {
   @Transactional(readOnly = true)
   public UserGetSimpleResponse getUserInfo(String entityToken) {
     Users user = userRepository.findByToken(entityToken);
-    return UserGetSimpleResponse.of(user);
+    return UserGetSimpleResponse.of(user, defaultProfileImage);
   }
 
   @Transactional
@@ -87,6 +87,16 @@ public class UserService {
     }
 
     user.changeProfileImage(newProfileImage);
+  }
+
+  @Transactional
+  public void changeProfileImageToDefault(String entityToken) {
+    Users user = userRepository.findByToken(entityToken);
+    if (user.getProfileImage().equals(defaultProfileImage)) {
+      throw new BannabeServiceException(ErrorCode.PROFILE_IMAGE_ALREADY_DEFAULT);
+    }
+    s3Service.removeProfileImage(user.getProfileImage());
+    user.changeProfileImage(defaultProfileImage);
   }
 
   public S3PreSignedUrlResponse getPreSignedUrl(String extension) {

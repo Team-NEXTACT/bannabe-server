@@ -394,4 +394,35 @@ class UserServiceTest {
         .withMessage(ErrorCode.BOOKMARK_NOT_EXIST.getMessage());
   }
 
+  @Test
+  @DisplayName("프로필 이미지를 기본 이미지로 변경")
+  void changeProfileImageToDefault() {
+    //given
+    String currentProfileImage = "currentProfileImage";
+    Users user = Users.builder().email(EMAIL).profileImage(currentProfileImage).build();
+    given(userRepository.findByToken(entityToken)).willReturn(user);
+
+    //when
+    userService.changeProfileImageToDefault(entityToken);
+
+    //then
+    assertThat(user.getProfileImage()).isEqualTo("defaultProfileImage.png");
+    verify(s3Service).removeProfileImage(currentProfileImage);
+  }
+
+  @Test
+  @DisplayName("프로필 이미지를 기본 이미지로 변경 시, 이미 기본 이미지라면 예외 발생")
+  void alreadyDefaultProfileImage() {
+    //given
+    Users user = Users.builder().profileImage("defaultProfileImage.png").build();
+    given(userRepository.findByToken(entityToken)).willReturn(user);
+
+    //when then
+    assertThatExceptionOfType(BannabeServiceException.class)
+        .isThrownBy(() -> userService.changeProfileImageToDefault(entityToken))
+        .withMessage(ErrorCode.PROFILE_IMAGE_ALREADY_DEFAULT.getMessage());
+
+    verify(s3Service, never()).removeProfileImage(anyString());
+  }
+
 }

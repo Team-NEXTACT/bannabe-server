@@ -55,6 +55,7 @@ public enum ErrorCode {
   ORDER_INFO_EXISTS(HttpStatus.CONFLICT, "해당 대여물품에 대한 주문 정보가 이미 존재합니다."),
   RENTAL_ITEM_STOCK_EMPTY(HttpStatus.CONFLICT, "대여물품 재고가 부족합니다."),
   RENTAL_ITEM_ALREADY_RENTED(HttpStatus.CONFLICT, "해당 물품은 이미 대여 중 입니다."),
+  PROFILE_IMAGE_ALREADY_DEFAULT(HttpStatus.CONFLICT, "이미 기본 프로필 이미지입니다."),
 
   // 500 INTERNAL_SERVER_ERROR
   INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류입니다. 관리자에게 문의하세요."),

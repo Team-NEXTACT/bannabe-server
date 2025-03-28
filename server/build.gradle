@@ -181,8 +181,8 @@ tasks.named('jacocoTestReport', JacocoReport) {
         html.required.set(true)
         xml.required.set(true)
 
-        xml.destination(file(layout.buildDirectory.file("/jacoco/jacoco.xml")))
-        html.destination(file(layout.buildDirectory.dir("/jacoco/html")))
+        xml.destination(file(layout.buildDirectory.file("jacoco/jacoco.xml")))
+        html.destination(file(layout.buildDirectory.dir("jacoco/html")))
     }
 
     excludedClassFilesForReport(classDirectories)

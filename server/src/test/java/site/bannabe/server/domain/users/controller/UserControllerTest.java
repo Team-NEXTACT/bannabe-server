@@ -210,6 +210,25 @@ class UserControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @DisplayName("기본 프로필 이미지로 변경 성공시 200 응답")
+  void changeProfileImageToDefault() {
+    //given
+    willDoNothing().given(s3Service).removeProfileImage(user.getProfileImage());
+
+    //when then
+    given(this.spec)
+        .filter(
+            createChangeProfileImageToDefaultDocument()
+        ).log().all()
+        .contentType(JSON)
+        .header(AUTHORIZATION, "Bearer " + accessToken)
+        .when()
+        .patch("/v1/users/me/profile-image/default")
+        .then().log().all()
+        .statusCode(HttpStatus.OK.value());
+  }
+
+  @Test
   @DisplayName("S3 preSignedUrl 조회")
   void getPreSignedUrl() {
     //given
@@ -369,7 +388,8 @@ class UserControllerTest extends AbstractIntegrationTest {
             fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
             fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
             fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("닉네임"),
-            fieldWithPath("data.profileImage").type(JsonFieldType.STRING).description("프로필 이미지")
+            fieldWithPath("data.profileImage").type(JsonFieldType.STRING).description("프로필 이미지"),
+            fieldWithPath("data.isDefaultProfileImage").type(JsonFieldType.BOOLEAN).description("기본 프로필 이미지 여부")
         )
     );
   }
@@ -430,6 +450,24 @@ class UserControllerTest extends AbstractIntegrationTest {
         ),
         requestFields(
             fieldWithPath("imageUrl").type(JsonFieldType.STRING).description("변경할 프로필 이미지 URL")
+        ),
+        responseFields(
+            fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),
+            fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
+            fieldWithPath("data").type(JsonFieldType.OBJECT).description("응답 데이터")
+        )
+    );
+  }
+
+  private RestDocumentationFilter createChangeProfileImageToDefaultDocument() {
+    return document(DEFAULT_RESTDOC_PATH,
+        resource(ResourceSnippetParameters.builder()
+                                          .tag(this.getClass().getSimpleName().replace("Test", ""))
+                                          .summary("프로필 이미지 초기화 API")
+                                          .build()
+        ),
+        requestHeaders(
+            headerWithName(AUTHORIZATION).description("Bearer Token")
         ),
         responseFields(
             fieldWithPath("success").type(JsonFieldType.BOOLEAN).description("성공 여부"),

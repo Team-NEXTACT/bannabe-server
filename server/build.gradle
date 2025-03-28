@@ -4,6 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.epages.restdocs-api-spec' version '0.19.0'
     id 'com.github.node-gradle.node' version '7.0.1'
+    id 'jacoco'
 }
 
 group = 'site.bannabe'
@@ -13,6 +14,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+jacoco {
+    toolVersion = '0.8.11'
 }
 
 node {
@@ -117,7 +122,7 @@ tasks.named('test') {
     useJUnitPlatform()
     //OpenJDK 64-bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended 방지
     jvmArgs '-Xshare:off'
-    finalizedBy 'copyOasToSwagger'
+    finalizedBy 'copyOasToSwagger', 'jacocoTestReport'
 }
 
 tasks.named('build') {
@@ -158,4 +163,77 @@ tasks.register('tailwindCss', NpmTask) {
 tasks.named('processResources') {
     dependsOn 'tailwindCss'
 }
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (gradle.startParameter.taskNames == ['test']) {
+        ['nodeSetup', 'npmSetup', 'npmInstall', 'tailwindCss', 'processResources'].each { taskName ->
+            tasks.named(taskName).configure { enabled = false }
+        }
+    }
+}
 /*TailwindCss Config*/
+
+/*Jacoco Config*/
+tasks.named('jacocoTestReport', JacocoReport) {
+    dependsOn test
+
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+
+        xml.destination(file(layout.buildDirectory.file("jacoco/jacoco.xml")))
+        html.destination(file(layout.buildDirectory.dir("jacoco/html")))
+    }
+
+    excludedClassFilesForReport(classDirectories)
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+tasks.named('jacocoTestCoverageVerification', JacocoCoverageVerification) {
+    excludedClassFilesForReport(classDirectories)
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+            enabled = true
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                // minimum = 0.8
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                // minimum = 0.8
+            }
+        }
+    }
+}
+
+private excludedClassFilesForReport(classDirectories) {
+    classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        '**/entity/**',
+                        '**/request/**',
+                        '**/response/**',
+                        '**/config/**',
+                        '**/*Application*',
+                        '**/converter/**',
+                        '**/type/**',
+                        '**/redis/**',
+                        '**/api/**',
+                        '**/security/**',
+                        '**/advice/**',
+                        '**/utils/**',
+                        '**/JWTVerificationStatus*',
+                        '**/OAuth2UserInfo*',
+                        '**/PaymentViewController*',
+                        '**/PaymentTestController*'
+                ])
+            })
+    )
+}
+/*Jacoco Config*/

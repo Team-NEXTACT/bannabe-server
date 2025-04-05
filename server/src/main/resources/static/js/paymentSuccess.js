@@ -21,7 +21,7 @@ async function fetchPaymentConfirm() {
   .then(res => res.json())
   .then(payload => {
     const token = payload.data.rentalHistoryToken;
-    window.location.href = `http://localhost:8080/payment-complete?rentalHistoryToken=${token}`;
+    window.location.href = `bannabe://payment-success?rentalHistoryToken=${token}`;
   })
   .catch(err => console.error(err));
 

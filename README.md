@@ -1,6 +1,6 @@
 # 🐝 BannaBee
 
-> 자원 공유 기반의 전자기기 액세서리 공유 대여 서비스의 API Server Repository 입니다.
+> 자원 공유 기반 전자기기 액세서리 공유 대여 서비스 **Bannabe**의 API Server Repository 입니다.
 
 - [서비스 소개 및 기능](#서비스-소개-및-기능)
 - [팀 구성](#팀-구성)

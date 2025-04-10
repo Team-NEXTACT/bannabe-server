@@ -45,13 +45,13 @@ public class RentalStationService {
   }
 
   @Transactional
-  public void bookmarkRentalStation(Long stationId, String email) {
-    Users user = userRepository.findByEmail(email).orElseThrow(() -> new BannabeServiceException(ErrorCode.USER_NOT_FOUND));
+  public void bookmarkRentalStation(Long stationId, String entityToken) {
+    Users user = userRepository.findByToken(entityToken);
     RentalStations rentalStation = rentalStationRepository.findById(stationId)
                                                           .orElseThrow(() ->
                                                               new BannabeServiceException(ErrorCode.RENTAL_STATION_NOT_FOUND));
 
-    boolean isAlreadyBookmarked = bookmarkStationRepository.existsBookmarkByEmailAndStation(user, rentalStation);
+    boolean isAlreadyBookmarked = bookmarkStationRepository.existsByUserAndStation(user, rentalStation);
     if (isAlreadyBookmarked) {
       throw new BannabeServiceException(ErrorCode.ALREADY_BOOKMARKED);
     }

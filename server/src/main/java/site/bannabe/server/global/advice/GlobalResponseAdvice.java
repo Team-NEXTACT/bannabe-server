@@ -1,5 +1,7 @@
 package site.bannabe.server.global.advice;
 
+import java.util.Map;
+import java.util.Objects;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -23,6 +25,7 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
     if (body instanceof ApiResponse<?>) {
       return body;
     }
+    body = Objects.requireNonNullElse(body, Map.of());
     return ApiResponse.success(body);
   }
 

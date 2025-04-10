@@ -23,7 +23,6 @@ public class PaymentController {
 
   private final PaymentService paymentService;
 
-  // 결제금액이 변조되지 않도록 서버에서 계산해서 내려주는 요청
   @PreAuthorize("hasRole('USER')")
   @PostMapping("/calculate")
   public PaymentCalculateResponse calculateAmount(@RequestBody PaymentCalculateRequest paymentRequest) {
@@ -40,8 +39,8 @@ public class PaymentController {
   @PostMapping("/confirm")
   public RentalHistoryTokenResponse confirmPayment(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @RequestBody PaymentConfirmRequest paymentConfirmRequest) {
-    String email = principalDetails.getUsername();
-    return paymentService.confirmPayment(email, paymentConfirmRequest);
+    String entityToken = principalDetails.getEntityToken();
+    return paymentService.confirmPayment(entityToken, paymentConfirmRequest);
   }
 
 }

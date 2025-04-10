@@ -8,7 +8,7 @@ services:
     build:
       context: ../server
       dockerfile: ../docker/Dockerfile-dev
-    restart: always
+    restart: unless-stopped
     depends_on:
       - mysql
       - redis

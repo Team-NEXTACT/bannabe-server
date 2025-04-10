@@ -1,5 +1,6 @@
 package site.bannabe.server.domain.rentals.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
@@ -17,8 +18,10 @@ public class RentalStations extends BaseEntity {
 
   private String address;
 
+  @Column(precision = 9, scale = 6)
   private BigDecimal latitude;
 
+  @Column(precision = 9, scale = 6)
   private BigDecimal longitude;
 
   private String openTime;

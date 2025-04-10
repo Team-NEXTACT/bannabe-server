@@ -11,6 +11,7 @@ import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bannabe.server.global.type.BaseEntity;
+import site.bannabe.server.global.utils.RandomCodeGenerator;
 
 @Entity
 @Getter
@@ -21,7 +22,8 @@ public class RentalItems extends BaseEntity {
   @Default
   private RentalItemStatus status = RentalItemStatus.AVAILABLE; // 물품 상태
 
-  private String token; // 물품 고유 식별값
+  @Default
+  private String token = RandomCodeGenerator.generateRandomToken(RentalItems.class); // 물품 고유 식별값
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rental_item_type_id")
@@ -44,6 +46,15 @@ public class RentalItems extends BaseEntity {
     }
     this.status = RentalItemStatus.RENTED;
     this.currentStation = null;
+  }
+
+  public boolean isRented() {
+    return this.status.equals(RentalItemStatus.RENTED);
+  }
+
+  public void updateOnReturn(RentalStations currentStation) {
+    this.status = RentalItemStatus.AVAILABLE;
+    this.currentStation = currentStation;
   }
 
 }

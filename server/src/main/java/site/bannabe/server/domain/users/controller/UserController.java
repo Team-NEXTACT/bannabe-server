@@ -1,7 +1,6 @@
 package site.bannabe.server.domain.users.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +21,9 @@ import site.bannabe.server.domain.users.controller.request.UserChangePasswordReq
 import site.bannabe.server.domain.users.controller.request.UserChangeProfileImageRequest;
 import site.bannabe.server.domain.users.controller.response.S3PreSignedUrlResponse;
 import site.bannabe.server.domain.users.controller.response.UserBookmarkStationsResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse;
 import site.bannabe.server.domain.users.controller.response.UserGetActiveRentalResponse.RentalHistoryResponse;
+import site.bannabe.server.domain.users.controller.response.UserGetSimpleResponse;
 import site.bannabe.server.domain.users.service.UserService;
 import site.bannabe.server.global.security.auth.PrincipalDetails;
 
@@ -33,25 +34,37 @@ public class UserController {
 
   private final UserService userService;
 
+  @GetMapping("/me")
+  public UserGetSimpleResponse getUserInfo(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getUserInfo(entityToken);
+  }
+
   @PutMapping("/me/password")
   public void changePassword(@RequestBody @Valid UserChangePasswordRequest changePasswordRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changePassword(email, changePasswordRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changePassword(entityToken, changePasswordRequest);
   }
 
   @PatchMapping("/me/profile-image")
   public void changeProfileImage(@RequestBody UserChangeProfileImageRequest changeProfileImageRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changeProfileImage(email, changeProfileImageRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeProfileImage(entityToken, changeProfileImageRequest);
+  }
+
+  @PatchMapping("/me/profile-image/default")
+  public void changeProfileImageToDefault(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeProfileImageToDefault(entityToken);
   }
 
   @PatchMapping("/me/nickname")
   public void changeNickname(@RequestBody @Valid UserChangeNicknameRequest changeNicknameRequest,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.changeNickname(email, changeNicknameRequest);
+    String entityToken = principalDetails.getEntityToken();
+    userService.changeNickname(entityToken, changeNicknameRequest);
   }
 
   @GetMapping("/me/profile-image/pre-signed")
@@ -60,29 +73,29 @@ public class UserController {
   }
 
   @GetMapping("/me/rentals/active")
-  public List<RentalHistoryResponse> getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    return userService.getActiveRentalHistory(email);
+  public UserGetActiveRentalResponse getActiveRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getActiveRentalHistory(entityToken);
   }
 
   @GetMapping("/me/rentals")
   public Page<RentalHistoryResponse> getRentalHistory(@AuthenticationPrincipal PrincipalDetails principalDetails,
       @PageableDefault(sort = "startTime", direction = Direction.DESC) Pageable pageable) {
-    String email = principalDetails.getUsername();
-    return userService.getRentalHistory(email, pageable);
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getRentalHistory(entityToken, pageable);
   }
 
   @GetMapping("/me/stations/bookmark")
   public UserBookmarkStationsResponse getBookmarkStations(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    return userService.getBookmarkStations(email);
+    String entityToken = principalDetails.getEntityToken();
+    return userService.getBookmarkStations(entityToken);
   }
 
   @DeleteMapping("/me/stations/bookmark/{bookmarkId}")
   public void deleteBookmarkStation(@PathVariable("bookmarkId") Long bookmarkId,
       @AuthenticationPrincipal PrincipalDetails principalDetails) {
-    String email = principalDetails.getUsername();
-    userService.removeBookmarkStation(email, bookmarkId);
+    String entityToken = principalDetails.getEntityToken();
+    userService.removeBookmarkStation(entityToken, bookmarkId);
   }
 
 }

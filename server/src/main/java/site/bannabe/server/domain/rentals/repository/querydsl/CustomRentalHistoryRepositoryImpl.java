@@ -1,5 +1,14 @@
 package site.bannabe.server.domain.rentals.repository.querydsl;
 
+import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
+import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
+import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
+import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
+import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
+import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
+import static site.bannabe.server.domain.users.entity.QUsers.users;
+
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -14,15 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import static site.bannabe.server.domain.payments.entity.QRentalPayments.rentalPayments;
 import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpleResponse;
-import static site.bannabe.server.domain.rentals.entity.QRentalHistory.rentalHistory;
-import static site.bannabe.server.domain.rentals.entity.QRentalItemTypes.rentalItemTypes;
-import static site.bannabe.server.domain.rentals.entity.QRentalItems.rentalItems;
-import static site.bannabe.server.domain.rentals.entity.QRentalStations.rentalStations;
 import site.bannabe.server.domain.rentals.entity.RentalHistory;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.OVERDUE;
-import static site.bannabe.server.domain.rentals.entity.RentalStatus.RENTAL;
+import site.bannabe.server.domain.rentals.entity.RentalStatus;
 import site.bannabe.server.global.exceptions.BannabeServiceException;
 import site.bannabe.server.global.exceptions.ErrorCode;
 
@@ -33,32 +36,34 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
-  public List<RentalHistory> findActiveRentalsBy(String email) {
+  public List<RentalHistory> findActiveRentalsBy(String entityToken) {
     return jpaQueryFactory.selectFrom(rentalHistory)
-                          .join(rentalHistory.user)
+                          .join(rentalHistory.user, users)
                           .leftJoin(rentalHistory.rentalItem, rentalItems).fetchJoin()
                           .leftJoin(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
                           .where(
-                              rentalHistory.user.email.eq(email)
-                                                      .and(rentalHistory.status.in(RENTAL, OVERDUE))
+                              users.token.eq(entityToken)
+                                         .and(rentalHistory.status.in(RENTAL, OVERDUE))
                           )
                           .orderBy(rentalHistory.startTime.desc())
                           .fetch();
   }
 
   @Override
-  public Page<RentalHistory> findAllRentalsBy(String email, Pageable pageable) {
+  public Page<RentalHistory> findAllRentalsBy(String entityToken, Pageable pageable) {
     List<RentalHistory> rentalHistories = jpaQueryFactory.selectFrom(rentalHistory)
                                                          .leftJoin(rentalHistory.rentalItem, rentalItems).fetchJoin()
                                                          .leftJoin(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
-                                                         .where(rentalHistory.user.email.eq(email))
+                                                         .leftJoin(rentalHistory.user, users)
+                                                         .where(users.token.eq(entityToken))
                                                          .orderBy(getOrderSpecifiers(pageable.getSort()))
                                                          .offset(pageable.getOffset())
                                                          .limit(pageable.getPageSize())
                                                          .fetch();
     JPAQuery<Long> queryCount = jpaQueryFactory.select(rentalHistory.count())
                                                .from(rentalHistory)
-                                               .where(rentalHistory.user.email.eq(email));
+                                               .leftJoin(rentalHistory.user, users)
+                                               .where(users.token.eq(entityToken));
     return PageableExecutionUtils.getPage(rentalHistories, pageable, queryCount::fetchOne);
   }
 
@@ -78,6 +83,18 @@ public class CustomRentalHistoryRepositoryImpl implements CustomRentalHistoryRep
                                                         .where(rentalHistory.token.eq(token))
                                                         .fetchOne();
     return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.ORDER_INFO_NOT_FOUND));
+  }
+
+  @Override
+  public RentalHistory findByItemToken(String rentalItemToken) {
+    RentalHistory result = jpaQueryFactory.selectFrom(rentalHistory)
+                                          .join(rentalHistory.rentalItem, rentalItems).fetchJoin()
+                                          .join(rentalItems.rentalItemType, rentalItemTypes).fetchJoin()
+                                          .where(rentalItems.token.eq(rentalItemToken)
+                                                                  .and(rentalHistory.status.ne(RentalStatus.RETURNED)))
+                                          .orderBy(rentalHistory.startTime.desc())
+                                          .fetchFirst();
+    return Optional.ofNullable(result).orElseThrow(() -> new BannabeServiceException(ErrorCode.RENTAL_HISTORY_NOT_FOUND));
   }
 
   @SuppressWarnings("unchecked")

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import site.bannabe.server.global.exceptions.BannabeAuthenticationException;
 import site.bannabe.server.global.exceptions.ErrorCode;
-import site.bannabe.server.global.type.RefreshToken;
 import site.bannabe.server.global.utils.DateUtils;
 
 @Component
@@ -38,15 +37,15 @@ public class JwtProvider {
     this.parser = Jwts.parser().verifyWith(secretKey).build();
   }
 
-  public GenerateToken generateToken(String email, String authorities) {
-    String accessToken = createToken(email, authorities, ACCESS_TOKEN_EXPIRE_TIME);
-    String refreshToken = createToken(email, authorities, REFRESH_TOKEN_EXPIRE_TIME);
-    return new GenerateToken(accessToken, new RefreshToken(email, refreshToken));
+  public GenerateToken generateToken(String entityToken, String authorities) {
+    String accessToken = createToken(entityToken, authorities, ACCESS_TOKEN_EXPIRE_TIME);
+    String refreshToken = createToken(entityToken, authorities, REFRESH_TOKEN_EXPIRE_TIME);
+    return new GenerateToken(accessToken, refreshToken);
   }
 
   public void verifyToken(String token) {
     if (Objects.isNull(token)) {
-      throw new BannabeAuthenticationException(ErrorCode.INVALID_TOKEN);
+      throw new BannabeAuthenticationException(ErrorCode.TOKEN_NOT_FOUND);
     }
     try {
       parser.parseSignedClaims(token);
@@ -57,7 +56,7 @@ public class JwtProvider {
     }
   }
 
-  public String getEmail(String token) {
+  public String getEntityToken(String token) {
     try {
       return parser.parseSignedClaims(token).getPayload().getSubject();
     } catch (ExpiredJwtException e) {
@@ -82,12 +81,12 @@ public class JwtProvider {
     }
   }
 
-  private String createToken(String email, String authorities, long expireTime) {
+  private String createToken(String subject, String authorities, long expireTime) {
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime expiredDate = now.plusMinutes(expireTime);
 
     return Jwts.builder()
-               .subject(email)
+               .subject(subject)
                .claim(AUTHORITIES_KEY, authorities)
                .issuedAt(DateUtils.localDateTimeToDate(now))
                .expiration(DateUtils.localDateTimeToDate(expiredDate))
@@ -96,7 +95,7 @@ public class JwtProvider {
   }
 
   public record TokenClaims(
-      String email,
+      String entityToken,
       String authorities
   ) {
 

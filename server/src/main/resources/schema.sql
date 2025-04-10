@@ -20,10 +20,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users
 (
     id            BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
-    email         VARCHAR(255),
+    email         VARCHAR(255) UNIQUE,
     password      VARCHAR(255),
     profile_image VARCHAR(255),
-    nickname      VARCHAR(255),
+    nickname      VARCHAR(255) UNIQUE,
+    token         VARCHAR(255),
     role          VARCHAR(255),
     provider_type VARCHAR(255),
     create_at     DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,
@@ -35,8 +36,8 @@ CREATE TABLE memberships
 (
     id              BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
     status          BOOLEAN,
-    start_date      DATETIME(6),
-    expiration_date DATETIME(6),
+    start_date      DATETIME,
+    expiration_date DATETIME,
     extension_count INTEGER,
     user_id         BIGINT UNIQUE,
     create_at       DATETIME DEFAULT CURRENT_TIMESTAMP                             NOT NULL,
@@ -47,9 +48,9 @@ CREATE TABLE memberships
 CREATE TABLE membership_payments
 (
     id              BIGINT PRIMARY KEY                                             NOT NULL AUTO_INCREMENT,
-    payment_date    DATETIME(6),
-    start_date      DATETIME(6),
-    expiration_date DATETIME(6),
+    payment_date    DATETIME,
+    start_date      DATETIME,
+    expiration_date DATETIME,
     extension_count INTEGER,
     total_amount    INTEGER,
     order_id        VARCHAR(255),
@@ -133,7 +134,7 @@ CREATE TABLE rental_payments
     order_name        VARCHAR(255),
     payment_key       VARCHAR(255),
     total_amount      INTEGER,
-    payment_date      DATETIME(6),
+    payment_date      DATETIME,
     payment_method    VARCHAR(255),
     payment_type      VARCHAR(255),
     status            VARCHAR(255),

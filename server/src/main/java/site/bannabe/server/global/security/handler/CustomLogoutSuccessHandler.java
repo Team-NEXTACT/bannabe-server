@@ -22,8 +22,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
   @Override
   public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException {
-    // 응답객체 리팩토링 후 수정 필요.
-    ApiResponse<Object> objectApiResponse = new ApiResponse<>(true, "로그아웃에 성공했습니다.", Map.of());
+    ApiResponse<?> objectApiResponse = ApiResponse.success(Map.of());
     String body = objectMapper.writeValueAsString(objectApiResponse);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());

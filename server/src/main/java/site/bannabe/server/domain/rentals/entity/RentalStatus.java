@@ -12,7 +12,8 @@ public enum RentalStatus {
   RENTAL("대여중"),
   EXTENSION("연장"),
   OVERDUE("연체"),
-  RETURN("반납");
+  OVERDUE_PAID("연체 납부"),
+  RETURNED("반납");
 
   private final String description;
 

@@ -1,6 +1,6 @@
 package site.bannabe.server.domain.payments.entity;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -29,6 +29,7 @@ public class RentalPayments extends BaseEntity {
 
   private PaymentMethod paymentMethod;
 
+  @Column(columnDefinition = "datetime")
   private LocalDateTime paymentDate;
 
   private String orderName;
@@ -39,7 +40,7 @@ public class RentalPayments extends BaseEntity {
 
   private String paymentKey;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rental_history_id")
   private RentalHistory rentalHistory;
 

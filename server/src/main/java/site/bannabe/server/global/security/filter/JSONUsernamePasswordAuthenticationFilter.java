@@ -2,6 +2,7 @@ package site.bannabe.server.global.security.filter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Objects;
 import org.springframework.http.HttpMethod;
@@ -48,6 +49,7 @@ public class JSONUsernamePasswordAuthenticationFilter extends AbstractAuthentica
     validateLoginRequest(loginRequest);
 
     Authentication authentication = createAuthentication(loginRequest);
+    storeDeviceToken(request.getSession(), loginRequest);
 
     return super.getAuthenticationManager().authenticate(authentication);
   }
@@ -70,10 +72,14 @@ public class JSONUsernamePasswordAuthenticationFilter extends AbstractAuthentica
     return new UsernamePasswordAuthenticationToken(email, password);
   }
 
+  private void storeDeviceToken(HttpSession session, LoginRequest loginRequest) {
+    session.setAttribute("deviceToken", loginRequest.deviceToken());
+  }
 
-  private record LoginRequest(
+  public record LoginRequest(
       String email,
-      String password
+      String password,
+      String deviceToken
   ) {
 
   }

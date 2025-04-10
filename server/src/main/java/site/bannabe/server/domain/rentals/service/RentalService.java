@@ -8,6 +8,8 @@ import site.bannabe.server.domain.rentals.controller.response.RentalSuccessSimpl
 import site.bannabe.server.domain.rentals.entity.RentalItems;
 import site.bannabe.server.domain.rentals.repository.RentalHistoryRepository;
 import site.bannabe.server.domain.rentals.repository.RentalItemRepository;
+import site.bannabe.server.global.exceptions.BannabeServiceException;
+import site.bannabe.server.global.exceptions.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,9 @@ public class RentalService {
   @Transactional(readOnly = true)
   public RentalItemDetailResponse getRentalItemInfo(String rentalItemToken) {
     RentalItems rentalItem = rentalItemRepository.findByToken(rentalItemToken);
+    if (rentalItem.isRented()) {
+      throw new BannabeServiceException(ErrorCode.RENTAL_ITEM_ALREADY_RENTED);
+    }
     return RentalItemDetailResponse.create(rentalItem);
   }
 
